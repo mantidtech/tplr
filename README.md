@@ -3,10 +3,18 @@
 A tool to create files rendered from go templates and json
 
 ```
-Usage: tplr [-t <template>] [-o <output>] [-d <data>] [datafile1[...datafileN]]
+Usage: tplr [-o <output file>] [-d <data file>] [-t <template file>] [inline template]
+Usage: tplr [-h|-v]
 
-	Where <template> is a go template file
-	  and <data> is a json string for the templated variables
+Where:
+  -o <output file>   is a file to write to (default: stdout)
+  -d <data file>     is a json file containing the templated variables (default: stdin)
+  -f <template file> is a file using the go templating notation.
+     If this is not specified, the template is taken from the remaining program args
+
+Information:
+  -h Prints this messge
+  -v Prints the program version number and exits
 ```
 
 Templates use the go [text/template](https://pkg.go.dev/text/template) package
