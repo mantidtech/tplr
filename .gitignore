@@ -1,0 +1,10 @@
+*
+!*.*
+!*/
+
+.idea
+*.env
+_*
+
+coverage.*
+*.log
