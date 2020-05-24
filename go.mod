@@ -1,4 +1,4 @@
-module gitlab.com/mantidtech/tplr
+module github.com/mantidtech/tplr
 
 go 1.14
 

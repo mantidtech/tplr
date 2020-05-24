@@ -11,7 +11,7 @@ import (
 	"path"
 	"strings"
 
-	"gitlab.com/mantidtech/tplr"
+	"github.com/mantidtech/tplr"
 )
 
 func main() {

@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	"text/template"
 
-	"gitlab.com/mantidtech/tplr/functions"
+	"github.com/mantidtech/tplr/functions"
 )
 
 const templateName = "tplr"
