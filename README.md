@@ -190,7 +190,7 @@ returns the last item of a list
 
 You can also import the template functions to use with your own templating code.
 
-    go get github.com/mantidtech/tplr
+    go get github.com/mantidtech/tplr/functions
     
 and use:
 
