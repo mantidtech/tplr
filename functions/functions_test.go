@@ -13,7 +13,7 @@ import (
 // TestAll provides unit test coverage for All()
 func TestAll(t *testing.T) {
 	fn := All(nil)
-	assert.Len(t, fn, 15, "weakly ensuring functions haven't been added/removed without updating tests")
+	assert.Len(t, fn, 17, "weakly ensuring functions haven't been added/removed without updating tests")
 }
 
 // TestGenerateIncludeFn provides unit test coverage for GenerateIncludeFn()

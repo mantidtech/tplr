@@ -154,6 +154,14 @@ Returns the `pipeline` with a width of at least `N` characters, adding spaces at
 
 Returns the `pipeline` with the first character capitalised. There is no effect to other characters.
 
+#### `{{ toLower pipeline }}`
+
+Returns the `pipeline` with the all characters converted to lowercase.
+
+#### `{{ toUpper pipeline }}`
+
+Returns the `pipeline` with the all characters converted to uppercase.
+
 #### `{{ rep N pipeline }}`
 
 Returns the `pipeline` `N` number of times.

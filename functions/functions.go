@@ -26,6 +26,8 @@ func All(t *template.Template) template.FuncMap {
 		"space":     Space,
 		"spIndent":  IndentSpace,
 		"tab":       Tab,
+		"toLower":   strings.ToLower,
+		"toUpper":   strings.ToUpper,
 		"ucFirst":   UppercaseFirst,
 		"whenEmpty": WhenEmpty,
 	}
