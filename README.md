@@ -20,6 +20,14 @@ Information:
 Templates use the go [text/template](https://pkg.go.dev/text/template) package
 
 ---
+## Install
+
+Using go
+```
+go get -u github.com/mantidtech/tplr/cmd/tplr
+```
+
+---
 ## Examples
 ```bash
     echo '{"to":"World"}' | tplr 'Hello {{.to}}!'
