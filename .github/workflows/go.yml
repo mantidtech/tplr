@@ -44,7 +44,7 @@ jobs:
         parallel: true
 
   finish:
-    needs: test
+    needs: Test
     runs-on: ubuntu-latest
     steps:
       - name: Coveralls Finished
