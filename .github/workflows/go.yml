@@ -37,11 +37,11 @@ jobs:
         go tool cover -func coverage.out
 
     - name: Coveralls
-        uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.COVERALLS_TOKEN }}
-          flag-name: run-${{ matrix.test_number }}
-          parallel: true
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.COVERALLS_TOKEN }}
+        flag-name: run-${{ matrix.test_number }}
+        parallel: true
 
   finish:
     needs: test
