@@ -35,11 +35,20 @@ jobs:
         chmod 000 ./testdata/secret
         go test ./... -cover -coverprofile=coverage.out
         go tool cover -func coverage.out
-      
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v1
-      with:
-        file: ./coverage.out
-        flags: unittests
-        name: codecov-umbrella
-        fail_ci_if_error: false
+
+    - name: Coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.COVERALLS_TOKEN }}
+          flag-name: run-${{ matrix.test_number }}
+          parallel: true
+
+  finish:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.COVERALLS_TOKEN }}
+          parallel-finished: true

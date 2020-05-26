@@ -1,5 +1,4 @@
 ![Go](https://github.com/mantidtech/tplr/workflows/Go/badge.svg)
-![Coverage](https://img.shields.io/coveralls/github/mantidtech/tplr)
 ![License](https://img.shields.io/github/license/mantidtech/tplr)
 
 # tplr
