@@ -31,5 +31,16 @@ jobs:
       run: ./build.sh
 
     - name: Test
-      run: ./check.sh
+      run: |
+        chmod 000 ./testdata/secret
+        go test ./... -cover -coverprofile=coverage.out
+        go tool cover -func coverage.out
       
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
+      with:
+        file: ./coverage.out
+        flags: unittests
+        env_vars: OS,PYTHON
+        name: codecov-umbrella
+        fail_ci_if_error: false
