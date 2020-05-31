@@ -1,6 +1,8 @@
 package functions
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"reflect"
 	"strings"
@@ -8,6 +10,8 @@ import (
 	"time"
 	"unicode"
 	"unicode/utf8"
+
+	"gopkg.in/yaml.v2"
 )
 
 // All returns all of the templating functions
@@ -33,7 +37,13 @@ func All(t *template.Template) template.FuncMap {
 		"isZero":      IsZero,
 		"bracket":     Bracket,
 		"bracketWith": BracketWith,
-		"concat":      Concat,
+		"join":        Join,
+		"joinWith":    JoinWith,
+		"splitOn":     SplitOn,
+		"typeName":    TypeName,
+		"toJSON":      ToJSON,
+		"formatJSON":  FormatJSON,
+		"toYAML":      ToYAML,
 	}
 }
 
@@ -262,15 +272,57 @@ func BracketWith(b string, s string) (string, error) {
 		return "", fmt.Errorf("expected a set of brackets with matching left and right sizes")
 	}
 	h := len(b) / 2
-	l := b[:h]
-	r := b[h:]
+	l, r := b[:h], b[h:]
 	return l + s + r, nil
 }
 
-// Concat joins the given strings together
-func Concat(s ...string) string {
+// Join joins the given strings together
+func Join(s ...string) string {
 	if s == nil {
 		return ""
 	}
 	return strings.Join(s, "")
+}
+
+// JoinWith joins the given strings together using the given string as glue
+func JoinWith(glue string, s ...string) string {
+	if s == nil {
+		return ""
+	}
+	return strings.Join(s, glue)
+}
+
+// SplitOn creates an array from the given string by separating it by the glue string
+func SplitOn(glue string, s string) []string {
+	return strings.Split(s, glue)
+}
+
+// TypeName returns the type of the given value as a string
+func TypeName(val interface{}) string {
+	if val == nil {
+		return "nil"
+	}
+	return reflect.TypeOf(val).String()
+}
+
+// ToJSON returns the given value as a json string
+func ToJSON(val interface{}) (string, error) {
+	b, err := json.Marshal(val)
+	return string(b), err
+}
+
+// FormatJSON returns the given json string, formatted with the given indent string
+func FormatJSON(indent string, j string) (string, error) {
+	var buf bytes.Buffer
+	err := json.Indent(&buf, []byte(j), "", indent)
+	if err != nil {
+		return "", fmt.Errorf("failed to format json string %s: %s", j, err.Error())
+	}
+	return buf.String(), nil
+}
+
+// ToYAML returns the given value as a yaml string
+func ToYAML(val interface{}) (string, error) {
+	b, err := yaml.Marshal(val)
+	return string(b), err
 }

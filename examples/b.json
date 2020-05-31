@@ -1,0 +1,15 @@
+{
+    "one": 10,
+    "two": true,
+    "three": "foo",
+    "four": [
+        "a",
+        "b",
+        "c"
+    ],
+    "five": {
+        "x": "y"
+    },
+    "six": -2.1,
+    "seven": null
+}

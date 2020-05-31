@@ -1,7 +1,7 @@
 ![Go](https://github.com/mantidtech/tplr/workflows/Go/badge.svg)
 ![License](https://img.shields.io/github/license/mantidtech/tplr)
 
-# tplr
+# `tplr` (`t`em`pl`ate`r`)
 
 A tool to create files rendered from go templates and json
 
@@ -20,7 +20,7 @@ Information:
   -v Prints the program version number and exits
 ```
 
-Templates use the go [text/template](https://pkg.go.dev/text/template) package
+The templating markup language used is defined by the go [text/template](https://pkg.go.dev/text/template) package
 
 ---
 ## Install
@@ -50,7 +50,7 @@ go get -u github.com/mantidtech/tplr/cmd/tplr
             {{- end }}
             </ul>
         </body>
-    <html>
+    </html>
     
     {{- define "listItem" }}
     <li>
@@ -63,9 +63,9 @@ go get -u github.com/mantidtech/tplr/cmd/tplr
     {
         "title": "My List Of Doom",
         "items": [
-            "Aquire lair",
-            "Aquire henchmen",
-            "Aquire doomsday weapon"
+            "Acquire lair",
+            "Acquire henchmen",
+            "Acquire doomsday weapon"
         ]
     }
     EOF
@@ -81,18 +81,17 @@ go get -u github.com/mantidtech/tplr/cmd/tplr
         <body>
             <ul>
                 <li>
-                    Aquire lair
+                    Acquire lair
                 </li>
                 <li>
-                    Aquire henchmen
+                    Acquire henchmen
                 </li>
                 <li>
-                    Aquire doomsday weapon
+                    Acquire doomsday weapon
                 </li>
             </ul>
         </body>
-    <html>
-
+    </html>
 ``` 
 NOTE: `tplr` uses the [text/template](https://pkg.go.dev/text/template) and not the [html/template](https://pkg.go.dev/text/template) package.  
 This means there's no special translation of html elements, and therefore output isn't protected against code injection 
@@ -135,7 +134,7 @@ slightly backwards to look at, makes sense when chained though:
 
 #### `{{ bracketWith S pipeline }}`
 
-Resolves the pipeline as a string around surrounds it with bracket pairs taken from `S`
+Surrounds the pipeline with bracket pairs taken from `S`
 
 `S` must be an even-length string.  The first half is used as the opening bracket, and the second as closing.
 
@@ -150,13 +149,9 @@ produces
 
 #### `{{ bracket pipeline }}`
 
-Resolves the `pipeline` as a string and surrounds it with `(` & `)`
+Surrounds the `pipeline` with `(` & `)`
 
 Equivalent to `{{ bracketWith "()" pipeline }}`.
-
-#### `{{ concat pipeline }}`
-
-Concatenates the `pipeline` into a single string
 
 #### `{{ indent N pipeline }}`
 
@@ -171,6 +166,20 @@ produces
         Hello
             World
 ```
+
+#### `{{ joinWith S pipeline }}`
+
+Concatenates the `pipeline` into string joined by the srting `S`
+
+#### `{{ join pipeline }}`
+
+Concatenates the `pipeline` into a single string
+
+Equivalent to `{{ joinWith "" pipeline }}`.
+
+#### `{{ splitOn S pipeline }}`
+
+Splits the pipeline into a list of strings on occurrences of the string `S`
 
 #### `{{ spIndent N pipeline }}`
 
@@ -217,6 +226,24 @@ Equivalent to `{{ rep N "\t" }}`.
 Returns a newline character.  
 If `N` is supplied, return the given number of newlines.
 Equivalent to `{{ rep N "\n" }}`.
+
+#### `{{ typeName pipeline }}`
+
+Returns the name of the Go type for the underlying variable of the pipeline
+
+#### `{{ toJSON pipeline }}`
+
+Converts the given pipeline to a JSON string
+
+#### `{{ formatJSON S pipeline }}`
+
+Pretty-prints the pipeline.  Returns an error if the pipeline isn't valid JSON.
+Each element in the JSON object or array begins on a new line, indented by one or more copies of `S` according to the nesting depth of the object.
+
+#### `{{ toYAML pipeline }}`
+
+Converts the given pipeline to a YAML string
+
 
 ---
 ### Lists

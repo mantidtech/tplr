@@ -19,7 +19,7 @@ func helperPtrToInt(i int) *int {
 // TestAll provides unit test coverage for All()
 func TestAll(t *testing.T) {
 	fn := All(nil)
-	assert.Len(t, fn, 21, "weakly ensuring functions haven't been added/removed without updating tests")
+	assert.Len(t, fn, 27, "weakly ensuring functions haven't been added/removed without updating tests")
 }
 
 // TestGenerateIncludeFn provides unit test coverage for GenerateIncludeFn()
@@ -605,8 +605,8 @@ func TestIndentSpace(t *testing.T) {
 	}
 }
 
-// TestSpaces provides unit test coverage for Space()
-func TestSpaces(t *testing.T) {
+// TestSpace provides unit test coverage for Space()
+func TestSpace(t *testing.T) {
 	type Args struct {
 		n int
 	}
@@ -656,8 +656,8 @@ func TestSpaces(t *testing.T) {
 	}
 }
 
-// TestTabs provides unit test coverage for Tab()
-func TestTabs(t *testing.T) {
+// TestTab provides unit test coverage for Tab()
+func TestTab(t *testing.T) {
 	type Args struct {
 		n int
 	}
@@ -999,8 +999,8 @@ func TestBracketWith(t *testing.T) {
 	}
 }
 
-// TestConcat provides unit test coverage for Concat()
-func TestConcat(t *testing.T) {
+// TestJoin provides unit test coverage for Join()
+func TestJoin(t *testing.T) {
 	type Args struct {
 		s []string
 	}
@@ -1044,8 +1044,294 @@ func TestConcat(t *testing.T) {
 		tt := st
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := Concat(tt.args.s...)
+			got := Join(tt.args.s...)
 			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+// TestTypeName provides unit test coverage for TypeName()
+func TestTypeName(t *testing.T) {
+	type Args struct {
+		val interface{}
+	}
+
+	tests := []struct {
+		name string
+		args Args
+		want string
+	}{
+		{
+			name: "nil",
+			args: Args{
+				val: nil,
+			},
+			want: "nil",
+		},
+		{
+			name: "int",
+			args: Args{
+				val: 3,
+			},
+			want: "int",
+		},
+		{
+			name: "time.Duration",
+			args: Args{
+				val: 10 * time.Second,
+			},
+			want: "time.Duration",
+		},
+		{
+			name: "*int",
+			args: Args{
+				val: helperPtrToInt(10),
+			},
+			want: "*int",
+		},
+		{
+			name: "[]int",
+			args: Args{
+				val: []int{4},
+			},
+			want: "[]int",
+		},
+	}
+
+	for _, st := range tests {
+		tt := st
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got := TypeName(tt.args.val)
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+// TestJoinWith provides unit test coverage for JoinWith()
+func TestJoinWith(t *testing.T) {
+	type Args struct {
+		glue string
+		s    []string
+	}
+
+	tests := []struct {
+		name string
+		args Args
+		want string
+	}{
+		{
+			name: "nil",
+			args: Args{
+				glue: "",
+				s:    nil,
+			},
+			want: "",
+		},
+		{
+			name: "empty",
+			args: Args{
+				glue: "",
+				s:    []string{},
+			},
+			want: "",
+		},
+		{
+			name: "one",
+			args: Args{
+				glue: "*",
+				s:    []string{"one"},
+			},
+			want: "one",
+		},
+		{
+			name: "two",
+			args: Args{
+				glue: "^",
+				s:    []string{"one", "two"},
+			},
+			want: "one^two",
+		},
+		{
+			name: "three",
+			args: Args{
+				glue: " - ",
+				s:    []string{"one", "two", "three"},
+			},
+			want: "one - two - three",
+		},
+	}
+
+	for _, st := range tests {
+		tt := st
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got := JoinWith(tt.args.glue, tt.args.s...)
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+// TestSplitOn provides unit test coverage for SplitOn()
+func TestSplitOn(t *testing.T) {
+	type Args struct {
+		glue string
+		s    string
+	}
+
+	tests := []struct {
+		name string
+		args Args
+		want []string
+	}{
+		{
+			name: "one",
+			args: Args{
+				glue: " ",
+				s:    "one",
+			},
+			want: []string{"one"},
+		},
+		{
+			name: "two",
+			args: Args{
+				glue: " ",
+				s:    "one two",
+			},
+			want: []string{"one", "two"},
+		},
+	}
+
+	for _, st := range tests {
+		tt := st
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got := SplitOn(tt.args.glue, tt.args.s)
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+// TestToJSON provides unit test coverage for ToJSON()
+func TestToJSON(t *testing.T) {
+	type Args struct {
+		val interface{}
+	}
+
+	tests := []struct {
+		name       string
+		args       Args
+		wantString string
+		wantError  bool
+	}{
+		{
+			name: "simple object",
+			args: Args{
+				val: map[string]string{
+					"one": "foo",
+					"two": "bar",
+				},
+			},
+			wantString: `{"one":"foo","two":"bar"}`,
+		},
+	}
+
+	for _, st := range tests {
+		tt := st
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			gotString, gotError := ToJSON(tt.args.val)
+			if tt.wantError {
+				require.Error(t, gotError)
+			} else {
+				require.NoError(t, gotError)
+			}
+			assert.Equal(t, tt.wantString, gotString)
+		})
+	}
+}
+
+// TestFormatJSON provides unit test coverage for FormatJSON()
+func TestFormatJSON(t *testing.T) {
+	type Args struct {
+		j      string
+		indent string
+	}
+
+	tests := []struct {
+		name       string
+		args       Args
+		wantString string
+		wantError  bool
+	}{
+		{
+			name: "simple object",
+			args: Args{
+				indent: "\t",
+				j:      `{"one":"foo","two":"bar"}`,
+			},
+			wantString: "{\n\t\"one\": \"foo\",\n\t\"two\": \"bar\"\n}",
+		},
+		{
+			name: "bad json",
+			args: Args{
+				indent: "\t",
+				j:      `{"one":"foo","two":"forgot end brace..."`,
+			},
+			wantError: true,
+		},
+	}
+
+	for _, st := range tests {
+		tt := st
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			gotString, gotError := FormatJSON(tt.args.indent, tt.args.j)
+			if tt.wantError {
+				require.Error(t, gotError)
+			} else {
+				require.NoError(t, gotError)
+			}
+			assert.Equal(t, tt.wantString, gotString)
+		})
+	}
+}
+
+// TestToYAML provides unit test coverage for ToYAML()
+func TestToYAML(t *testing.T) {
+	type Args struct {
+		val interface{}
+	}
+
+	tests := []struct {
+		name       string
+		args       Args
+		wantString string
+		wantError  bool
+	}{
+		{
+			name: "simple object",
+			args: Args{
+				val: map[string]string{
+					"one": "foo",
+					"two": "bar",
+				},
+			},
+			wantString: "one: foo\ntwo: bar\n",
+		},
+	}
+
+	for _, st := range tests {
+		tt := st
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			gotString, gotError := ToYAML(tt.args.val)
+			if tt.wantError {
+				require.Error(t, gotError)
+			} else {
+				require.NoError(t, gotError)
+			}
+			assert.Equal(t, tt.wantString, gotString)
 		})
 	}
 }

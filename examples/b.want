@@ -1,0 +1,8 @@
+
+five: The type of 'map[x:y]' is 'map[string]interface {}'
+four: The type of '[a b c]' is '[]interface {}'
+one: The type of '10' is 'float64'
+seven: The type of '<no value>' is 'nil'
+six: The type of '-2.1' is 'float64'
+three: The type of 'foo' is 'string'
+two: The type of 'true' is 'bool'
