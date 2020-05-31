@@ -10,10 +10,16 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func helperPtrToInt(i int) *int {
+	r := new(int)
+	*r = i
+	return r
+}
+
 // TestAll provides unit test coverage for All()
 func TestAll(t *testing.T) {
 	fn := All(nil)
-	assert.Len(t, fn, 17, "weakly ensuring functions haven't been added/removed without updating tests")
+	assert.Len(t, fn, 21, "weakly ensuring functions haven't been added/removed without updating tests")
 }
 
 // TestGenerateIncludeFn provides unit test coverage for GenerateIncludeFn()
@@ -770,4 +776,276 @@ func TestNow(t *testing.T) {
 	n := Now()
 	_, err := time.Parse(time.RFC3339, n)
 	assert.NoError(t, err)
+}
+
+// TestPadLeft provides unit test coverage for PadLeft()
+func TestIsZero(t *testing.T) {
+	type Args struct {
+		val interface{}
+	}
+
+	tests := []struct {
+		name string
+		args Args
+		want bool
+	}{
+		{
+			name: "nil",
+			args: Args{
+				val: nil,
+			},
+			want: true,
+		},
+		{
+			name: "zero int",
+			args: Args{
+				val: 0,
+			},
+			want: true,
+		},
+		{
+			name: "non-zero int",
+			args: Args{
+				val: 10,
+			},
+			want: false,
+		},
+		{
+			name: "pointer zero int",
+			args: Args{
+				val: helperPtrToInt(0),
+			},
+			want: false,
+		},
+		{
+			name: "pointer non-zero int",
+			args: Args{
+				val: helperPtrToInt(-82),
+			},
+			want: false,
+		},
+		{
+			name: "non-zero int",
+			args: Args{
+				val: 10,
+			},
+			want: false,
+		},
+		{
+			name: "non-zero int",
+			args: Args{
+				val: 10,
+			},
+			want: false,
+		},
+		{
+			name: "empty string",
+			args: Args{
+				val: "",
+			},
+			want: true,
+		},
+		{
+			name: "non-empty string",
+			args: Args{
+				val: "foo",
+			},
+			want: false,
+		},
+		{
+			name: "empty array",
+			args: Args{
+				val: []int{},
+			},
+			want: true,
+		},
+		{
+			name: "nil array",
+			args: Args{
+				val: []float64(nil),
+			},
+			want: true,
+		},
+		{
+			name: "non-empty array",
+			args: Args{
+				val: []string{"bar"},
+			},
+			want: false,
+		},
+	}
+
+	for _, st := range tests {
+		tt := st
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got := IsZero(tt.args.val)
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+// TestBracket provides unit test coverage for Bracket()
+func TestBracket(t *testing.T) {
+	type Args struct {
+		s string
+	}
+
+	tests := []struct {
+		name string
+		args Args
+		want string
+	}{
+		{
+			name: "empty",
+			args: Args{
+				s: "",
+			},
+			want: "()",
+		},
+		{
+			name: "word",
+			args: Args{
+				s: "foo",
+			},
+			want: "(foo)",
+		},
+		{
+			name: "words",
+			args: Args{
+				s: "foo bar",
+			},
+			want: "(foo bar)",
+		},
+	}
+
+	for _, st := range tests {
+		tt := st
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got := Bracket(tt.args.s)
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+// TestBracketWith provides unit test coverage for BracketWith()
+func TestBracketWith(t *testing.T) {
+	type Args struct {
+		b string
+		s string
+	}
+
+	tests := []struct {
+		name       string
+		args       Args
+		wantString string
+		wantError  bool
+	}{
+		{
+			name: "none",
+			args: Args{
+				b: "",
+				s: "",
+			},
+			wantString: "",
+		},
+		{
+			name: "basic",
+			args: Args{
+				b: "()",
+				s: "",
+			},
+			wantString: "()",
+		},
+		{
+			name: "word",
+			args: Args{
+				b: "<>",
+				s: "foo",
+			},
+			wantString: "<foo>",
+		},
+		{
+			name: "words",
+			args: Args{
+				b: "{{-  -}}",
+				s: "foo bar",
+			},
+			wantString: "{{- foo bar -}}",
+		},
+		{
+			name: "mismatched",
+			args: Args{
+				b: ")",
+				s: "baz",
+			},
+			wantError: true,
+		},
+	}
+
+	for _, st := range tests {
+		tt := st
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			gotString, gotError := BracketWith(tt.args.b, tt.args.s)
+			if tt.wantError {
+				require.Error(t, gotError)
+			} else {
+				require.NoError(t, gotError)
+			}
+			assert.Equal(t, tt.wantString, gotString)
+		})
+	}
+}
+
+// TestConcat provides unit test coverage for Concat()
+func TestConcat(t *testing.T) {
+	type Args struct {
+		s []string
+	}
+
+	tests := []struct {
+		name string
+		args Args
+		want string
+	}{
+		{
+			name: "nil",
+			args: Args{
+				s: nil,
+			},
+			want: "",
+		},
+		{
+			name: "empty",
+			args: Args{
+				s: []string{},
+			},
+			want: "",
+		},
+		{
+			name: "one",
+			args: Args{
+				s: []string{"one"},
+			},
+			want: "one",
+		},
+		{
+			name: "two",
+			args: Args{
+				s: []string{"one", "two"},
+			},
+			want: "onetwo",
+		},
+	}
+
+	for _, st := range tests {
+		tt := st
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got := Concat(tt.args.s...)
+			assert.Equal(t, tt.want, got)
+		})
+	}
 }

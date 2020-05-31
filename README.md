@@ -115,6 +115,12 @@ In addition to the [standard template functions](https://pkg.go.dev/text/templat
 
 ### Logical Operators
 
+#### `{{ isZero pipeline }}`
+
+Returns `true` if the pipeline is empty (ie the `zero` value of its type) OR 
+if it's a pointer and the dereferenced value is zero, OR 
+if the type of the pipeline has a `length` (eg array, slice, map, string), and the length is zero
+
 #### `{{ whenEmpty pipeline1 pipeline0 }}`
 
 If `pipeline0` is empty (ie the `zero` value of its type), returns `pipeline1` otherwise `pipeline0`
@@ -126,6 +132,31 @@ slightly backwards to look at, makes sense when chained though:
 
 ---
 ### Formatting
+
+#### `{{ bracketWith S pipeline }}`
+
+Resolves the pipeline as a string around surrounds it with bracket pairs taken from `S`
+
+`S` must be an even-length string.  The first half is used as the opening bracket, and the second as closing.
+
+eg 
+```
+{{ bracketWith "<>" "html" }}
+```
+produces
+```
+<html>
+```
+
+#### `{{ bracket pipeline }}`
+
+Resolves the `pipeline` as a string and surrounds it with `(` & `)`
+
+Equivalent to `{{ bracketWith "()" pipeline }}`.
+
+#### `{{ concat pipeline }}`
+
+Concatenates the `pipeline` into a single string
 
 #### `{{ indent N pipeline }}`
 

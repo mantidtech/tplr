@@ -13,23 +13,27 @@ import (
 // All returns all of the templating functions
 func All(t *template.Template) template.FuncMap {
 	return template.FuncMap{
-		"first":     First,
-		"include":   GenerateIncludeFn(t),
-		"indent":    Indent,
-		"last":      Last,
-		"nl":        Newline,
-		"now":       Now,
-		"padLeft":   PadLeft,
-		"padRight":  PadRight,
-		"rep":       Rep,
-		"rest":      Rest,
-		"space":     Space,
-		"spIndent":  IndentSpace,
-		"tab":       Tab,
-		"toLower":   strings.ToLower,
-		"toUpper":   strings.ToUpper,
-		"ucFirst":   UppercaseFirst,
-		"whenEmpty": WhenEmpty,
+		"first":       First,
+		"include":     GenerateIncludeFn(t),
+		"indent":      Indent,
+		"last":        Last,
+		"nl":          Newline,
+		"now":         Now,
+		"padLeft":     PadLeft,
+		"padRight":    PadRight,
+		"rep":         Rep,
+		"rest":        Rest,
+		"space":       Space,
+		"spIndent":    IndentSpace,
+		"tab":         Tab,
+		"toLower":     strings.ToLower,
+		"toUpper":     strings.ToUpper,
+		"ucFirst":     UppercaseFirst,
+		"whenEmpty":   WhenEmpty,
+		"isZero":      IsZero,
+		"bracket":     Bracket,
+		"bracketWith": BracketWith,
+		"concat":      Concat,
 	}
 }
 
@@ -135,17 +139,18 @@ func Last(list interface{}) (interface{}, error) {
 	return a.Index(l - 1).Interface(), nil
 }
 
-//func listSize(list interface{}) (int, error) {
+//func listHelper(list interface{}) (reflect.Value, error) {
+//	var v reflect.Value
 //	if list == nil {
-//		return 0, nil
+//		return v, nil
 //	}
 //
 //	t := reflect.TypeOf(list).Kind()
 //	if t != reflect.Slice && t != reflect.Array {
-//		return 0, fmt.Errorf("type %s is not a list", t)
+//		return v, fmt.Errorf("type %s is not a list", t)
 //	}
 //
-//	return reflect.ValueOf(list).Len(), nil
+//	return reflect.ValueOf(list), nil
 //}
 
 // WhenEmpty returns the second argument if the first is "empty", otherwise it returns the first
@@ -227,4 +232,45 @@ func PadLeft(n int, s string) string {
 // Now returns the current time in the format "2006-01-02T15:04:05Z07:00"
 func Now() string {
 	return time.Now().Format(time.RFC3339)
+}
+
+// IsZero returns true if the value given corresponds to it's types zero value,
+// points to something zero valued, or if it's a type with a length which is 0
+func IsZero(val interface{}) bool {
+	if val == nil {
+		return true
+	}
+
+	t := reflect.TypeOf(val).Kind()
+	v := reflect.ValueOf(val)
+
+	switch t {
+	case reflect.Slice, reflect.Array, reflect.Chan, reflect.Map, reflect.String:
+		return v.Len() == 0
+	}
+	return v.IsZero()
+}
+
+// Bracket adds brackets around the given string
+func Bracket(s string) string {
+	return "(" + s + ")"
+}
+
+// BracketWith adds brackets of a given type around the given string
+func BracketWith(b string, s string) (string, error) {
+	if len(b)%2 != 0 {
+		return "", fmt.Errorf("expected a set of brackets with matching left and right sizes")
+	}
+	h := len(b) / 2
+	l := b[:h]
+	r := b[h:]
+	return l + s + r, nil
+}
+
+// Concat joins the given strings together
+func Concat(s ...string) string {
+	if s == nil {
+		return ""
+	}
+	return strings.Join(s, "")
 }
