@@ -1,7 +1,7 @@
 ![Go](https://github.com/mantidtech/tplr/workflows/Go/badge.svg)
 ![License](https://img.shields.io/github/license/mantidtech/tplr)
 
-# `tplr` (`t`em`pl`ate`r`)
+# `tplr` (templater)
 
 A tool to create files rendered from go templates and json
 
