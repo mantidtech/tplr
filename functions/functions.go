@@ -11,24 +11,20 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"gopkg.in/yaml.v2"
-
 	"github.com/mantidtech/wordcase"
+	"gopkg.in/yaml.v2"
 )
 
 // All returns all of the templating functions
 func All(t *template.Template) template.FuncMap {
 	return template.FuncMap{
-		"first":              First,
 		"include":            GenerateIncludeFn(t),
 		"indent":             Indent,
-		"last":               Last,
 		"nl":                 Newline,
 		"now":                Now,
 		"padLeft":            PadLeft,
 		"padRight":           PadRight,
 		"rep":                Rep,
-		"rest":               Rest,
 		"space":              Space,
 		"spIndent":           IndentSpace,
 		"tab":                Tab,
@@ -46,14 +42,25 @@ func All(t *template.Template) template.FuncMap {
 		"toJSON":             ToJSON,
 		"formatJSON":         FormatJSON,
 		"toYAML":             ToYAML,
-		"snakeCase":          wordcase.SnakeCase,
-		"kebabCase":          wordcase.KebabCase,
-		"dotCase":            wordcase.DotCase,
-		"screamingSnakeCase": wordcase.ScreamingSnakeCase,
 		"camelCase":          wordcase.CamelCase,
+		"dotCase":            wordcase.DotCase,
+		"kebabCase":          wordcase.KebabCase,
 		"pascalCase":         wordcase.PascalCase,
-		"tpoWords":           wordcase.Words,
+		"screamingSnakeCase": wordcase.ScreamingSnakeCase,
+		"snakeCase":          wordcase.SnakeCase,
 		"titleCase":          wordcase.TitleCase,
+		"toWords":            wordcase.Words,
+		"list":               List,
+		"first":              First,
+		"last":               Last,
+		"rest":               Rest,
+		"contains":           Contains,
+		"filter":             Filter,
+		"push":               Push,
+		"pop":                Pop,
+		"unshift":            Unshift,
+		"shift":              Rest,
+		"slice":              Slice,
 	}
 }
 
@@ -98,80 +105,6 @@ func Rep(n int, s ...string) string {
 	r := strings.Join(s, "")
 	return strings.Repeat(r, n)
 }
-
-// First returns the head of a list
-func First(list interface{}) (interface{}, error) {
-	if list == nil {
-		return list, nil
-	}
-
-	t := reflect.TypeOf(list).Kind()
-	if t != reflect.Slice && t != reflect.Array {
-		return nil, fmt.Errorf("type %s is not a list", t)
-	}
-
-	a := reflect.ValueOf(list)
-	if a.Len() == 0 {
-		return nil, nil
-	}
-
-	return a.Index(0).Interface(), nil
-}
-
-// Rest returns the tail of a list
-func Rest(list interface{}) (interface{}, error) {
-	if list == nil {
-		return list, nil
-	}
-
-	t := reflect.TypeOf(list).Kind()
-	if t != reflect.Slice && t != reflect.Array {
-		return nil, fmt.Errorf("type %s is not a list", t)
-	}
-
-	a := reflect.ValueOf(list)
-	l := a.Len()
-	if l < 2 {
-		return nil, nil
-	}
-
-	// Slice is supposed to be a[i:j], so oughta be l-1 for arg 2...
-	return a.Slice(1, l).Interface(), nil
-}
-
-// Last returns the last item of a list
-func Last(list interface{}) (interface{}, error) {
-	if list == nil {
-		return list, nil
-	}
-
-	t := reflect.TypeOf(list).Kind()
-	if t != reflect.Slice && t != reflect.Array {
-		return nil, fmt.Errorf("type %s is not a list", t)
-	}
-
-	a := reflect.ValueOf(list)
-	l := a.Len()
-	if l == 0 {
-		return nil, nil
-	}
-
-	return a.Index(l - 1).Interface(), nil
-}
-
-//func listHelper(list interface{}) (reflect.Value, error) {
-//	var v reflect.Value
-//	if list == nil {
-//		return v, nil
-//	}
-//
-//	t := reflect.TypeOf(list).Kind()
-//	if t != reflect.Slice && t != reflect.Array {
-//		return v, fmt.Errorf("type %s is not a list", t)
-//	}
-//
-//	return reflect.ValueOf(list), nil
-//}
 
 // WhenEmpty returns the second argument if the first is "empty", otherwise it returns the first
 func WhenEmpty(d, s string) string {
@@ -272,18 +205,18 @@ func IsZero(val interface{}) bool {
 }
 
 // Bracket adds brackets around the given string
-func Bracket(s string) string {
-	return "(" + s + ")"
+func Bracket(s interface{}) string {
+	return "(" + fmt.Sprintf("%v", s) + ")"
 }
 
 // BracketWith adds brackets of a given type around the given string
-func BracketWith(b string, s string) (string, error) {
+func BracketWith(b string, s interface{}) (string, error) {
 	if len(b)%2 != 0 {
 		return "", fmt.Errorf("expected a set of brackets with matching left and right sizes")
 	}
 	h := len(b) / 2
 	l, r := b[:h], b[h:]
-	return l + s + r, nil
+	return l + fmt.Sprintf("%v", s) + r, nil
 }
 
 // Join joins the given strings together

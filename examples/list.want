@@ -1,0 +1,21 @@
+map[a:[a b c d e] b:[f o o b a r]]
+
+[a 1 false]
+(1)(2)(3)
+
+
+a
+[b c d e]
+e
+[a b c d]
+
+false
+true
+false
+
+[a b c d e x]
+[x a b c d e]
+[a b d e]
+[f b a r]
+
+[b c]

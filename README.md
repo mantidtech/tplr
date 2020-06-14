@@ -153,7 +153,7 @@ Surrounds the `pipeline` with `(` & `)`
 
 Equivalent to `{{ bracketWith "()" pipeline }}`.
 
-#### `{{ indent N pipeline }}`
+#### `{{ indent N ARG }}`
 
 Indents all lines in the `pipeline` with `N` tabs
 
@@ -167,47 +167,47 @@ produces
             World
 ```
 
-#### `{{ joinWith S pipeline }}`
+#### `{{ joinWith S ARG_1..ARG_N }}`
 
-Concatenates the `pipeline` into string joined by the srting `S`
+Concatenates the args into string joined by the string `S`
 
-#### `{{ join pipeline }}`
+#### `{{ join ARG_1..ARG_N }}`
 
-Concatenates the `pipeline` into a single string
+Concatenates the args into a single string
 
-Equivalent to `{{ joinWith "" pipeline }}`.
+Equivalent to `{{ joinWith "" ARG }}`.
 
-#### `{{ splitOn S pipeline }}`
+#### `{{ splitOn S ARG }}`
 
-Splits the pipeline into a list of strings on occurrences of the string `S`
+Splits the arg into a list of strings on occurrences of the string `S`
 
-#### `{{ spIndent N pipeline }}`
+#### `{{ spIndent N ARG }}`
 
-Indents all lines in the `pipeline` with `N` spaces
+Indents all lines in the arg with `N` spaces
 
-#### `{{ padLeft N pipeline }}`
+#### `{{ padLeft N ARG }}`
 
-Returns the `pipeline` with a width of at least `N` characters, adding spaces at the front to pad out the string
+Returns the arg with a width of at least `N` characters, adding spaces at the front to pad out the string
 
-#### `{{ padRight N pipeline }}`
+#### `{{ padRight N ARG }}`
 
-Returns the `pipeline` with a width of at least `N` characters, adding spaces at the end to pad out the string
+Returns the arg with a width of at least `N` characters, adding spaces at the end to pad out the string
 
-#### `{{ uppercaseFirst pipeline }}`
+#### `{{ uppercaseFirst ARG }}`
 
-Returns the `pipeline` with the first character capitalised. There is no effect to other characters.
+Returns the arg with the first character capitalised. There is no effect to other characters.
 
-#### `{{ toLower pipeline }}`
+#### `{{ toLower ARG }}`
 
-Returns the `pipeline` with the all characters converted to lowercase.
+Returns the arg with the all characters converted to lowercase.
 
-#### `{{ toUpper pipeline }}`
+#### `{{ toUpper ARG }}`
 
-Returns the `pipeline` with the all characters converted to uppercase.
+Returns the arg with the all characters converted to uppercase.
 
-#### `{{ rep N pipeline }}`
+#### `{{ rep N ARG }}`
 
-Returns the `pipeline` `N` number of times.
+Returns the arg printed `N` number of times.
 
 #### `{{ space [N] }}`
 
@@ -227,22 +227,22 @@ Returns a newline character.
 If `N` is supplied, return the given number of newlines.
 Equivalent to `{{ rep N "\n" }}`.
 
-#### `{{ typeName pipeline }}`
+#### `{{ typeName ARG }}`
 
-Returns the name of the Go type for the underlying variable of the pipeline
+Returns the name of the Go type for the underlying variable of the argument
 
-#### `{{ toJSON pipeline }}`
+#### `{{ toJSON ARG }}`
 
-Converts the given pipeline to a JSON string
+Converts the given arg to a JSON string
 
-#### `{{ formatJSON S pipeline }}`
+#### `{{ formatJSON S ARG }}`
 
-Pretty-prints the pipeline.  Returns an error if the pipeline isn't valid JSON.
+Pretty-prints the pipeline.  Returns an error if the arg isn't valid JSON.
 Each element in the JSON object or array begins on a new line, indented by one or more copies of `S` according to the nesting depth of the object.
 
-#### `{{ toYAML pipeline }}`
+#### `{{ toYAML ARG }}`
 
-Converts the given pipeline to a YAML string
+Converts the given arg to a YAML string
 
 
 ---
@@ -250,17 +250,42 @@ Converts the given pipeline to a YAML string
 
 These methods work when the value of the pipeline is an array or slice (and return an error otherwise)
 
-#### `{{ first pipeline }}`
+#### `{{ list ITEM_1.ITEM_N }}`
 
-returns the first item in the list
+Creates a new list with the given set of items
 
-#### `{{ rest  pipeline }}`
+#### `{{ first LIST }}`
 
-returns a list of everything but the first item
+Returns the first item in the list
 
-#### `{{ last  pipeline }}`
+#### `{{ last LIST }}`
 
-returns the last item of a list
+Returns the last item of a list
+
+#### `{{ rest LIST }}` / `{{ pop LIST }}`
+
+Returns a list of everything except for the first item (aliased as pop)
+
+#### `{{ push LIST ITEM }}`
+
+Adds an item to the end of a list, returning the new list
+
+#### `{{ unshift LIST ITEM }}`
+
+Adds an item to the beginning of a list, returning the new list
+
+#### `{{ slice I J LIST }}`
+
+Returns a slice of the list, ie all items between indexes I (inclusive) and J (exclusive)
+
+#### `{{ contains LIST ITEM }}`
+
+Returns `true` if the item are present in the list
+
+#### `{{ filter LIST ITEM }}`
+
+Returns a list with all instances of all item removed from it
+
 
 ---
 ### Functions as a Library
@@ -275,6 +300,8 @@ and use:
     
 
 A convenience function, `functions.All(t *template.Template)`, is provided to return all the functions as a `template.FuncMap`
+
+docs are at https://pkg.go.dev/github.com/mantidtech/tplr/functions
 
 ---
 ## To Do

@@ -12,7 +12,7 @@ import (
 
 const templateName = "tplr"
 
-// Load a template from disk and create a new Template object
+// Load a template from the supplied Reader and create a new Template object
 func Load(r io.Reader) (*template.Template, error) {
 	tSet := template.New(templateName)
 	tSet.Funcs(functions.All(tSet))
@@ -29,7 +29,7 @@ func Load(r io.Reader) (*template.Template, error) {
 	return t, nil
 }
 
-// GenerateFromTemplate generates text to a writer from the template and data supplied
+// GenerateFromTemplate generates text from the template and data supplied and writes it to the given Writer
 func GenerateFromTemplate(w io.Writer, t *template.Template, vars map[string]interface{}) error {
 	var err error
 	var f bytes.Buffer
