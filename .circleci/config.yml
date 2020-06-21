@@ -47,6 +47,8 @@ jobs:
 
       - run:
           name: "Test"
+          env:
+            COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
           command: |
             chmod 000 testdata/secret
             go test ./... -cover -coverprofile=coverage.out
