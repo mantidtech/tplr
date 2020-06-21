@@ -31,8 +31,6 @@ jobs:
             go get honnef.co/go/tools/cmd/staticcheck
             go get github.com/securego/gosec/cmd/gosec/...
             go get github.com/fzipp/gocyclo
-            go get golang.org/x/tools/cmd/cover
-            go get github.com/mattn/goveralls
 
       - run:
           name: "Check"
@@ -47,17 +45,11 @@ jobs:
 
       - run:
           name: "Test"
-          env:
-            COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
-            DOOKER: ${{ secrets.DOOKER }}
-            FOO: bar
           command: |
-            echo "${DOOKER} ${FOO}"
             chmod 000 testdata/secret
             go test ./... -cover -coverprofile=coverage.out
             go tool cover -func coverage.out
             chmod 644 testdata/secret
-            goveralls -coverprofile=coverage.out -service=circle-ci -repotoken "${COVERALLS_TOKEN}"
 
       - run:
           name: "Build"
