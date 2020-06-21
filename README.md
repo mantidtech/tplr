@@ -1,4 +1,5 @@
 ![Go](https://github.com/mantidtech/tplr/workflows/Go/badge.svg)
+[![Coverage Status](https://coveralls.io/repos/github/mantidtech/tplr/badge.svg?branch=master)](https://coveralls.io/github/mantidtech/tplr?branch=master)
 ![License](https://img.shields.io/github/license/mantidtech/tplr)
 
 # `tplr` (templater)
