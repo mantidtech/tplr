@@ -49,12 +49,15 @@ jobs:
           name: "Test"
           env:
             COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+            DOOKER: ${{ secrets.DOOKER }}
+            FOO: bar
           command: |
+            echo "${DOOKER} ${FOO}"
             chmod 000 testdata/secret
             go test ./... -cover -coverprofile=coverage.out
             go tool cover -func coverage.out
             chmod 644 testdata/secret
-            goveralls -coverprofile=coverage.out -service=circle-ci -repotoken $COVERALLS_TOKEN
+            goveralls -coverprofile=coverage.out -service=circle-ci -repotoken "${COVERALLS_TOKEN}"
 
       - run:
           name: "Build"
