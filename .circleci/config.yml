@@ -50,6 +50,7 @@ jobs:
             go test ./... -cover -coverprofile=coverage.out
             go tool cover -func coverage.out
             chmod 644 testdata/secret
+            goveralls -coverprofile=coverage.out -service=circle-ci -repotoken "${COVERALLS_TOKEN}"
 
       - run:
           name: "Build"

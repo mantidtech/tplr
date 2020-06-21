@@ -42,5 +42,5 @@ jobs:
         chmod 000 ./testdata/secret
         go test ./... -cover -coverprofile=coverage.out
         go tool cover -func coverage.out
-        goveralls -coverprofile=coverage.out -service=circle-ci -repotoken "${COVERALLS_TOKEN}"
+
 
