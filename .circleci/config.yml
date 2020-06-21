@@ -60,14 +60,5 @@ jobs:
             ./build.sh
             mv tplr /tmp/artifacts/
 
-      - run:
-          name: "Coverage"
-          command: |
-
       - store_artifacts:
           path: /tmp/tmp/artifacts
-
-      - name: Coveralls
-        uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
