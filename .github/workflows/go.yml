@@ -26,21 +26,12 @@ jobs:
       run: |
         go mod download
         go mod verify
-        go get golang.org/x/tools/cmd/cover
-        go get github.com/mattn/goveralls
 
     - name: Build
       run: ./build.sh
 
     - name: Test
-      env:
-        COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
-        DOOKER: ${{ secrets.DOOKER }}
-        FOO: bar
       run: |
-        echo "${DOOKER} ${FOO}"
         chmod 000 ./testdata/secret
         go test ./... -cover -coverprofile=coverage.out
         go tool cover -func coverage.out
-
-

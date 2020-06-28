@@ -19,7 +19,7 @@ func helperPtrToInt(i int) *int {
 // TestAll provides unit test coverage for All()
 func TestAll(t *testing.T) {
 	fn := All(nil)
-	assert.Len(t, fn, 43, "weakly ensuring functions haven't been added/removed without updating tests")
+	assert.Len(t, fn, 44, "weakly ensuring functions haven't been added/removed without updating tests")
 }
 
 // TestGenerateIncludeFn provides unit test coverage for GenerateIncludeFn()
@@ -361,9 +361,10 @@ func TestIndent(t *testing.T) {
 	}
 }
 
-// TestIndentSpace provides unit test coverage for Indent()
-func TestIndentSpace(t *testing.T) {
+// TestSuffix provides unit test coverage for Indent()
+func TestSuffix(t *testing.T) {
 	type Args struct {
+		suffix  string
 		t       int
 		content string
 	}
@@ -376,6 +377,7 @@ func TestIndentSpace(t *testing.T) {
 		{
 			name: "none",
 			args: Args{
+				suffix:  "",
 				t:       0,
 				content: "foo",
 			},
@@ -384,22 +386,25 @@ func TestIndentSpace(t *testing.T) {
 		{
 			name: "one",
 			args: Args{
+				suffix:  "X",
 				t:       1,
 				content: "foo",
 			},
-			want: " foo",
+			want: "fooX",
 		},
 		{
 			name: "two",
 			args: Args{
+				suffix:  "X",
 				t:       2,
 				content: "foo",
 			},
-			want: "  foo",
+			want: "fooXX",
 		},
 		{
 			name: "negative one",
 			args: Args{
+				suffix:  "X",
 				t:       -1,
 				content: "",
 			},
@@ -408,10 +413,11 @@ func TestIndentSpace(t *testing.T) {
 		{
 			name: "multi line",
 			args: Args{
+				suffix:  "X",
 				t:       1,
 				content: "foo\nbar",
 			},
-			want: " foo\n bar",
+			want: "fooX\nbarX",
 		},
 	}
 
@@ -419,7 +425,7 @@ func TestIndentSpace(t *testing.T) {
 		tt := st
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := IndentSpace(tt.args.t, tt.args.content)
+			got := Suffix(tt.args.suffix, tt.args.t, tt.args.content)
 			assert.Equal(t, tt.want, got)
 		})
 	}

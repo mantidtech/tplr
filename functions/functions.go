@@ -24,9 +24,10 @@ func All(t *template.Template) template.FuncMap {
 		"now":                Now,
 		"padLeft":            PadLeft,
 		"padRight":           PadRight,
+		"prefix":             Prefix,
+		"suffix":             Suffix,
 		"rep":                Rep,
 		"space":              Space,
-		"spIndent":           IndentSpace,
 		"tab":                Tab,
 		"toLower":            strings.ToLower,
 		"toUpper":            strings.ToUpper,
@@ -116,12 +117,17 @@ func WhenEmpty(d, s string) string {
 
 // Indent prints the given string with the given number of tabs prepended before each line
 func Indent(t int, content string) string {
+	return Prefix("\t", t, content)
+}
+
+// Prefix prints the given string with the given number of 'prefix' prepended before each line
+func Prefix(prefix string, t int, content string) string {
 	if t < 0 {
 		return ""
 	}
 
 	parts := strings.Split(content, "\n")
-	tab := strings.Repeat("\t", t)
+	tab := strings.Repeat(prefix, t)
 
 	newParts := make([]string, len(parts))
 
@@ -134,20 +140,20 @@ func Indent(t int, content string) string {
 	return strings.Join(newParts, "\n")
 }
 
-// IndentSpace prints the given string with the given number of spaces prepended before each line
-func IndentSpace(t int, content string) string {
+// Suffix prints the given string with the given number of 'suffix' appended to each line
+func Suffix(suffix string, t int, content string) string {
 	if t < 0 {
 		return ""
 	}
 
 	parts := strings.Split(content, "\n")
-	tab := strings.Repeat(" ", t)
+	tab := strings.Repeat(suffix, t)
 
 	newParts := make([]string, len(parts))
 
 	for i, p := range parts {
 		if p != "" {
-			newParts[i] = tab + p
+			newParts[i] = p + tab
 		}
 	}
 
