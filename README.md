@@ -154,9 +154,20 @@ Surrounds the `pipeline` with `(` & `)`
 
 Equivalent to `{{ bracketWith "()" pipeline }}`.
 
-#### `{{ indent N ARG }}`
 
-Indents all lines in the `pipeline` with `N` tabs
+#### `{{ prefix X N S }}`
+
+Prefixes all lines in the string `S` with `N` times the prefix string `X`
+
+#### `{{ suffix X N S }}`
+
+Appends all lines in the string `S` with `N` times the suffix string `X`
+
+#### `{{ indent N S }}`
+
+Indents all lines in the string `S` with `N` tabs.
+
+Equivalent to `{{ prefix "\t" N S }}`.
 
 eg
 ```
@@ -181,10 +192,6 @@ Equivalent to `{{ joinWith "" ARG }}`.
 #### `{{ splitOn S ARG }}`
 
 Splits the arg into a list of strings on occurrences of the string `S`
-
-#### `{{ spIndent N ARG }}`
-
-Indents all lines in the arg with `N` spaces
 
 #### `{{ padLeft N ARG }}`
 
@@ -232,6 +239,9 @@ Equivalent to `{{ rep N "\n" }}`.
 
 Returns the name of the Go type for the underlying variable of the argument
 
+---
+### Encoding
+
 #### `{{ toJSON ARG }}`
 
 Converts the given arg to a JSON string
@@ -245,6 +255,13 @@ Each element in the JSON object or array begins on a new line, indented by one o
 
 Converts the given arg to a YAML string
 
+#### `{{ toBase64 ARG }}`
+
+Converts the given arg to encoded base64
+
+#### `{{ fromBase64 ARG }}`
+
+Decode the given base64 `ARG`
 
 ---
 ### Lists
