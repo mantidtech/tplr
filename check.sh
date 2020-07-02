@@ -5,6 +5,7 @@ function bold() {
 }
 
 bold deps
+go mod tidy
 go mod download
 
 bold go fmt

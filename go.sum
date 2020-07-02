@@ -1,7 +1,5 @@
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/mantidtech/wordcase v0.0.0-20200608101523-cca0c4509079 h1:cbVu1W8aIa3A4vwJ1VJom7Gu4n1yoULJKu6XrXqcIw4=
-github.com/mantidtech/wordcase v0.0.0-20200608101523-cca0c4509079/go.mod h1:LscylMjR43/EIJNhvbKE1GeV9om34oMYRBQMJn63aRk=
 github.com/mantidtech/wordcase v1.0.0 h1:2+T7lM/VcOh970ojFS//AFFuahNznThxQRFN+xb3ImE=
 github.com/mantidtech/wordcase v1.0.0/go.mod h1:LscylMjR43/EIJNhvbKE1GeV9om34oMYRBQMJn63aRk=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=

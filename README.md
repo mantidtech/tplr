@@ -324,14 +324,10 @@ docs are at https://pkg.go.dev/github.com/mantidtech/tplr/functions
 ---
 ## To Do
 
-* Read data in other formats (yaml, toml, kv pairs, etc)
-
 * Process multiple templates and/or datasets at once
 
 * Greatly expand functions, including for
     * Time
-    * Wordcase library (which I still need to release)
-    * Data format translations, eg toJSON, toYAML, base64{enc,dec}
     * Anything else people might find useful
 
 * Less basic error messages/presentation
