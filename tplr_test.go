@@ -10,7 +10,6 @@ import (
 
 // TestLoadAndGenerateFromTemplate provides unit test coverage for Load() and GenerateFromTemplate()
 func TestLoadAndGenerateFromTemplate(t *testing.T) {
-
 	tests := []struct {
 		name              string
 		tpl               string

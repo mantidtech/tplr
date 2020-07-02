@@ -1,8 +1,6 @@
 package functions
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"reflect"
 	"strings"
@@ -12,7 +10,6 @@ import (
 	"unicode/utf8"
 
 	"github.com/mantidtech/wordcase"
-	"gopkg.in/yaml.v2"
 )
 
 // All returns all of the templating functions
@@ -62,6 +59,8 @@ func All(t *template.Template) template.FuncMap {
 		"unshift":            Unshift,
 		"shift":              Rest,
 		"slice":              Slice,
+		"toBase64":           ToBase64,
+		"fromBase64":         FromBase64,
 	}
 }
 
@@ -252,26 +251,4 @@ func TypeName(val interface{}) string {
 		return "nil"
 	}
 	return reflect.TypeOf(val).String()
-}
-
-// ToJSON returns the given value as a json string
-func ToJSON(val interface{}) (string, error) {
-	b, err := json.Marshal(val)
-	return string(b), err
-}
-
-// FormatJSON returns the given json string, formatted with the given indent string
-func FormatJSON(indent string, j string) (string, error) {
-	var buf bytes.Buffer
-	err := json.Indent(&buf, []byte(j), "", indent)
-	if err != nil {
-		return "", fmt.Errorf("failed to format json string %s: %s", j, err.Error())
-	}
-	return buf.String(), nil
-}
-
-// ToYAML returns the given value as a yaml string
-func ToYAML(val interface{}) (string, error) {
-	b, err := yaml.Marshal(val)
-	return string(b), err
 }
