@@ -1,9 +1,13 @@
 package tplr
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
+	"strings"
 )
 
 // GetFileReader returns a Reader for the given filename, or '-' for stdin
@@ -49,4 +53,39 @@ func FileExists(filename string) bool {
 		return false
 	}
 	return info.Mode().IsRegular()
+}
+
+// ReadDataFile reads the given file into a map of interfaces
+func ReadDataFile(filename string) (map[string]interface{}, error) {
+	vars := make(map[string]interface{})
+
+	dr, err := GetFileReader(filename)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open data file: %w", err)
+	}
+
+	d, err := ioutil.ReadAll(dr)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read data file %s: %w", filename, err)
+	}
+
+	err = json.Unmarshal(d, &vars)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse data file %s: %w", filename, err)
+	}
+
+	return vars, nil
+}
+
+// ReadStringsAsFile returns the given set of strings as an io.Reader
+func ReadStringsAsFile(s ...string) (res io.Reader, err error) {
+	var b bytes.Buffer
+	b.WriteString(strings.Join(s, " "))
+	res = &b
+
+	if b.Len() == 0 {
+		err = fmt.Errorf("empty input")
+	}
+
+	return res, err
 }

@@ -1,15 +1,11 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path"
-	"strings"
 
 	"github.com/mantidtech/tplr"
 )
@@ -40,17 +36,11 @@ func main() {
 	var tpl io.Reader
 	if *templateFile != "" {
 		tpl, err = tplr.GetFileReader(*templateFile)
-		if err != nil {
-			errorAndExit("Failed to open template file: %v\n", err)
-		}
 	} else {
-		var b bytes.Buffer
-		b.WriteString(strings.Join(s.Args(), " "))
-		tpl = &b
-
-		if b.Len() == 0 {
-			errorAndExit("No template supplied\n")
-		}
+		tpl, err = tplr.ReadStringsAsFile(s.Args()...)
+	}
+	if err != nil {
+		errorAndExit("Failed to read template file: %v\n", err)
 	}
 
 	t, err := tplr.Load(tpl)
@@ -60,10 +50,10 @@ func main() {
 
 	out, err := tplr.GetFileWriter(*outputFile, *force)
 	if err != nil {
-		errorAndExit("Failed to open data file: %v\n", err)
+		errorAndExit("Failed to open output file: %v\n", err)
 	}
 
-	vars, err := getData(*dataFile)
+	vars, err := tplr.ReadDataFile(*dataFile)
 	if err != nil {
 		errorAndExit("%v\n", err)
 	}
@@ -89,27 +79,6 @@ func showHelp() {
 	fmt.Printf("Information:\n")
 	fmt.Printf("  -h Prints this messge\n")
 	fmt.Printf("  -v Prints the program version number and exits\n")
-}
-
-func getData(filename string) (map[string]interface{}, error) {
-	vars := make(map[string]interface{})
-
-	dr, err := tplr.GetFileReader(filename)
-	if err != nil {
-		return nil, fmt.Errorf("failed to open data file: %w", err)
-	}
-
-	d, err := ioutil.ReadAll(dr)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read data file %s: %w", filename, err)
-	}
-
-	err = json.Unmarshal(d, &vars)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse data file %s: %w", filename, err)
-	}
-
-	return vars, nil
 }
 
 func errorAndExit(msg string, args ...interface{}) {

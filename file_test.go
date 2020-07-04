@@ -204,3 +204,116 @@ func TestFileExists(t *testing.T) {
 		})
 	}
 }
+
+// TestReadDataFile provides unit test coverage for ReadDataFile()
+func TestReadDataFile(t *testing.T) {
+	t.Parallel()
+	type Args struct {
+		filename string
+	}
+
+	tests := []struct {
+		name                   string
+		args                   Args
+		wantMapStringInterface map[string]interface{}
+		wantError              bool
+	}{
+		{
+			name: "simple",
+			args: Args{
+				filename: "testdata/simple.json",
+			},
+			wantMapStringInterface: map[string]interface{}{
+				"one": "foo",
+				"two": "bar",
+			},
+			wantError: false,
+		},
+		{
+			name: "unreadable",
+			args: Args{
+				filename: "testdata/secret",
+			},
+			wantError: true,
+		},
+		{
+			name: "non-json",
+			args: Args{
+				filename: "testdata/a_file.txt",
+			},
+			wantError: true,
+		},
+	}
+
+	for _, st := range tests {
+		tt := st
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			gotMapStringInterface, gotError := ReadDataFile(tt.args.filename)
+			if tt.wantError {
+				require.Error(t, gotError)
+			} else {
+				require.NoError(t, gotError)
+			}
+			assert.Equal(t, tt.wantMapStringInterface, gotMapStringInterface)
+		})
+	}
+}
+
+// TestReadStringsAsFile provides unit test coverage for ReadStringsAsFile()
+func TestReadStringsAsFile(t *testing.T) {
+	t.Parallel()
+	type Args struct {
+		s []string
+	}
+
+	testIO := func(reader io.Reader) (string, error) {
+		b, err := ioutil.ReadAll(reader)
+		if err != nil {
+			return "", err
+		}
+		return string(b), nil
+	}
+
+	tests := []struct {
+		name    string
+		args    Args
+		wantRes string
+		wantErr bool
+	}{
+		{
+			name: "nil",
+			args: Args{
+				s: nil,
+			},
+			wantRes: "",
+			wantErr: true,
+		},
+		{
+			name: "simple",
+			args: Args{
+				s: []string{"simple"},
+			},
+			wantRes: "simple",
+			wantErr: false,
+		},
+	}
+
+	for _, st := range tests {
+		tt := st
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			gotRes, gotErr := ReadStringsAsFile(tt.args.s...)
+			if tt.wantErr {
+				require.Error(t, gotErr)
+				return
+			}
+
+			require.NoError(t, gotErr)
+			gotStr, err := testIO(gotRes)
+			require.NoError(t, err)
+
+			assert.Equal(t, tt.wantRes, gotStr)
+		})
+	}
+}
