@@ -26,7 +26,7 @@ func main() {
 	}
 
 	if *showVersion {
-		fmt.Printf("version: %s\n", tplr.Version())
+		fmt.Printf("%s\n", tplr.Version())
 		os.Exit(0)
 	} else if *help {
 		showHelp()
@@ -67,14 +67,17 @@ func main() {
 func showHelp() {
 	_, app := path.Split(os.Args[0])
 	fmt.Printf("%s version %s\n\n", app, tplr.Version())
-	fmt.Printf("Usage: %s [-o <output file>] [-d <data file>] [-t <template file>] [inline template]\n", app)
+	fmt.Printf("Usage: %s [-f] [-o <output file>] [-d <data file>] [-t <template file>] [inline template]\n", app)
 	fmt.Printf("Usage: %s [-h|-v]\n", app)
 	fmt.Print("\n")
 	fmt.Printf("Where:\n")
 	fmt.Printf("  -o <output file>   is a file to write to (default: stdout)\n")
 	fmt.Printf("  -d <data file>     is a json file containing the templated variables (default: stdin)\n")
-	fmt.Printf("  -f <template file> is a file using the go templating notation.\n")
+	fmt.Printf("  -t <template file> is a file using the go templating notation.\n")
 	fmt.Printf("     If this is not specified, the template is taken from the remaining program args\n")
+	fmt.Print("\n")
+	fmt.Printf("Options:\n")
+	fmt.Printf("  -f If the destination file already exits, overwrite it.  (default is to do nothing)\n")
 	fmt.Print("\n")
 	fmt.Printf("Information:\n")
 	fmt.Printf("  -h Prints this messge\n")
