@@ -1,6 +1,7 @@
 package functions
 
 import (
+	"bytes"
 	"fmt"
 	"reflect"
 	"strings"
@@ -19,6 +20,7 @@ func All(t *template.Template) template.FuncMap {
 		"indent":             Indent,
 		"nl":                 Newline,
 		"now":                Now,
+		"toColumns":          ToColumns,
 		"padLeft":            PadLeft,
 		"padRight":           PadRight,
 		"prefix":             Prefix,
@@ -185,6 +187,39 @@ func PadRight(n int, s string) string {
 func PadLeft(n int, s string) string {
 	f := fmt.Sprintf("%%%ds", n)
 	return fmt.Sprintf(f, s)
+}
+
+// ToColumns formats the given text to not take more than 'w' characters per line,
+// splitting on the space before the word that would take the line over
+//  Note: Embedded newlines have no special treatment, so text containing them could look wonky.
+//        Either strip them first, or break the input into multiple strings and process individually
+func ToColumns(w int, s string) string {
+	var b bytes.Buffer
+
+	var at, i int
+	for at < len(s) {
+		i = at + w
+		if i >= len(s) {
+			b.WriteString(s[at:])
+			break
+		}
+
+		// look backwards for a space
+		for ; i > at && s[i] != ' '; i-- {
+		}
+
+		if i == at { // didn't find one
+			// look forwards for a space
+			for i = at + w; i < len(s) && s[i] != ' '; i++ {
+			}
+		}
+
+		b.WriteString(s[at:i])
+		b.WriteByte('\n')
+		at = i + 1
+	}
+
+	return b.String()
 }
 
 // Now returns the current time in the format "2006-01-02T15:04:05Z07:00"

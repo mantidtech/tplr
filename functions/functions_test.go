@@ -19,7 +19,7 @@ func helperPtrToInt(i int) *int {
 // TestAll provides unit test coverage for All()
 func TestAll(t *testing.T) {
 	fn := All(nil)
-	assert.Len(t, fn, 46, "weakly ensuring functions haven't been added/removed without updating tests")
+	assert.Len(t, fn, 47, "weakly ensuring functions haven't been added/removed without updating tests")
 }
 
 // TestGenerateIncludeFn provides unit test coverage for GenerateIncludeFn()
@@ -1033,6 +1033,114 @@ func TestSplitOn(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			got := SplitOn(tt.args.glue, tt.args.s)
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+// TestPrefix provides unit test coverage for Prefix()
+func TestPrefix(t *testing.T) {
+	t.Parallel()
+	type Args struct {
+		prefix  string
+		t       int
+		content string
+	}
+
+	tests := []struct {
+		name string
+		args Args
+		want string
+	}{
+		// tests go here
+	}
+
+	for _, st := range tests {
+		tt := st
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got := Prefix(tt.args.prefix, tt.args.t, tt.args.content)
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+// TestToColumns provides unit test coverage for ToColumns()
+func TestToColumns(t *testing.T) {
+	//t.Parallel()
+	type Args struct {
+		w int
+		s string
+	}
+
+	tests := []struct {
+		name string
+		args Args
+		want string
+	}{
+		{
+			name: "empty",
+			args: Args{
+				w: 10,
+				s: "",
+			},
+			want: "",
+		},
+		{
+			name: "too small",
+			args: Args{
+				w: 10,
+				s: "foo",
+			},
+			want: "foo",
+		},
+		{
+			name: "simple",
+			args: Args{
+				w: 3,
+				s: "foo bar",
+			},
+			want: "foo\nbar",
+		},
+		{
+			name: "find space",
+			args: Args{
+				w: 4,
+				s: "foo bar",
+			},
+			want: "foo\nbar",
+		},
+		{
+			name: "long word",
+			args: Args{
+				w: 4,
+				s: "foobar baz",
+			},
+			want: "foobar\nbaz",
+		},
+		{
+			name: "four lines",
+			args: Args{
+				w: 3,
+				s: "foo bar baz snk",
+			},
+			want: "foo\nbar\nbaz\nsnk",
+		},
+		{
+			name: "possible off by one",
+			args: Args{
+				w: 5,
+				s: "a b c d e f g",
+			},
+			want: "a b c\nd e f\ng",
+		},
+	}
+
+	for _, st := range tests {
+		tt := st
+		t.Run(tt.name, func(t *testing.T) {
+			//t.Parallel()
+			got := ToColumns(tt.args.w, tt.args.s)
 			assert.Equal(t, tt.want, got)
 		})
 	}

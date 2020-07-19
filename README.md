@@ -125,13 +125,32 @@ if the type of the pipeline has a `length` (eg array, slice, map, string), and t
 
 If `pipeline0` is empty (ie the `zero` value of its type), returns `pipeline1` otherwise `pipeline0`
 
-slightly backwards to look at, makes sense when chained though:
+eg
 ```
 {{ .SomeValue | whenEmpty "something else" }}
 ```
 
 ---
 ### Formatting
+
+#### `{{ toColumns N S }}`
+
+ ToColumns formats the given text to not take more than N characters per line,
+ splitting on the space before the word that would take the line over
+ 
+ Note: Embedded newlines have no special treatment, so text containing them could look wonky.
+       Either strip them first, or break the input into multiple strings and process individually
+
+eg
+```
+{{ toColumns 5 "a b c d e f g" }}
+``
+produces
+```
+a b c
+d e f
+g
+```
 
 #### `{{ bracketWith S pipeline }}`
 
@@ -257,7 +276,7 @@ Converts the given arg to a YAML string
 
 #### `{{ toBase64 ARG }}`
 
-Converts the given arg to encoded base64
+Converts the given arg to base64 encoding
 
 #### `{{ fromBase64 ARG }}`
 
