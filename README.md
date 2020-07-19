@@ -144,7 +144,7 @@ eg
 eg
 ```
 {{ toColumns 5 "a b c d e f g" }}
-``
+```
 produces
 ```
 a b c
