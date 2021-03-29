@@ -16,10 +16,21 @@ func helperPtrToInt(i int) *int {
 	return r
 }
 
+const testTemplateName = "test template"
+
+func helperNewTemplate(t *testing.T, tpl string) *template.Template {
+	var err error
+	tSet := template.New(testTemplateName)
+	tSet.Funcs(All(tSet))
+	tSet, err = tSet.Parse(tpl)
+	require.NoError(t, err)
+	return tSet
+}
+
 // TestAll provides unit test coverage for All()
 func TestAll(t *testing.T) {
 	fn := All(nil)
-	assert.Len(t, fn, 47, "weakly ensuring functions haven't been added/removed without updating tests")
+	assert.Len(t, fn, 49, "weakly ensuring functions haven't been added/removed without updating tests")
 }
 
 // TestGenerateIncludeFn provides unit test coverage for GenerateIncludeFn()
@@ -94,46 +105,53 @@ func TestGenerateIncludeFn(t *testing.T) {
 // TestUppercaseFirst provides unit test coverage for UppercaseFirst()
 func TestUppercaseFirst(t *testing.T) {
 	type Args struct {
-		s string
+		S string
 	}
 
 	tests := []struct {
-		name string
-		args Args
-		want string
+		name     string
+		template string
+		args     Args
+		want     string
+		wantErr  bool
 	}{
 		{
-			name: "empty",
+			name:     "empty",
+			template: `{{ ucFirst .S }}`,
 			args: Args{
-				s: "",
+				S: "",
 			},
 			want: "",
 		},
 		{
-			name: "simple",
+			name:     "simple",
+			template: `{{ ucFirst .S }}`,
 			args: Args{
-				s: "simple",
+				S: "simple",
 			},
 			want: "Simple",
 		},
 		{
-			name: "same",
+			name:     "same",
+			template: `{{ ucFirst .S }}`,
 			args: Args{
-				s: "Same",
+				S: "Same",
 			},
 			want: "Same",
 		},
 		{
-			name: "number",
+			name:     "number",
+			template: `{{ ucFirst .S }}`,
 			args: Args{
-				s: "3rd",
+				S: "3rd",
 			},
 			want: "3rd",
 		},
 		{
-			name: "multiple words",
+			name:     "multiple words",
+			template: `{{ ucFirst .S }}`,
 			args: Args{
-				s: "spam test",
+				S: "spam test",
 			},
 			want: "Spam test",
 		},
@@ -143,8 +161,16 @@ func TestUppercaseFirst(t *testing.T) {
 		tt := st
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := UppercaseFirst(tt.args.s)
-			assert.Equal(t, tt.want, got)
+			var got bytes.Buffer
+
+			tpl := helperNewTemplate(t, tt.template)
+			err := tpl.ExecuteTemplate(&got, testTemplateName, tt.args)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, got.String())
 		})
 	}
 }
@@ -152,24 +178,27 @@ func TestUppercaseFirst(t *testing.T) {
 // TestNewline provides unit test coverage for Newline()
 func TestNewline(t *testing.T) {
 	type Args struct {
-		c []int
+		C int
 	}
 
 	tests := []struct {
-		name string
-		args Args
-		want string
+		name     string
+		template string
+		args     Args
+		want     string
+		wantErr  bool
 	}{
 		{
-			name: "no params",
+			name:     "no params",
+			template: `{{ nl }}`,
+			args:     Args{},
+			want:     "\n",
+		},
+		{
+			name:     "params",
+			template: `{{ nl .C }}`,
 			args: Args{
-				c: nil,
-			},
-			want: "\n",
-		}, {
-			name: "params",
-			args: Args{
-				c: []int{3},
+				C: 3,
 			},
 			want: "\n\n\n",
 		},
@@ -179,8 +208,16 @@ func TestNewline(t *testing.T) {
 		tt := st
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := Newline(tt.args.c...)
-			assert.Equal(t, tt.want, got)
+			var got bytes.Buffer
+
+			tpl := helperNewTemplate(t, tt.template)
+			err := tpl.ExecuteTemplate(&got, testTemplateName, tt.args)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, got.String())
 		})
 	}
 }
@@ -188,52 +225,80 @@ func TestNewline(t *testing.T) {
 // TestRep provides unit test coverage for Rep()
 func TestRep(t *testing.T) {
 	type Args struct {
-		n int
-		s []string
+		N  int
+		S  string
+		S2 string
 	}
 
 	tests := []struct {
-		name string
-		args Args
-		want string
+		name     string
+		template string
+		args     Args
+		want     string
+		wantErr  bool
 	}{
 		{
-			name: "none",
+			name:     "none",
+			template: `{{ rep .N .S }}`,
 			args: Args{
-				n: 0,
-				s: []string{"foo"},
+				N: 0,
+				S: "foo",
 			},
 			want: "",
 		},
 		{
-			name: "repeated empty",
+			name:     "repeated empty",
+			template: `{{ rep .N .S }}`,
 			args: Args{
-				n: 2,
-				s: []string{""},
+				N: 2,
+				S: "",
 			},
 			want: "",
 		},
 		{
-			name: "one",
+			name:     "one",
+			template: `{{ rep .N .S }}`,
 			args: Args{
-				n: 1,
-				s: []string{"x"},
+				N: 1,
+				S: "x",
 			},
 			want: "x",
 		},
 		{
-			name: "two",
+			name:     "two",
+			template: `{{ rep .N .S }}`,
 			args: Args{
-				n: 2,
-				s: []string{"foo"},
+				N: 2,
+				S: "foo",
 			},
 			want: "foofoo",
 		},
 		{
-			name: "negative one",
+			name:     "multiple args",
+			template: `{{ rep .N .S .S2 }}`,
 			args: Args{
-				n: -1,
-				s: []string{"foo"},
+				N:  1,
+				S:  "one",
+				S2: "two",
+			},
+			want: "one two",
+		},
+		{
+			name:     "multiple args, twice",
+			template: `{{ rep .N .S .S2 }}`,
+			args: Args{
+				N:  2,
+				S:  "one",
+				S2: "two",
+			},
+			want: "one twoone two",
+		},
+		{
+			name:     "negative one",
+			template: `{{ rep .N .S }}`,
+			args: Args{
+				N: -1,
+				S: "foo",
 			},
 			want: "",
 		},
@@ -243,8 +308,16 @@ func TestRep(t *testing.T) {
 		tt := st
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := Rep(tt.args.n, tt.args.s...)
-			assert.Equal(t, tt.want, got)
+			var got bytes.Buffer
+
+			tpl := helperNewTemplate(t, tt.template)
+			err := tpl.ExecuteTemplate(&got, testTemplateName, tt.args)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, got.String())
 		})
 	}
 }
@@ -252,38 +325,61 @@ func TestRep(t *testing.T) {
 // TestWhenEmpty provides unit test coverage for WhenEmpty()
 func TestWhenEmpty(t *testing.T) {
 	type Args struct {
-		d string
-		s string
+		D interface{}
+		S interface{}
 	}
 
 	tests := []struct {
-		name string
-		args Args
-		want string
+		name     string
+		template string
+		args     Args
+		want     string
+		wantErr  bool
 	}{
 		{
-			name: "empty",
+			name:     "empty",
+			template: `{{ whenEmpty .D .S }}`,
 			args: Args{
-				d: "x",
-				s: "",
+				D: "x",
+				S: "",
 			},
 			want: "x",
 		},
 		{
-			name: "not empty",
+			name:     "not empty",
+			template: `{{ whenEmpty .D .S }}`,
 			args: Args{
-				d: "x",
-				s: "y",
+				D: "x",
+				S: "y",
 			},
 			want: "y",
 		},
 		{
-			name: "default also empty",
+			name:     "default also empty",
+			template: `{{ whenEmpty .D .S }}`,
 			args: Args{
-				d: "",
-				s: "",
+				D: "",
+				S: "",
 			},
 			want: "",
+		},
+		{
+			name:     "int, not empty",
+			template: `{{ whenEmpty .D .S }}`,
+			args: Args{
+				D: "x",
+				S: 9,
+			},
+			want: "9",
+		},
+		{
+			name:     "int, empty",
+			template: `{{ whenEmpty .D .S }}`,
+			args: Args{
+				D: "x",
+				S: 0,
+			},
+			want: "x",
 		},
 	}
 
@@ -291,8 +387,16 @@ func TestWhenEmpty(t *testing.T) {
 		tt := st
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := WhenEmpty(tt.args.d, tt.args.s)
-			assert.Equal(t, tt.want, got)
+			var got bytes.Buffer
+
+			tpl := helperNewTemplate(t, tt.template)
+			err := tpl.ExecuteTemplate(&got, testTemplateName, tt.args)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, got.String())
 		})
 	}
 }
@@ -300,52 +404,59 @@ func TestWhenEmpty(t *testing.T) {
 // TestIndent provides unit test coverage for Indent()
 func TestIndent(t *testing.T) {
 	type Args struct {
-		t       int
-		content string
+		T       int
+		Content string
 	}
 
 	tests := []struct {
-		name string
-		args Args
-		want string
+		name     string
+		template string
+		args     Args
+		want     string
+		wantErr  bool
 	}{
 		{
-			name: "none",
+			name:     "none",
+			template: `{{ indent .T .Content }}`,
 			args: Args{
-				t:       0,
-				content: "foo",
+				T:       0,
+				Content: "foo",
 			},
 			want: "foo",
 		},
 		{
-			name: "one",
+			name:     "one",
+			template: `{{ indent .T .Content }}`,
 			args: Args{
-				t:       1,
-				content: "foo",
+				T:       1,
+				Content: "foo",
 			},
 			want: "\tfoo",
 		},
 		{
-			name: "two",
+			name:     "two",
+			template: `{{ indent .T .Content }}`,
 			args: Args{
-				t:       2,
-				content: "foo",
+				T:       2,
+				Content: "foo",
 			},
 			want: "\t\tfoo",
 		},
 		{
-			name: "negative one",
+			name:     "negative one",
+			template: `{{ indent .T .Content }}`,
 			args: Args{
-				t:       -1,
-				content: "",
+				T:       -1,
+				Content: "",
 			},
 			want: "",
 		},
 		{
-			name: "multi line",
+			name:     "multi line",
+			template: `{{ indent .T .Content }}`,
 			args: Args{
-				t:       1,
-				content: "foo\nbar",
+				T:       1,
+				Content: "foo\nbar",
 			},
 			want: "\tfoo\n\tbar",
 		},
@@ -355,67 +466,82 @@ func TestIndent(t *testing.T) {
 		tt := st
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := Indent(tt.args.t, tt.args.content)
-			assert.Equal(t, tt.want, got)
+			var got bytes.Buffer
+
+			tpl := helperNewTemplate(t, tt.template)
+			err := tpl.ExecuteTemplate(&got, testTemplateName, tt.args)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, got.String())
 		})
 	}
 }
 
-// TestSuffix provides unit test coverage for Indent()
+// TestSuffix provides unit test coverage for Suffix()
 func TestSuffix(t *testing.T) {
 	type Args struct {
-		suffix  string
-		t       int
-		content string
+		Suffix  string
+		T       int
+		Content string
 	}
 
 	tests := []struct {
-		name string
-		args Args
-		want string
+		name     string
+		template string
+		args     Args
+		want     string
+		wantErr  bool
 	}{
 		{
-			name: "none",
+			name:     "none",
+			template: `{{ suffix .Suffix .T .Content }}`,
 			args: Args{
-				suffix:  "",
-				t:       0,
-				content: "foo",
+				Suffix:  "",
+				T:       0,
+				Content: "foo",
 			},
 			want: "foo",
 		},
 		{
-			name: "one",
+			name:     "one",
+			template: `{{ suffix .Suffix .T .Content }}`,
 			args: Args{
-				suffix:  "X",
-				t:       1,
-				content: "foo",
+				Suffix:  "X",
+				T:       1,
+				Content: "foo",
 			},
 			want: "fooX",
 		},
 		{
-			name: "two",
+			name:     "two",
+			template: `{{ suffix .Suffix .T .Content }}`,
 			args: Args{
-				suffix:  "X",
-				t:       2,
-				content: "foo",
+				Suffix:  "X",
+				T:       2,
+				Content: "foo",
 			},
 			want: "fooXX",
 		},
 		{
-			name: "negative one",
+			name:     "negative one",
+			template: `{{ suffix .Suffix .T .Content }}`,
 			args: Args{
-				suffix:  "X",
-				t:       -1,
-				content: "",
+				Suffix:  "X",
+				T:       -1,
+				Content: "",
 			},
 			want: "",
 		},
 		{
-			name: "multi line",
+			name:     "multi line",
+			template: `{{ suffix .Suffix .T .Content }}`,
 			args: Args{
-				suffix:  "X",
-				t:       1,
-				content: "foo\nbar",
+				Suffix:  "X",
+				T:       1,
+				Content: "foo\nbar",
 			},
 			want: "fooX\nbarX",
 		},
@@ -425,8 +551,16 @@ func TestSuffix(t *testing.T) {
 		tt := st
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := Suffix(tt.args.suffix, tt.args.t, tt.args.content)
-			assert.Equal(t, tt.want, got)
+			var got bytes.Buffer
+
+			tpl := helperNewTemplate(t, tt.template)
+			err := tpl.ExecuteTemplate(&got, testTemplateName, tt.args)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, got.String())
 		})
 	}
 }
@@ -434,39 +568,45 @@ func TestSuffix(t *testing.T) {
 // TestSpace provides unit test coverage for Space()
 func TestSpace(t *testing.T) {
 	type Args struct {
-		n int
+		N int
 	}
 
 	tests := []struct {
-		name string
-		args Args
-		want string
+		name     string
+		template string
+		args     Args
+		want     string
+		wantErr  bool
 	}{
 		{
-			name: "none",
+			name:     "none",
+			template: `{{ sp .N }}`,
 			args: Args{
-				n: 0,
+				N: 0,
 			},
 			want: "",
 		},
 		{
-			name: "one",
+			name:     "one",
+			template: `{{ sp .N }}`,
 			args: Args{
-				n: 1,
+				N: 1,
 			},
 			want: " ",
 		},
 		{
-			name: "two",
+			name:     "two",
+			template: `{{ sp .N }}`,
 			args: Args{
-				n: 2,
+				N: 2,
 			},
 			want: "  ",
 		},
 		{
-			name: "negative one",
+			name:     "negative one",
+			template: `{{ sp .N }}`,
 			args: Args{
-				n: -1,
+				N: -1,
 			},
 			want: "",
 		},
@@ -476,8 +616,16 @@ func TestSpace(t *testing.T) {
 		tt := st
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := Space(tt.args.n)
-			assert.Equal(t, tt.want, got)
+			var got bytes.Buffer
+
+			tpl := helperNewTemplate(t, tt.template)
+			err := tpl.ExecuteTemplate(&got, testTemplateName, tt.args)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, got.String())
 		})
 	}
 }
@@ -485,39 +633,45 @@ func TestSpace(t *testing.T) {
 // TestTab provides unit test coverage for Tab()
 func TestTab(t *testing.T) {
 	type Args struct {
-		n int
+		N int
 	}
 
 	tests := []struct {
-		name string
-		args Args
-		want string
+		name     string
+		template string
+		args     Args
+		want     string
+		wantErr  bool
 	}{
 		{
-			name: "none",
+			name:     "none",
+			template: `{{ tab .N }}`,
 			args: Args{
-				n: 0,
+				N: 0,
 			},
 			want: "",
 		},
 		{
-			name: "one",
+			name:     "one",
+			template: `{{ tab .N }}`,
 			args: Args{
-				n: 1,
+				N: 1,
 			},
 			want: "\t",
 		},
 		{
-			name: "two",
+			name:     "two",
+			template: `{{ tab .N }}`,
 			args: Args{
-				n: 2,
+				N: 2,
 			},
 			want: "\t\t",
 		},
 		{
-			name: "negative one",
+			name:     "negative one",
+			template: `{{ tab .N }}`,
 			args: Args{
-				n: -1,
+				N: -1,
 			},
 			want: "",
 		},
@@ -527,8 +681,16 @@ func TestTab(t *testing.T) {
 		tt := st
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := Tab(tt.args.n)
-			assert.Equal(t, tt.want, got)
+			var got bytes.Buffer
+
+			tpl := helperNewTemplate(t, tt.template)
+			err := tpl.ExecuteTemplate(&got, testTemplateName, tt.args)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, got.String())
 		})
 	}
 }
@@ -536,20 +698,23 @@ func TestTab(t *testing.T) {
 // TestPadRight provides unit test coverage for PadRight()
 func TestPadRight(t *testing.T) {
 	type Args struct {
-		n int
-		s string
+		N int
+		S string
 	}
 
 	tests := []struct {
-		name string
-		args Args
-		want string
+		name     string
+		template string
+		args     Args
+		want     string
+		wantErr  bool
 	}{
 		{
-			name: "basic",
+			name:     "basic",
+			template: `{{ padRight .N .S }}`,
 			args: Args{
-				n: 10,
-				s: "basic",
+				N: 10,
+				S: "basic",
 			},
 			want: "basic     ",
 		},
@@ -559,8 +724,16 @@ func TestPadRight(t *testing.T) {
 		tt := st
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := PadRight(tt.args.n, tt.args.s)
-			assert.Equal(t, tt.want, got)
+			var got bytes.Buffer
+
+			tpl := helperNewTemplate(t, tt.template)
+			err := tpl.ExecuteTemplate(&got, testTemplateName, tt.args)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, got.String())
 		})
 	}
 }
@@ -568,20 +741,23 @@ func TestPadRight(t *testing.T) {
 // TestPadLeft provides unit test coverage for PadLeft()
 func TestPadLeft(t *testing.T) {
 	type Args struct {
-		n int
-		s string
+		N int
+		S string
 	}
 
 	tests := []struct {
-		name string
-		args Args
-		want string
+		name     string
+		template string
+		args     Args
+		want     string
+		wantErr  bool
 	}{
 		{
-			name: "basic",
+			name:     "basic",
+			template: `{{ padLeft .N .S }}`,
 			args: Args{
-				n: 10,
-				s: "basic",
+				N: 10,
+				S: "basic",
 			},
 			want: "     basic",
 		},
@@ -591,113 +767,151 @@ func TestPadLeft(t *testing.T) {
 		tt := st
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := PadLeft(tt.args.n, tt.args.s)
-			assert.Equal(t, tt.want, got)
+			var got bytes.Buffer
+
+			tpl := helperNewTemplate(t, tt.template)
+			err := tpl.ExecuteTemplate(&got, testTemplateName, tt.args)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, got.String())
 		})
 	}
 }
 
-// TestNow shows that there's testing, and there just keeping yourself amused
+// TestNow shows that there's testing, and just keeping yourself amused
 func TestNow(t *testing.T) {
 	n := Now()
 	_, err := time.Parse(time.RFC3339, n)
 	assert.NoError(t, err)
 }
 
-// TestPadLeft provides unit test coverage for PadLeft()
+// TestIsZero provides unit test coverage for IsZero()
 func TestIsZero(t *testing.T) {
 	type Args struct {
-		val interface{}
+		Val interface{}
 	}
 
 	tests := []struct {
-		name string
-		args Args
-		want bool
+		name     string
+		template string
+		args     Args
+		want     string
+		wantErr  bool
 	}{
 		{
-			name: "nil",
+			name:     "nil",
+			template: `{{ isZero .Val }}`,
 			args: Args{
-				val: nil,
+				Val: nil,
 			},
-			want: true,
+			want: "true",
 		},
 		{
-			name: "zero int",
+			name:     "zero int",
+			template: `{{ isZero .Val }}`,
 			args: Args{
-				val: 0,
+				Val: 0,
 			},
-			want: true,
+			want: "true",
 		},
 		{
-			name: "non-zero int",
+			name:     "non-zero int",
+			template: `{{ isZero .Val }}`,
 			args: Args{
-				val: 10,
+				Val: 10,
 			},
-			want: false,
+			want: "false",
 		},
 		{
-			name: "pointer zero int",
+			name:     "pointer zero int",
+			template: `{{ isZero .Val }}`,
 			args: Args{
-				val: helperPtrToInt(0),
+				Val: helperPtrToInt(0),
 			},
-			want: false,
+			want: "false",
 		},
 		{
-			name: "pointer non-zero int",
+			name:     "pointer non-zero int",
+			template: `{{ isZero .Val }}`,
 			args: Args{
-				val: helperPtrToInt(-82),
+				Val: helperPtrToInt(-82),
 			},
-			want: false,
+			want: "false",
 		},
 		{
-			name: "non-zero int",
+			name:     "non-zero int",
+			template: `{{ isZero .Val }}`,
 			args: Args{
-				val: 10,
+				Val: 10,
 			},
-			want: false,
+			want: "false",
 		},
 		{
-			name: "non-zero int",
+			name:     "non-zero int",
+			template: `{{ isZero .Val }}`,
 			args: Args{
-				val: 10,
+				Val: 10,
 			},
-			want: false,
+			want: "false",
 		},
 		{
-			name: "empty string",
+			name:     "empty string",
+			template: `{{ isZero .Val }}`,
 			args: Args{
-				val: "",
+				Val: "",
 			},
-			want: true,
+			want: "true",
 		},
 		{
-			name: "non-empty string",
+			name:     "non-empty string",
+			template: `{{ isZero .Val }}`,
 			args: Args{
-				val: "foo",
+				Val: "foo",
 			},
-			want: false,
+			want: "false",
 		},
 		{
-			name: "empty array",
+			name:     "empty array",
+			template: `{{ isZero .Val }}`,
 			args: Args{
-				val: []int{},
+				Val: []int{},
 			},
-			want: true,
+			want: "true",
 		},
 		{
-			name: "nil array",
+			name:     "nil array",
+			template: `{{ isZero .Val }}`,
 			args: Args{
-				val: []float64(nil),
+				Val: []float64(nil),
 			},
-			want: true,
+			want: "true",
 		},
 		{
-			name: "non-empty array",
+			name:     "non-empty array",
+			template: `{{ isZero .Val }}`,
 			args: Args{
-				val: []string{"bar"},
+				Val: []string{"bar"},
 			},
-			want: false,
+			want: "false",
+		},
+		{
+			name:     "less simple & true",
+			template: `{{- if isZero .Val -}}one{{- else -}}two{{- end -}}`,
+			args: Args{
+				Val: 0,
+			},
+			want: "one",
+		},
+		{
+			name:     "less simple & false",
+			template: `{{- if isZero .Val -}}one{{- else -}}two{{- end -}}`,
+			args: Args{
+				Val: 2,
+			},
+			want: "two",
 		},
 	}
 
@@ -705,8 +919,16 @@ func TestIsZero(t *testing.T) {
 		tt := st
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := IsZero(tt.args.val)
-			assert.Equal(t, tt.want, got)
+			var got bytes.Buffer
+
+			tpl := helperNewTemplate(t, tt.template)
+			err := tpl.ExecuteTemplate(&got, testTemplateName, tt.args)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, got.String())
 		})
 	}
 }
@@ -714,32 +936,37 @@ func TestIsZero(t *testing.T) {
 // TestBracket provides unit test coverage for Bracket()
 func TestBracket(t *testing.T) {
 	type Args struct {
-		s string
+		S string
 	}
 
 	tests := []struct {
-		name string
-		args Args
-		want string
+		name     string
+		template string
+		args     Args
+		want     string
+		wantErr  bool
 	}{
 		{
-			name: "empty",
+			name:     "empty",
+			template: `{{ bracket .S }}`,
 			args: Args{
-				s: "",
+				S: "",
 			},
 			want: "()",
 		},
 		{
-			name: "word",
+			name:     "word",
+			template: `{{ bracket .S }}`,
 			args: Args{
-				s: "foo",
+				S: "foo",
 			},
 			want: "(foo)",
 		},
 		{
-			name: "words",
+			name:     "words",
+			template: `{{ bracket .S }}`,
 			args: Args{
-				s: "foo bar",
+				S: "foo bar",
 			},
 			want: "(foo bar)",
 		},
@@ -749,8 +976,16 @@ func TestBracket(t *testing.T) {
 		tt := st
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := Bracket(tt.args.s)
-			assert.Equal(t, tt.want, got)
+			var got bytes.Buffer
+
+			tpl := helperNewTemplate(t, tt.template)
+			err := tpl.ExecuteTemplate(&got, testTemplateName, tt.args)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, got.String())
 		})
 	}
 }
@@ -758,55 +993,61 @@ func TestBracket(t *testing.T) {
 // TestBracketWith provides unit test coverage for BracketWith()
 func TestBracketWith(t *testing.T) {
 	type Args struct {
-		b string
-		s string
+		B string
+		S string
 	}
 
 	tests := []struct {
-		name       string
-		args       Args
-		wantString string
-		wantError  bool
+		name     string
+		template string
+		args     Args
+		want     string
+		wantErr  bool
 	}{
 		{
-			name: "none",
+			name:     "none",
+			template: `{{ bracketWith .B .S }}`,
 			args: Args{
-				b: "",
-				s: "",
+				B: "",
+				S: "",
 			},
-			wantString: "",
+			want: "",
 		},
 		{
-			name: "basic",
+			name:     "basic",
+			template: `{{ bracketWith .B .S }}`,
 			args: Args{
-				b: "()",
-				s: "",
+				B: "()",
+				S: "",
 			},
-			wantString: "()",
+			want: "()",
 		},
 		{
-			name: "word",
+			name:     "word",
+			template: `{{ bracketWith .B .S }}`,
 			args: Args{
-				b: "<>",
-				s: "foo",
+				B: "<>",
+				S: "foo",
 			},
-			wantString: "<foo>",
+			want: "<foo>",
 		},
 		{
-			name: "words",
+			name:     "words",
+			template: `{{ bracketWith .B .S }}`,
 			args: Args{
-				b: "{{-  -}}",
-				s: "foo bar",
+				B: "{{-  -}}",
+				S: "foo bar",
 			},
-			wantString: "{{- foo bar -}}",
+			want: "{{- foo bar -}}",
 		},
 		{
-			name: "mismatched",
+			name:     "mismatched",
+			template: `{{ bracketWith .B .S }}`,
 			args: Args{
-				b: ")",
-				s: "baz",
+				B: ")",
+				S: "baz",
 			},
-			wantError: true,
+			wantErr: true,
 		},
 	}
 
@@ -814,13 +1055,16 @@ func TestBracketWith(t *testing.T) {
 		tt := st
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			gotString, gotError := BracketWith(tt.args.b, tt.args.s)
-			if tt.wantError {
-				require.Error(t, gotError)
-			} else {
-				require.NoError(t, gotError)
+			var got bytes.Buffer
+
+			tpl := helperNewTemplate(t, tt.template)
+			err := tpl.ExecuteTemplate(&got, testTemplateName, tt.args)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
 			}
-			assert.Equal(t, tt.wantString, gotString)
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, got.String())
 		})
 	}
 }
@@ -828,41 +1072,64 @@ func TestBracketWith(t *testing.T) {
 // TestJoin provides unit test coverage for Join()
 func TestJoin(t *testing.T) {
 	type Args struct {
-		s []string
+		A []interface{}
+		B string
 	}
 
 	tests := []struct {
-		name string
-		args Args
-		want string
+		name     string
+		template string
+		args     Args
+		want     string
+		wantErr  bool
 	}{
 		{
-			name: "nil",
+			name:     "nil",
+			template: `{{ join .A }}`,
 			args: Args{
-				s: nil,
+				A: nil,
 			},
 			want: "",
 		},
 		{
-			name: "empty",
+			name:     "empty",
+			template: `{{ join .A }}`,
 			args: Args{
-				s: []string{},
+				A: []interface{}{},
 			},
 			want: "",
 		},
 		{
-			name: "one",
+			name:     "one",
+			template: `{{ join .A }}`,
 			args: Args{
-				s: []string{"one"},
+				A: []interface{}{"one"},
 			},
 			want: "one",
 		},
 		{
-			name: "two",
+			name:     "two",
+			template: `{{ join .A }}`,
 			args: Args{
-				s: []string{"one", "two"},
+				A: []interface{}{"one", "two"},
 			},
 			want: "onetwo",
+		},
+		{
+			name:     "2",
+			template: `{{ join .A }}`,
+			args: Args{
+				A: []interface{}{1, 2},
+			},
+			want: "12",
+		},
+		{
+			name:     "bad list",
+			template: `{{ join .B }}`,
+			args: Args{
+				B: "Fail",
+			},
+			wantErr: true,
 		},
 	}
 
@@ -870,8 +1137,16 @@ func TestJoin(t *testing.T) {
 		tt := st
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := Join(tt.args.s...)
-			assert.Equal(t, tt.want, got)
+			var got bytes.Buffer
+
+			tpl := helperNewTemplate(t, tt.template)
+			err := tpl.ExecuteTemplate(&got, testTemplateName, tt.args)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, got.String())
 		})
 	}
 }
@@ -879,46 +1154,53 @@ func TestJoin(t *testing.T) {
 // TestTypeName provides unit test coverage for TypeName()
 func TestTypeName(t *testing.T) {
 	type Args struct {
-		val interface{}
+		Val interface{}
 	}
 
 	tests := []struct {
-		name string
-		args Args
-		want string
+		name     string
+		template string
+		args     Args
+		want     string
+		wantErr  bool
 	}{
 		{
-			name: "nil",
+			name:     "nil",
+			template: `{{ typeName .Val }}`,
 			args: Args{
-				val: nil,
+				Val: nil,
 			},
 			want: "nil",
 		},
 		{
-			name: "int",
+			name:     "int",
+			template: `{{ typeName .Val }}`,
 			args: Args{
-				val: 3,
+				Val: 3,
 			},
 			want: "int",
 		},
 		{
-			name: "time.Duration",
+			name:     "time.Duration",
+			template: `{{ typeName .Val }}`,
 			args: Args{
-				val: 10 * time.Second,
+				Val: 10 * time.Second,
 			},
 			want: "time.Duration",
 		},
 		{
-			name: "*int",
+			name:     "*int",
+			template: `{{ typeName .Val }}`,
 			args: Args{
-				val: helperPtrToInt(10),
+				Val: helperPtrToInt(10),
 			},
 			want: "*int",
 		},
 		{
-			name: "[]int",
+			name:     "[]int",
+			template: `{{ typeName .Val }}`,
 			args: Args{
-				val: []int{4},
+				Val: []int{4},
 			},
 			want: "[]int",
 		},
@@ -928,8 +1210,16 @@ func TestTypeName(t *testing.T) {
 		tt := st
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := TypeName(tt.args.val)
-			assert.Equal(t, tt.want, got)
+			var got bytes.Buffer
+
+			tpl := helperNewTemplate(t, tt.template)
+			err := tpl.ExecuteTemplate(&got, testTemplateName, tt.args)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, got.String())
 		})
 	}
 }
@@ -937,54 +1227,70 @@ func TestTypeName(t *testing.T) {
 // TestJoinWith provides unit test coverage for JoinWith()
 func TestJoinWith(t *testing.T) {
 	type Args struct {
-		glue string
-		s    []string
+		Glue string
+		A    []interface{}
+		B    string
 	}
 
 	tests := []struct {
-		name string
-		args Args
-		want string
+		name     string
+		template string
+		args     Args
+		want     string
+		wantErr  bool
 	}{
 		{
-			name: "nil",
+			name:     "nil",
+			template: `{{ joinWith .Glue .A }}`,
 			args: Args{
-				glue: "",
-				s:    nil,
+				Glue: "",
+				A:    nil,
 			},
 			want: "",
 		},
 		{
-			name: "empty",
+			name:     "empty",
+			template: `{{ joinWith .Glue .A }}`,
 			args: Args{
-				glue: "",
-				s:    []string{},
+				Glue: "",
+				A:    []interface{}{},
 			},
 			want: "",
 		},
 		{
-			name: "one",
+			name:     "one",
+			template: `{{ joinWith .Glue .A }}`,
 			args: Args{
-				glue: "*",
-				s:    []string{"one"},
+				Glue: "*",
+				A:    []interface{}{"one"},
 			},
 			want: "one",
 		},
 		{
-			name: "two",
+			name:     "two",
+			template: `{{ joinWith .Glue .A }}`,
 			args: Args{
-				glue: "^",
-				s:    []string{"one", "two"},
+				Glue: "^",
+				A:    []interface{}{"one", "two"},
 			},
 			want: "one^two",
 		},
 		{
-			name: "three",
+			name:     "three",
+			template: `{{ joinWith .Glue .A }}`,
 			args: Args{
-				glue: " - ",
-				s:    []string{"one", "two", "three"},
+				Glue: " - ",
+				A:    []interface{}{"one", "two", "three"},
 			},
 			want: "one - two - three",
+		},
+		{
+			name:     "bad list",
+			template: `{{ joinWith .Glue .B }}`,
+			args: Args{
+				B: "Fail",
+			},
+			wantErr: true,
 		},
 	}
 
@@ -992,8 +1298,16 @@ func TestJoinWith(t *testing.T) {
 		tt := st
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := JoinWith(tt.args.glue, tt.args.s...)
-			assert.Equal(t, tt.want, got)
+			var got bytes.Buffer
+
+			tpl := helperNewTemplate(t, tt.template)
+			err := tpl.ExecuteTemplate(&got, testTemplateName, tt.args)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, got.String())
 		})
 	}
 }
@@ -1001,30 +1315,34 @@ func TestJoinWith(t *testing.T) {
 // TestSplitOn provides unit test coverage for SplitOn()
 func TestSplitOn(t *testing.T) {
 	type Args struct {
-		glue string
-		s    string
+		Glue string
+		S    string
 	}
 
 	tests := []struct {
-		name string
-		args Args
-		want []string
+		name     string
+		template string
+		args     Args
+		want     string
+		wantErr  bool
 	}{
 		{
-			name: "one",
+			name:     "one",
+			template: `{{ splitOn .Glue .S | toJSON }}`,
 			args: Args{
-				glue: " ",
-				s:    "one",
+				Glue: " ",
+				S:    "one",
 			},
-			want: []string{"one"},
+			want: `["one"]`,
 		},
 		{
-			name: "two",
+			name:     "two",
+			template: `{{ splitOn .Glue .S | toJSON }}`,
 			args: Args{
-				glue: " ",
-				s:    "one two",
+				Glue: " ",
+				S:    "one two",
 			},
-			want: []string{"one", "two"},
+			want: `["one","two"]`,
 		},
 	}
 
@@ -1032,116 +1350,194 @@ func TestSplitOn(t *testing.T) {
 		tt := st
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := SplitOn(tt.args.glue, tt.args.s)
-			assert.Equal(t, tt.want, got)
+			var got bytes.Buffer
+
+			tpl := helperNewTemplate(t, tt.template)
+			err := tpl.ExecuteTemplate(&got, testTemplateName, tt.args)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, got.String())
 		})
 	}
 }
 
 // TestPrefix provides unit test coverage for Prefix()
 func TestPrefix(t *testing.T) {
-	t.Parallel()
 	type Args struct {
-		prefix  string
-		t       int
-		content string
+		Prefix  string
+		T       int
+		Content string
 	}
 
 	tests := []struct {
-		name string
-		args Args
-		want string
+		name     string
+		template string
+		args     Args
+		want     string
+		wantErr  bool
+	}{}
+
+	for _, st := range tests {
+		tt := st
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			var got bytes.Buffer
+
+			tpl := helperNewTemplate(t, tt.template)
+			err := tpl.ExecuteTemplate(&got, testTemplateName, tt.args)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, got.String())
+		})
+	}
+}
+
+// TestToColumn provides unit test coverage for ToColumn()
+func TestToColumn(t *testing.T) {
+	type Args struct {
+		W int
+		S string
+	}
+
+	tests := []struct {
+		name     string
+		template string
+		args     Args
+		want     string
+		wantErr  bool
 	}{
-		// tests go here
+		{
+			name:     "empty",
+			template: "{{ toColumns .W .S }}",
+			args: Args{
+				W: 10,
+				S: "",
+			},
+			want: "",
+		},
+		{
+			name:     "too small",
+			template: "{{ toColumns .W .S }}",
+			args: Args{
+				W: 10,
+				S: "foo",
+			},
+			want: "foo\n",
+		},
+		{
+			name:     "simple",
+			template: "{{ toColumns .W .S }}",
+			args: Args{
+				W: 3,
+				S: "foo bar",
+			},
+			want: "foo\nbar\n",
+		},
+		{
+			name:     "find space",
+			template: "{{ toColumns .W .S }}",
+			args: Args{
+				W: 4,
+				S: "foo bar",
+			},
+			want: "foo\nbar\n",
+		},
+		{
+			name:     "long word",
+			template: "{{ toColumns .W .S }}",
+			args: Args{
+				W: 4,
+				S: "foobar baz",
+			},
+			want: "foobar\nbaz\n",
+		},
+		{
+			name:     "four lines",
+			template: "{{ toColumns .W .S }}",
+			args: Args{
+				W: 3,
+				S: "foo bar baz snk",
+			},
+			want: "foo\nbar\nbaz\nsnk\n",
+		},
+		{
+			name:     "possible off by one",
+			template: "{{ toColumns .W .S }}",
+			args: Args{
+				W: 5,
+				S: "a b c d e f g",
+			},
+			want: "a b c\nd e f\ng\n",
+		},
+		{
+			name:     "many newlines",
+			template: "{{ toColumns .W .S }}",
+			args: Args{
+				W: 3,
+				S: "foo\n\n\n\nbar\n\n\n\n\n",
+			},
+			want: "foo\nbar\n",
+		},
 	}
 
 	for _, st := range tests {
 		tt := st
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := Prefix(tt.args.prefix, tt.args.t, tt.args.content)
-			assert.Equal(t, tt.want, got)
+			var got bytes.Buffer
+
+			tpl := helperNewTemplate(t, tt.template)
+			err := tpl.ExecuteTemplate(&got, testTemplateName, tt.args)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, got.String())
 		})
 	}
 }
 
-// TestToColumns provides unit test coverage for ToColumns()
-func TestToColumns(t *testing.T) {
-	//t.Parallel()
+// TestTerminalWidth provides unit test coverage for TerminalWidth()
+func TestTerminalWidth(t *testing.T) {
 	type Args struct {
-		w int
-		s string
 	}
 
 	tests := []struct {
-		name string
-		args Args
-		want string
+		name     string
+		template string
+		args     Args
+		want     string
+		wantErr  bool
 	}{
 		{
-			name: "empty",
-			args: Args{
-				w: 10,
-				s: "",
-			},
-			want: "",
-		},
-		{
-			name: "too small",
-			args: Args{
-				w: 10,
-				s: "foo",
-			},
-			want: "foo",
-		},
-		{
-			name: "simple",
-			args: Args{
-				w: 3,
-				s: "foo bar",
-			},
-			want: "foo\nbar",
-		},
-		{
-			name: "find space",
-			args: Args{
-				w: 4,
-				s: "foo bar",
-			},
-			want: "foo\nbar",
-		},
-		{
-			name: "long word",
-			args: Args{
-				w: 4,
-				s: "foobar baz",
-			},
-			want: "foobar\nbaz",
-		},
-		{
-			name: "four lines",
-			args: Args{
-				w: 3,
-				s: "foo bar baz snk",
-			},
-			want: "foo\nbar\nbaz\nsnk",
-		},
-		{
-			name: "possible off by one",
-			args: Args{
-				w: 5,
-				s: "a b c d e f g",
-			},
-			want: "a b c\nd e f\ng",
+			name:     "basic",
+			template: "{{ terminalWidth }}",
+			want:     "0", // probably - depends how/where the test is run
+			wantErr:  false,
 		},
 	}
 
 	for _, st := range tests {
 		tt := st
 		t.Run(tt.name, func(t *testing.T) {
-			//t.Parallel()
-			got := ToColumns(tt.args.w, tt.args.s)
-			assert.Equal(t, tt.want, got)
+			t.Parallel()
+			var got bytes.Buffer
+
+			tpl := helperNewTemplate(t, tt.template)
+			err := tpl.ExecuteTemplate(&got, testTemplateName, tt.args)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, got.String())
 		})
 	}
 }

@@ -3,6 +3,7 @@ package functions
 import (
 	"fmt"
 	"reflect"
+	"strings"
 )
 
 // listInfo returns basic info that we need for most list processing,
@@ -162,4 +163,36 @@ func Unshift(list interface{}, item interface{}) (interface{}, error) {
 	s = reflect.AppendSlice(s, a)
 
 	return s.Interface(), nil
+}
+
+// Join joins the given strings together
+func Join(list interface{}) (string, error) {
+	a, l, err := listInfo(list)
+	if err != nil {
+		return "", err
+	}
+
+	var b strings.Builder
+	for c := 0; c < l; c++ {
+		v := a.Index(c).Interface()
+		b.WriteString(fmt.Sprintf("%v", v))
+	}
+
+	return b.String(), nil
+}
+
+// JoinWith joins the given strings together using the given string as glue
+func JoinWith(glue string, list interface{}) (string, error) {
+	a, l, err := listInfo(list)
+	if err != nil {
+		return "", err
+	}
+
+	s := make([]string, l)
+	for c := 0; c < l; c++ {
+		v := a.Index(c).Interface()
+		s[c] = fmt.Sprintf("%v", v)
+	}
+
+	return strings.Join(s, glue), err
 }

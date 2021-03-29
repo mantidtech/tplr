@@ -1,8 +1,8 @@
 package functions
 
 import (
-	"bytes"
 	"fmt"
+	"os"
 	"reflect"
 	"strings"
 	"text/template"
@@ -11,6 +11,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/mantidtech/wordcase"
+	"golang.org/x/sys/unix"
 )
 
 // All returns all of the templating functions
@@ -20,13 +21,14 @@ func All(t *template.Template) template.FuncMap {
 		"indent":             Indent,
 		"nl":                 Newline,
 		"now":                Now,
-		"toColumns":          ToColumns,
+		"toColumns":          ToColumn,
 		"padLeft":            PadLeft,
 		"padRight":           PadRight,
 		"prefix":             Prefix,
 		"suffix":             Suffix,
 		"rep":                Rep,
 		"space":              Space,
+		"sp":                 Space,
 		"tab":                Tab,
 		"toLower":            strings.ToLower,
 		"toUpper":            strings.ToUpper,
@@ -63,6 +65,7 @@ func All(t *template.Template) template.FuncMap {
 		"slice":              Slice,
 		"toBase64":           ToBase64,
 		"fromBase64":         FromBase64,
+		"terminalWidth":      TerminalWidth,
 	}
 }
 
@@ -104,13 +107,13 @@ func Rep(n int, s ...string) string {
 	if n < 0 {
 		return ""
 	}
-	r := strings.Join(s, "")
+	r := strings.Join(s, " ")
 	return strings.Repeat(r, n)
 }
 
 // WhenEmpty returns the second argument if the first is "empty", otherwise it returns the first
-func WhenEmpty(d, s string) string {
-	if s == "" {
+func WhenEmpty(d, s interface{}) interface{} {
+	if IsZero(s) {
 		return d
 	}
 	return s
@@ -189,37 +192,72 @@ func PadLeft(n int, s string) string {
 	return fmt.Sprintf(f, s)
 }
 
-// ToColumns formats the given text to not take more than 'w' characters per line,
-// splitting on the space before the word that would take the line over
-//  Note: Embedded newlines have no special treatment, so text containing them could look wonky.
-//        Either strip them first, or break the input into multiple strings and process individually
-func ToColumns(w int, s string) string {
-	var b bytes.Buffer
+// ToColumn formats the given text to not take more than 'w' characters per line,
+// splitting on the space before the word that would take the line over.
+// If no space can be found, the line isn't split (ie words bigger than the line size are printed unsplit)
+func ToColumn(w int, s string) string {
+	var b strings.Builder
+	tail := ""
+
+	parts := strings.Split(s, "\n")
+	for _, p := range parts {
+		p := tail + p
+		tail = ""
+
+		lines := columnify(w, p)
+		if len(lines) > 1 {
+			tail = lines[len(lines)-1]
+		}
+
+		numLines := len(lines)
+		for i, l := range lines {
+			if i > 0 && i == numLines-1 {
+				tail = l
+				break
+			}
+
+			b.WriteString(l)
+			b.WriteByte('\n')
+		}
+	}
+
+	if len(tail) > 0 {
+		b.WriteString(tail)
+		b.WriteByte('\n')
+	}
+
+	return b.String()
+}
+
+// columnify is a helper method for ToColumn to split lines on spaces
+func columnify(w int, s string) []string {
+	var lines []string
 
 	var at, i int
 	for at < len(s) {
 		i = at + w
 		if i >= len(s) {
-			b.WriteString(s[at:])
+			lines = append(lines, s[at:])
 			break
 		}
 
 		// look backwards for a space
 		for ; i > at && s[i] != ' '; i-- {
+			// just keep stepping
 		}
 
 		if i == at { // didn't find one
 			// look forwards for a space
 			for i = at + w; i < len(s) && s[i] != ' '; i++ {
+				// just keep stepping
 			}
 		}
 
-		b.WriteString(s[at:i])
-		b.WriteByte('\n')
+		lines = append(lines, s[at:i])
 		at = i + 1
 	}
 
-	return b.String()
+	return lines
 }
 
 // Now returns the current time in the format "2006-01-02T15:04:05Z07:00"
@@ -259,22 +297,6 @@ func BracketWith(b string, s interface{}) (string, error) {
 	return l + fmt.Sprintf("%v", s) + r, nil
 }
 
-// Join joins the given strings together
-func Join(s ...string) string {
-	if s == nil {
-		return ""
-	}
-	return strings.Join(s, "")
-}
-
-// JoinWith joins the given strings together using the given string as glue
-func JoinWith(glue string, s ...string) string {
-	if s == nil {
-		return ""
-	}
-	return strings.Join(s, glue)
-}
-
 // SplitOn creates an array from the given string by separating it by the glue string
 func SplitOn(glue string, s string) []string {
 	return strings.Split(s, glue)
@@ -286,4 +308,14 @@ func TypeName(val interface{}) string {
 		return "nil"
 	}
 	return reflect.TypeOf(val).String()
+}
+
+// TerminalWidth returns the number of columns that the terminal currently has,
+// or 0 if the program isn't run in one, or it can't otherwise be determined
+func TerminalWidth() int {
+	ws, err := unix.IoctlGetWinsize(int(os.Stdout.Fd()), unix.TIOCGWINSZ)
+	if err != nil {
+		return 0
+	}
+	return int(ws.Col)
 }
