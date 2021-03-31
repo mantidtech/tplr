@@ -51,6 +51,7 @@ func All(t *template.Template) template.FuncMap {
 		"screamingSnakeCase": wordcase.ScreamingSnakeCase,
 		"snakeCase":          wordcase.SnakeCase,
 		"titleCase":          wordcase.TitleCase,
+		"titleCaseWithAbbr":  TitleCaseWithAbbr,
 		"toWords":            wordcase.Words,
 		"list":               List,
 		"first":              First,
@@ -318,4 +319,32 @@ func TerminalWidth() int {
 		return 0
 	}
 	return int(ws.Col)
+}
+
+// titleCaseWithAbbrHelper uppercases the first letter of each word, or the whole word if it matches a given abbreviation
+func titleCaseWithAbbrHelper(abbrv []string) wordcase.Combiner {
+	selector := wordcase.KeyWordFn(abbrv)
+	return wordcase.NewPipeline().
+		TokenizeUsing(wordcase.LookAroundCategorizer, wordcase.NotLetterOrDigit, true).
+		TokenizeUsing(wordcase.LookAroundCategorizer, wordcase.NotLowerOrDigit, false).
+		WithAllFormatter(strings.ToLower).
+		WithFormatter(strings.ToUpper, selector).
+		WithAllFormatter(wordcase.UppercaseFirst).
+		JoinWith(" ")
+}
+
+// TitleCaseWithAbbr uppercases the first letter of each word, or the whole word if it matches a given abbreviation
+func TitleCaseWithAbbr(abbrv interface{}, word string) (string, error) {
+	a, l, err := listInfo(abbrv)
+	if err != nil {
+		return "", err
+	}
+
+	strList := make([]string, l)
+	for c := 0; c < l; c++ {
+		strList[c] = fmt.Sprintf("%v", a.Index(c).Interface())
+	}
+
+	tc := titleCaseWithAbbrHelper(strList)
+	return tc(word), nil
 }

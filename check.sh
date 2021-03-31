@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 function bold() {
   printf "\x1b[1m%s\x1b[0m\n" "$*"

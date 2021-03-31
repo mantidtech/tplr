@@ -30,7 +30,7 @@ func helperNewTemplate(t *testing.T, tpl string) *template.Template {
 // TestAll provides unit test coverage for All()
 func TestAll(t *testing.T) {
 	fn := All(nil)
-	assert.Len(t, fn, 49, "weakly ensuring functions haven't been added/removed without updating tests")
+	assert.Len(t, fn, 50, "weakly ensuring functions haven't been added/removed without updating tests")
 }
 
 // TestGenerateIncludeFn provides unit test coverage for GenerateIncludeFn()
@@ -1521,6 +1521,69 @@ func TestTerminalWidth(t *testing.T) {
 			template: "{{ terminalWidth }}",
 			want:     "0", // probably - depends how/where the test is run
 			wantErr:  false,
+		},
+	}
+
+	for _, st := range tests {
+		tt := st
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			var got bytes.Buffer
+
+			tpl := helperNewTemplate(t, tt.template)
+			err := tpl.ExecuteTemplate(&got, testTemplateName, tt.args)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, got.String())
+		})
+	}
+}
+
+// TestTitleCaseWithAbbr provides unit test coverage for TitleCaseWithAbbr()
+func TestTitleCaseWithAbbr(t *testing.T) {
+	type Args struct {
+		Abbrv []string
+		Word  string
+	}
+
+	tests := []struct {
+		name     string
+		template string
+		args     Args
+		want     string
+		wantErr  bool
+	}{
+		{
+			name:     "no abbreviations",
+			template: `{{ titleCaseWithAbbr .Abbrv .Word }}`,
+			args: Args{
+				Abbrv: []string{},
+				Word:  "nz all blacks",
+			},
+			want:    "Nz All Blacks",
+			wantErr: false,
+		},
+		{
+			name:     "basic",
+			template: `{{ titleCaseWithAbbr .Abbrv .Word }}`,
+			args: Args{
+				Abbrv: []string{"nz"},
+				Word:  "nz all blacks",
+			},
+			want:    "NZ All Blacks",
+			wantErr: false,
+		},
+		{
+			name:     "in-line list",
+			template: `{{ titleCaseWithAbbr (list "nz") .Word }}`,
+			args: Args{
+				Word: "nz all blacks",
+			},
+			want:    "NZ All Blacks",
+			wantErr: false,
 		},
 	}
 
