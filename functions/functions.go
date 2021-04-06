@@ -32,6 +32,7 @@ func All(t *template.Template) template.FuncMap {
 		"tab":                Tab,
 		"toLower":            strings.ToLower,
 		"toUpper":            strings.ToUpper,
+		"trim":               strings.TrimSpace,
 		"ucFirst":            UppercaseFirst,
 		"whenEmpty":          WhenEmpty,
 		"isZero":             IsZero,
