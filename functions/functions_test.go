@@ -30,7 +30,7 @@ func helperNewTemplate(t *testing.T, tpl string) *template.Template {
 // TestAll provides unit test coverage for All()
 func TestAll(t *testing.T) {
 	fn := All(nil)
-	assert.Len(t, fn, 50, "weakly ensuring functions haven't been added/removed without updating tests")
+	assert.Len(t, fn, 51, "weakly ensuring functions haven't been added/removed without updating tests")
 }
 
 // TestGenerateIncludeFn provides unit test coverage for GenerateIncludeFn()
@@ -431,7 +431,7 @@ func TestIndent(t *testing.T) {
 				T:       1,
 				Content: "foo",
 			},
-			want: "\tfoo",
+			want: " foo",
 		},
 		{
 			name:     "two",
@@ -440,7 +440,7 @@ func TestIndent(t *testing.T) {
 				T:       2,
 				Content: "foo",
 			},
-			want: "\t\tfoo",
+			want: "  foo",
 		},
 		{
 			name:     "negative one",
@@ -458,7 +458,7 @@ func TestIndent(t *testing.T) {
 				T:       1,
 				Content: "foo\nbar",
 			},
-			want: "\tfoo\n\tbar",
+			want: " foo\n bar",
 		},
 	}
 
@@ -1240,8 +1240,8 @@ func TestTypeName(t *testing.T) {
 	}
 }
 
-// TestKindName provides unit test coverage for TypeKind()
-func TestKindName(t *testing.T) {
+// TestTypeKind provides unit test coverage for TypeKind()
+func TestTypeKind(t *testing.T) {
 	type Args struct {
 		Val interface{}
 	}
@@ -1255,7 +1255,7 @@ func TestKindName(t *testing.T) {
 	}{
 		{
 			name:     "nil",
-			template: `{{ kindName .Val }}`,
+			template: `{{ typeKind .Val }}`,
 			args: Args{
 				Val: nil,
 			},
@@ -1263,7 +1263,7 @@ func TestKindName(t *testing.T) {
 		},
 		{
 			name:     "int",
-			template: `{{ kindName .Val }}`,
+			template: `{{ typeKind .Val }}`,
 			args: Args{
 				Val: 3,
 			},
@@ -1271,7 +1271,7 @@ func TestKindName(t *testing.T) {
 		},
 		{
 			name:     "time.Duration",
-			template: `{{ kindName .Val }}`,
+			template: `{{ typeKind .Val }}`,
 			args: Args{
 				Val: 10 * time.Second,
 			},
@@ -1279,7 +1279,7 @@ func TestKindName(t *testing.T) {
 		},
 		{
 			name:     "*int",
-			template: `{{ kindName .Val }}`,
+			template: `{{ typeKind .Val }}`,
 			args: Args{
 				Val: helperPtrToInt(10),
 			},
@@ -1287,7 +1287,7 @@ func TestKindName(t *testing.T) {
 		},
 		{
 			name:     "[]int",
-			template: `{{ kindName .Val }}`,
+			template: `{{ typeKind .Val }}`,
 			args: Args{
 				Val: []int{4},
 			},
