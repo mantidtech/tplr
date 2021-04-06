@@ -41,6 +41,7 @@ func All(t *template.Template) template.FuncMap {
 		"joinWith":           JoinWith,
 		"splitOn":            SplitOn,
 		"typeName":           TypeName,
+		"typeKind":           TypeKind,
 		"toJSON":             ToJSON,
 		"formatJSON":         FormatJSON,
 		"toYAML":             ToYAML,
@@ -120,9 +121,9 @@ func WhenEmpty(d, s interface{}) interface{} {
 	return s
 }
 
-// Indent prints the given string with the given number of tabs prepended before each line
+// Indent prints the given string with the given number of spaces prepended before each line
 func Indent(t int, content string) string {
-	return Prefix("\t", t, content)
+	return Prefix(" ", t, content)
 }
 
 // Prefix prints the given string with the given number of 'prefix' prepended before each line
@@ -309,6 +310,14 @@ func TypeName(val interface{}) string {
 		return "nil"
 	}
 	return reflect.TypeOf(val).String()
+}
+
+// TypeKind returns the 'kind'' of the given value as a string
+func TypeKind(val interface{}) string {
+	if val == nil {
+		return "nil"
+	}
+	return reflect.ValueOf(val).Kind().String()
 }
 
 // TerminalWidth returns the number of columns that the terminal currently has,

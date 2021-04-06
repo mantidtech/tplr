@@ -810,6 +810,22 @@ func TestIsZero(t *testing.T) {
 			want: "true",
 		},
 		{
+			name:     "bool true",
+			template: `{{ isZero .Val }}`,
+			args: Args{
+				Val: true,
+			},
+			want: "false",
+		},
+		{
+			name:     "bool false",
+			template: `{{ isZero .Val }}`,
+			args: Args{
+				Val: false,
+			},
+			want: "true",
+		},
+		{
 			name:     "zero int",
 			template: `{{ isZero .Val }}`,
 			args: Args{
@@ -1203,6 +1219,79 @@ func TestTypeName(t *testing.T) {
 				Val: []int{4},
 			},
 			want: "[]int",
+		},
+	}
+
+	for _, st := range tests {
+		tt := st
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			var got bytes.Buffer
+
+			tpl := helperNewTemplate(t, tt.template)
+			err := tpl.ExecuteTemplate(&got, testTemplateName, tt.args)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, got.String())
+		})
+	}
+}
+
+// TestKindName provides unit test coverage for TypeKind()
+func TestKindName(t *testing.T) {
+	type Args struct {
+		Val interface{}
+	}
+
+	tests := []struct {
+		name     string
+		template string
+		args     Args
+		want     string
+		wantErr  bool
+	}{
+		{
+			name:     "nil",
+			template: `{{ kindName .Val }}`,
+			args: Args{
+				Val: nil,
+			},
+			want: "nil",
+		},
+		{
+			name:     "int",
+			template: `{{ kindName .Val }}`,
+			args: Args{
+				Val: 3,
+			},
+			want: "int",
+		},
+		{
+			name:     "time.Duration",
+			template: `{{ kindName .Val }}`,
+			args: Args{
+				Val: 10 * time.Second,
+			},
+			want: "int64",
+		},
+		{
+			name:     "*int",
+			template: `{{ kindName .Val }}`,
+			args: Args{
+				Val: helperPtrToInt(10),
+			},
+			want: "ptr",
+		},
+		{
+			name:     "[]int",
+			template: `{{ kindName .Val }}`,
+			args: Args{
+				Val: []int{4},
+			},
+			want: "slice",
 		},
 	}
 
