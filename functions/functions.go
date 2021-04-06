@@ -38,6 +38,9 @@ func All(t *template.Template) template.FuncMap {
 		"isZero":             IsZero,
 		"bracket":            Bracket,
 		"bracketWith":        BracketWith,
+		"q":                  QuoteSingle,
+		"qq":                 QuoteDouble,
+		"bq":                 QuoteBack,
 		"join":               Join,
 		"joinWith":           JoinWith,
 		"splitOn":            SplitOn,
@@ -287,7 +290,22 @@ func IsZero(val interface{}) bool {
 
 // Bracket adds brackets around the given string
 func Bracket(s interface{}) string {
-	return "(" + fmt.Sprintf("%v", s) + ")"
+	return fmt.Sprintf("(%v)", s)
+}
+
+// QuoteSingle adds single quote around the given string
+func QuoteSingle(s interface{}) string {
+	return fmt.Sprintf("'%v'", s)
+}
+
+// QuoteDouble adds double quote around the given string
+func QuoteDouble(s interface{}) string {
+	return fmt.Sprintf("\"%v\"", s)
+}
+
+// QuoteBack adds back-quotes around the given string
+func QuoteBack(s interface{}) string {
+	return fmt.Sprintf("`%v`", s)
 }
 
 // BracketWith adds brackets of a given type around the given string
@@ -297,7 +315,7 @@ func BracketWith(b string, s interface{}) (string, error) {
 	}
 	h := len(b) / 2
 	l, r := b[:h], b[h:]
-	return l + fmt.Sprintf("%v", s) + r, nil
+	return fmt.Sprintf("%s%v%s", l, s, r), nil
 }
 
 // SplitOn creates an array from the given string by separating it by the glue string

@@ -30,7 +30,7 @@ func helperNewTemplate(t *testing.T, tpl string) *template.Template {
 // TestAll provides unit test coverage for All()
 func TestAll(t *testing.T) {
 	fn := All(nil)
-	assert.Len(t, fn, 52, "weakly ensuring functions haven't been added/removed without updating tests")
+	assert.Len(t, fn, 55, "weakly ensuring functions haven't been added/removed without updating tests")
 }
 
 // TestGenerateIncludeFn provides unit test coverage for GenerateIncludeFn()
@@ -1672,6 +1672,159 @@ func TestTitleCaseWithAbbr(t *testing.T) {
 				Word: "nz all blacks",
 			},
 			want:    "NZ All Blacks",
+			wantErr: false,
+		},
+	}
+
+	for _, st := range tests {
+		tt := st
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			var got bytes.Buffer
+
+			tpl := helperNewTemplate(t, tt.template)
+			err := tpl.ExecuteTemplate(&got, testTemplateName, tt.args)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, got.String())
+		})
+	}
+}
+
+// TestQuoteSingle provides unit test coverage for QuoteSingle
+func TestQuoteSingle(t *testing.T) {
+	type Args struct {
+		S string
+	}
+
+	tests := []struct {
+		name     string
+		template string
+		args     Args
+		want     string
+		wantErr  bool
+	}{
+		{
+			name:     "empty",
+			template: "{{- q .S -}}",
+			args: Args{
+				S: "",
+			},
+			want:    "''",
+			wantErr: false,
+		},
+		{
+			name:     "basic",
+			template: "{{- q .S -}}",
+			args: Args{
+				S: "rawr",
+			},
+			want:    "'rawr'",
+			wantErr: false,
+		},
+	}
+
+	for _, st := range tests {
+		tt := st
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			var got bytes.Buffer
+
+			tpl := helperNewTemplate(t, tt.template)
+			err := tpl.ExecuteTemplate(&got, testTemplateName, tt.args)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, got.String())
+		})
+	}
+}
+
+// TestQuoteDouble provides unit test coverage for QuoteDouble
+func TestQuoteDouble(t *testing.T) {
+	type Args struct {
+		S string
+	}
+
+	tests := []struct {
+		name     string
+		template string
+		args     Args
+		want     string
+		wantErr  bool
+	}{
+		{
+			name:     "empty",
+			template: "{{- qq .S -}}",
+			args: Args{
+				S: "",
+			},
+			want:    "\"\"",
+			wantErr: false,
+		},
+		{
+			name:     "basic",
+			template: "{{- qq .S -}}",
+			args: Args{
+				S: "rawr",
+			},
+			want:    "\"rawr\"",
+			wantErr: false,
+		},
+	}
+
+	for _, st := range tests {
+		tt := st
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			var got bytes.Buffer
+
+			tpl := helperNewTemplate(t, tt.template)
+			err := tpl.ExecuteTemplate(&got, testTemplateName, tt.args)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, got.String())
+		})
+	}
+}
+
+// TestQuoteBack provides unit test coverage for QuoteBack
+func TestQuoteBack(t *testing.T) {
+	type Args struct {
+		S string
+	}
+
+	tests := []struct {
+		name     string
+		template string
+		args     Args
+		want     string
+		wantErr  bool
+	}{
+		{
+			name:     "empty",
+			template: "{{- bq .S -}}",
+			args: Args{
+				S: "",
+			},
+			want:    "``",
+			wantErr: false,
+		},
+		{
+			name:     "basic",
+			template: "{{- bq .S -}}",
+			args: Args{
+				S: "rawr",
+			},
+			want:    "`rawr`",
 			wantErr: false,
 		},
 	}

@@ -1,39 +1,48 @@
 #!/bin/bash
-set -e
 
 function bold() {
-  printf "\x1b[1m%s\x1b[0m\n" "$*"
+  printf "\033[34;1m%s\033[0m\n" "$*"
 }
 
-bold deps
-go mod tidy
-go mod download
+tasks=(fmt lint vet err static sec cyclo test cover)
 
-bold go fmt
-go fmt ./...
+if [[ "${#@}" -gt 0 ]]; then
+  tasks=("$@")
+fi
 
-bold golint
-golint -set_exit_status ./...
-
-bold go vet
-go vet ./...
-
-bold errcheck
-errcheck -ignoretests ./...
-
-bold staticcheck
-staticcheck ./...
-
-bold gosec
-gosec -exclude=G304 -quiet ./...
-
-bold goocyclo
-gocyclo -over 10 -avg .
-
-
-bold go test
-chmod 000 testdata/secret
-go test ./... -cover -coverprofile=coverage.out
-go tool cover -html coverage.out -o coverage.html
-go tool cover -func coverage.out
-chmod 644 testdata/secret
+for task in "${tasks[@]}"; do
+  bold $task
+  case $task in
+    fmt)
+      go fmt ./...
+      ;;
+    lint)
+      golint ./...
+      ;;
+    vet)
+      go vet ./...
+      ;;
+    err)
+      errcheck -ignoretests ./...
+      ;;
+    static)
+      # https://staticcheck.io/docs/checks
+      staticcheck ./...
+      ;;
+    sec)
+      gosec -exclude=G304 -quiet ./...
+      ;;
+    cyclo)
+      gocyclo -over 10 -avg .
+      ;;
+    test)
+      chmod 000 testdata/secret
+      go test ./... -cover -coverprofile=coverage.out
+      chmod 644 testdata/secret
+      ;;
+    cover)
+      go tool cover -html coverage.out -o coverage.html
+      go tool cover -func coverage.out
+      ;;
+  esac
+done
