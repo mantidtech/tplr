@@ -1,11 +1,18 @@
 package functions
 
 import (
+	"bytes"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+// TestListFunctions provides unit test coverage for ListFunctions
+func TestListFunctions(t *testing.T) {
+	fn := ListFunctions()
+	assert.Len(t, fn, 13, "weakly ensuring functions haven't been added/removed without updating tests")
+}
 
 // TestList provides unit test coverage for List()
 func TestList(t *testing.T) {
@@ -731,6 +738,176 @@ func TestSlice(t *testing.T) {
 				require.NoError(t, gotError)
 				assert.Equal(t, tt.wantInterface, gotInterface)
 			}
+		})
+	}
+}
+
+// TestJoin provides unit test coverage for Join()
+func TestJoin(t *testing.T) {
+	type Args struct {
+		A []interface{}
+		B string
+	}
+
+	tests := []struct {
+		name     string
+		template string
+		args     Args
+		want     string
+		wantErr  bool
+	}{
+		{
+			name:     "nil",
+			template: `{{ join .A }}`,
+			args: Args{
+				A: nil,
+			},
+			want: "",
+		},
+		{
+			name:     "empty",
+			template: `{{ join .A }}`,
+			args: Args{
+				A: []interface{}{},
+			},
+			want: "",
+		},
+		{
+			name:     "one",
+			template: `{{ join .A }}`,
+			args: Args{
+				A: []interface{}{"one"},
+			},
+			want: "one",
+		},
+		{
+			name:     "two",
+			template: `{{ join .A }}`,
+			args: Args{
+				A: []interface{}{"one", "two"},
+			},
+			want: "onetwo",
+		},
+		{
+			name:     "2",
+			template: `{{ join .A }}`,
+			args: Args{
+				A: []interface{}{1, 2},
+			},
+			want: "12",
+		},
+		{
+			name:     "bad list",
+			template: `{{ join .B }}`,
+			args: Args{
+				B: "Fail",
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, st := range tests {
+		tt := st
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			var got bytes.Buffer
+
+			tpl := helperNewTemplate(t, tt.template)
+			err := tpl.ExecuteTemplate(&got, testTemplateName, tt.args)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, got.String())
+		})
+	}
+}
+
+// TestJoinWith provides unit test coverage for JoinWith()
+func TestJoinWith(t *testing.T) {
+	type Args struct {
+		Glue string
+		A    []interface{}
+		B    string
+	}
+
+	tests := []struct {
+		name     string
+		template string
+		args     Args
+		want     string
+		wantErr  bool
+	}{
+		{
+			name:     "nil",
+			template: `{{ joinWith .Glue .A }}`,
+			args: Args{
+				Glue: "",
+				A:    nil,
+			},
+			want: "",
+		},
+		{
+			name:     "empty",
+			template: `{{ joinWith .Glue .A }}`,
+			args: Args{
+				Glue: "",
+				A:    []interface{}{},
+			},
+			want: "",
+		},
+		{
+			name:     "one",
+			template: `{{ joinWith .Glue .A }}`,
+			args: Args{
+				Glue: "*",
+				A:    []interface{}{"one"},
+			},
+			want: "one",
+		},
+		{
+			name:     "two",
+			template: `{{ joinWith .Glue .A }}`,
+			args: Args{
+				Glue: "^",
+				A:    []interface{}{"one", "two"},
+			},
+			want: "one^two",
+		},
+		{
+			name:     "three",
+			template: `{{ joinWith .Glue .A }}`,
+			args: Args{
+				Glue: " - ",
+				A:    []interface{}{"one", "two", "three"},
+			},
+			want: "one - two - three",
+		},
+		{
+			name:     "bad list",
+			template: `{{ joinWith .Glue .B }}`,
+			args: Args{
+				B: "Fail",
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, st := range tests {
+		tt := st
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			var got bytes.Buffer
+
+			tpl := helperNewTemplate(t, tt.template)
+			err := tpl.ExecuteTemplate(&got, testTemplateName, tt.args)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, got.String())
 		})
 	}
 }

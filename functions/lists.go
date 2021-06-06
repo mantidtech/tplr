@@ -4,7 +4,27 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
+	"text/template"
 )
+
+// ListFunctions operate on collections of items
+func ListFunctions() template.FuncMap {
+	return template.FuncMap{
+		"contains": Contains,
+		"filter":   Filter,
+		"first":    First,
+		"join":     Join,
+		"joinWith": JoinWith,
+		"last":     Last,
+		"list":     List,
+		"pop":      Pop,
+		"push":     Push,
+		"rest":     Rest,
+		"shift":    Rest,
+		"slice":    Slice,
+		"unshift":  Unshift,
+	}
+}
 
 // listInfo returns basic info that we need for most list processing,
 // ie it's reflect.Value (converted to the generic []interface{} type), length,
@@ -167,25 +187,20 @@ func Unshift(list interface{}, item interface{}) (interface{}, error) {
 
 // Join joins the given strings together
 func Join(list interface{}) (string, error) {
-	a, l, err := listInfo(list)
-	if err != nil {
-		return "", err
-	}
-
-	var b strings.Builder
-	for c := 0; c < l; c++ {
-		v := a.Index(c).Interface()
-		b.WriteString(fmt.Sprintf("%v", v))
-	}
-
-	return b.String(), nil
+	return JoinWith("", list)
 }
 
 // JoinWith joins the given strings together using the given string as glue
 func JoinWith(glue string, list interface{}) (string, error) {
+	s, err := asStringList(list)
+
+	return strings.Join(s, glue), err
+}
+
+func asStringList(list interface{}) ([]string, error) {
 	a, l, err := listInfo(list)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	s := make([]string, l)
@@ -193,6 +208,23 @@ func JoinWith(glue string, list interface{}) (string, error) {
 		v := a.Index(c).Interface()
 		s[c] = fmt.Sprintf("%v", v)
 	}
-
-	return strings.Join(s, glue), err
+	return s, nil
 }
+
+//func flatten(things ...interface{}) interface{} {
+//	if things == nil {
+//		return nil
+//	}
+//
+//	list := reflect.MakeSlice(reflect.TypeOf(([]interface{})(nil)), 0, 25)
+//	for _, i := range things {
+//		t := reflect.TypeOf(i).Kind()
+//		if t == reflect.Slice || t == reflect.Array {
+//			list = reflect.AppendSlice(list, reflect.ValueOf(i))
+//		} else {
+//			list = reflect.Append(list, reflect.ValueOf(i))
+//		}
+//	}
+//
+//	return list
+//}

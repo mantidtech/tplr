@@ -7,6 +7,12 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// // TestEncodingFunctions provides unit test coverage for EncodingFunctions
+func TestEncodingFunctions(t *testing.T) {
+	fn := EncodingFunctions()
+	assert.Len(t, fn, 5, "weakly ensuring functions haven't been added/removed without updating tests")
+}
+
 // TestToJSON provides unit test coverage for ToJSON()
 func TestToJSON(t *testing.T) {
 	type Args struct {

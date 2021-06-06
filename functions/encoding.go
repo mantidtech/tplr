@@ -5,9 +5,21 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"text/template"
 
 	"gopkg.in/yaml.v2"
 )
+
+// EncodingFunctions for encoding and decoding various formats
+func EncodingFunctions() template.FuncMap {
+	return template.FuncMap{
+		"formatJSON": FormatJSON,
+		"fromBase64": FromBase64,
+		"toBase64":   ToBase64,
+		"toJSON":     ToJSON,
+		"toYAML":     ToYAML,
+	}
+}
 
 // ToJSON returns the given value as a json string
 func ToJSON(val interface{}) (string, error) {
