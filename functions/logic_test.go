@@ -11,7 +11,7 @@ import (
 // TestLogicFunctions provides unit test coverage for LogicFunctions
 func TestLogicFunctions(t *testing.T) {
 	fn := LogicFunctions()
-	assert.Len(t, fn, 3, "weakly ensuring functions haven't been added/removed without updating tests")
+	assert.Len(t, fn, 5, "weakly ensuring functions haven't been added/removed without updating tests")
 }
 
 // TestWhen provides unit test coverage for When()
@@ -312,6 +312,206 @@ func TestIsZero(t *testing.T) {
 				Val: 2,
 			},
 			want: "two",
+		},
+	}
+
+	for _, st := range tests {
+		tt := st
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			var got bytes.Buffer
+
+			tpl := helperNewTemplate(t, tt.template)
+			err := tpl.ExecuteTemplate(&got, testTemplateName, tt.args)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, got.String())
+		})
+	}
+}
+
+// TestAnd provides unit test coverage for And()
+func TestAnd(t *testing.T) {
+	type Args struct {
+		A interface{}
+		B interface{}
+		C interface{}
+		D interface{}
+	}
+
+	tests := []struct {
+		name     string
+		template string
+		args     Args
+		want     string
+		wantErr  bool
+	}{
+		{
+			name:     "no args",
+			template: `{{ and }}`,
+			args:     Args{},
+			want:     "",
+		},
+		{
+			name:     "bool false",
+			template: `{{ and .A }}`,
+			args: Args{
+				A: false,
+			},
+			want: "",
+		},
+		{
+			name:     "bool true",
+			template: `{{ and .A }}`,
+			args: Args{
+				A: true,
+			},
+			want: "true",
+		},
+		{
+			name:     "int 9",
+			template: `{{ and .A }}`,
+			args: Args{
+				A: 9,
+			},
+			want: "9",
+		},
+		{
+			name:     "2 empty args",
+			template: `{{ and .A .B }}`,
+			args: Args{
+				A: "",
+				B: 0,
+			},
+			want: "",
+		},
+		{
+			name:     "3 true args",
+			template: `{{ and .A .B .C }}`,
+			args: Args{
+				A: 2,
+				B: 3,
+				C: "X",
+			},
+			want: "X",
+		},
+		{
+			name:     "3 args, 1 false",
+			template: `{{ and .A .B .C }}`,
+			args: Args{
+				A: 2,
+				B: 0,
+				C: "X",
+			},
+			want: "",
+		},
+	}
+
+	for _, st := range tests {
+		tt := st
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			var got bytes.Buffer
+
+			tpl := helperNewTemplate(t, tt.template)
+			err := tpl.ExecuteTemplate(&got, testTemplateName, tt.args)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, got.String())
+		})
+	}
+}
+
+// TestOr provides unit test coverage for Or()
+func TestOr(t *testing.T) {
+	type Args struct {
+		A interface{}
+		B interface{}
+		C interface{}
+		D interface{}
+	}
+
+	tests := []struct {
+		name     string
+		template string
+		args     Args
+		want     string
+		wantErr  bool
+	}{
+		{
+			name:     "no args",
+			template: `{{ or }}`,
+			args:     Args{},
+			want:     "",
+		},
+		{
+			name:     "bool false",
+			template: `{{ or .A }}`,
+			args: Args{
+				A: false,
+			},
+			want: "",
+		},
+		{
+			name:     "bool true",
+			template: `{{ or .A }}`,
+			args: Args{
+				A: true,
+			},
+			want: "true",
+		},
+		{
+			name:     "int 9",
+			template: `{{ or .A }}`,
+			args: Args{
+				A: 9,
+			},
+			want: "9",
+		},
+		{
+			name:     "2 empty args",
+			template: `{{ or .A .B }}`,
+			args: Args{
+				A: "",
+				B: 0,
+			},
+			want: "",
+		},
+		{
+			name:     "3 true args",
+			template: `{{ or .A .B .C }}`,
+			args: Args{
+				A: 2,
+				B: 3,
+				C: "X",
+			},
+			want: "2",
+		},
+		{
+			name:     "3 args, first false",
+			template: `{{ or .A .B .C }}`,
+			args: Args{
+				A: 0,
+				B: 2,
+				C: "X",
+			},
+			want: "2",
+		},
+		{
+			name:     "3 args, middle false",
+			template: `{{ or .A .B .C }}`,
+			args: Args{
+				A: 2,
+				B: 0,
+				C: "X",
+			},
+			want: "2",
 		},
 	}
 

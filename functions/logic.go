@@ -8,7 +8,9 @@ import (
 // LogicFunctions perform logical operations
 func LogicFunctions() template.FuncMap {
 	return template.FuncMap{
+		"and":       And,
 		"isZero":    IsZero,
+		"or":        Or,
 		"when":      When,
 		"whenEmpty": WhenEmpty,
 	}
@@ -45,4 +47,27 @@ func IsZero(val interface{}) bool {
 		return v.Len() == 0
 	}
 	return v.IsZero()
+}
+
+// And returns the value of the last expression if all expressions evaluate to non-zero, or empty string otherwise
+func And(expr ...interface{}) interface{} {
+	if len(expr) == 0 {
+		return ""
+	}
+	for _, e := range expr {
+		if IsZero(e) {
+			return ""
+		}
+	}
+	return expr[len(expr)-1]
+}
+
+// Or returns the first expression that evaluates to non-zero, or empty string if none do
+func Or(expr ...interface{}) interface{} {
+	for _, e := range expr {
+		if !IsZero(e) {
+			return e
+		}
+	}
+	return ""
 }

@@ -28,7 +28,7 @@ func helperNewTemplate(t *testing.T, tpl string) *template.Template {
 // TestAll provides unit test coverage for All()
 func TestAll(t *testing.T) {
 	fn := All(nil)
-	assert.Len(t, fn, 56, "weakly ensuring functions haven't been added/removed without updating tests")
+	assert.Len(t, fn, 58, "weakly ensuring functions haven't been added/removed without updating tests")
 }
 
 // TestCombineFunctionLists provides unit test coverage for CombineFunctionLists
