@@ -1,14 +1,9 @@
 package tplr
 
-import (
-	"strings"
-)
-
 var version = "unknown"
 
 // Version returns the version number of this app
+// Use the build.sh script to have this populated meaningfully
 func Version() string {
-	s := strings.Builder{}
-	s.WriteString(version)
-	return s.String()
+	return version
 }

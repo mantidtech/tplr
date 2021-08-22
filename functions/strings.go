@@ -1,8 +1,10 @@
 package functions
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
+	"regexp"
 	"strings"
 	"text/template"
 	"time"
@@ -21,6 +23,7 @@ func StringFunctions() template.FuncMap {
 		"camelCase":          wordcase.CamelCase,
 		"dotCase":            wordcase.DotCase,
 		"indent":             Indent,
+		"unindent":           Unindent,
 		"kebabCase":          wordcase.KebabCase,
 		"nl":                 Newline,
 		"now":                Now,
@@ -52,8 +55,8 @@ func StringFunctions() template.FuncMap {
 }
 
 // titleCaseWithAbbrHelper converts the first letter of each word to uppercase, or the whole word if it matches a given abbreviation
-func titleCaseWithAbbrHelper(abbrv []string) wordcase.Combiner {
-	selector := wordcase.KeyWordFn(abbrv)
+func titleCaseWithAbbrHelper(abbrev []string) wordcase.Combiner {
+	selector := wordcase.KeyWordFn(abbrev)
 	return wordcase.NewPipeline().
 		TokenizeUsing(wordcase.LookAroundCategorizer, wordcase.NotLetterOrDigit, true).
 		TokenizeUsing(wordcase.LookAroundCategorizer, wordcase.NotLowerOrDigit, false).
@@ -63,9 +66,9 @@ func titleCaseWithAbbrHelper(abbrv []string) wordcase.Combiner {
 		JoinWith(" ")
 }
 
-// TitleCaseWithAbbr uppercases the first letter of each word, or the whole word if it matches a given abbreviation
-func TitleCaseWithAbbr(abbrv interface{}, word string) (string, error) {
-	a, l, err := listInfo(abbrv)
+// TitleCaseWithAbbr upper-cases the first letter of each word, or the whole word if it matches a given abbreviation
+func TitleCaseWithAbbr(abbrev interface{}, word string) (string, error) {
+	a, l, err := listInfo(abbrev)
 	if err != nil {
 		return "", err
 	}
@@ -80,12 +83,13 @@ func TitleCaseWithAbbr(abbrv interface{}, word string) (string, error) {
 }
 
 // UppercaseFirst converts the first character in a string to uppercase
-func UppercaseFirst(s string) string {
-	if s == "" {
+func UppercaseFirst(s interface{}) string {
+	str := fmt.Sprintf("%v", s)
+	if str == "" {
 		return ""
 	}
-	r, n := utf8.DecodeRuneInString(s)
-	return string(unicode.ToUpper(r)) + s[n:]
+	r, n := utf8.DecodeRuneInString(str)
+	return string(unicode.ToUpper(r)) + str[n:]
 }
 
 // Space prints a space character the given number of times
@@ -105,14 +109,14 @@ func Tab(n int) string {
 }
 
 // PadRight prints the given string in the given number of columns, right aligned
-func PadRight(n int, s string) string {
-	f := fmt.Sprintf("%%-%ds", n)
+func PadRight(n int, s interface{}) string {
+	f := fmt.Sprintf("%%-%dv", n)
 	return fmt.Sprintf(f, s)
 }
 
 // PadLeft prints the given string in the given number of columns, left aligned
-func PadLeft(n int, s string) string {
-	f := fmt.Sprintf("%%%ds", n)
+func PadLeft(n int, s interface{}) string {
+	f := fmt.Sprintf("%%%dv", n)
 	return fmt.Sprintf(f, s)
 }
 
@@ -168,6 +172,24 @@ func Indent(t int, content string) string {
 	return Prefix(" ", t, content)
 }
 
+// Unindent removes up to 't' spaces from the start of all lines within content
+func Unindent(t int, content string) (string, error) {
+	if t == 0 {
+		return content, nil
+	} else if t < 0 {
+		return "", errors.New("cannot unindent by an negative amount")
+	}
+	parts := strings.Split(content, "\n")
+	re := fmt.Sprintf("^\\s{1,%d}", t)
+
+	matcher := regexp.MustCompile(re)
+	for i, p := range parts {
+		parts[i] = matcher.ReplaceAllString(p, "")
+	}
+
+	return strings.Join(parts, "\n"), nil
+}
+
 // Prefix prints the given string with the given number of 'prefix' prepended before each line
 func Prefix(prefix string, t int, content string) string {
 	if t < 0 {
@@ -217,10 +239,10 @@ func ToColumn(w int, s string) string {
 
 	parts := strings.Split(s, "\n")
 	for _, p := range parts {
-		p := tail + p
+		str := tail + p
 		tail = ""
 
-		lines := columnify(w, p)
+		lines := columnify(w, str)
 		if len(lines) > 1 {
 			tail = lines[len(lines)-1]
 		}
@@ -276,9 +298,10 @@ func columnify(w int, s string) []string {
 	return lines
 }
 
+var nowActual = time.Now // use an alias, so we can redefine it in testing
 // Now returns the current time in the format "2006-01-02T15:04:05Z07:00"
 func Now() string {
-	return time.Now().Format(time.RFC3339)
+	return nowActual().Format(time.RFC3339)
 }
 
 // SplitOn creates an array from the given string by separating it by the glue string

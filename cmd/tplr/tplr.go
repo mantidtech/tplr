@@ -15,6 +15,8 @@ import (
 	"github.com/mantidtech/tplr"
 )
 
+const templateName = "tplr"
+
 func main() {
 	s := flag.NewFlagSet("tplr args", flag.ExitOnError)
 
@@ -47,8 +49,9 @@ func main() {
 	if err != nil {
 		errorAndExit("Failed to read template file: %v\n", err)
 	}
+	t := tplr.New(templateName)
 
-	t, err := tplr.Load(tpl)
+	err = t.Load(tpl)
 	if err != nil {
 		errorAndExit("Failed to load template: %v\n", err)
 	}
@@ -63,7 +66,7 @@ func main() {
 		errorAndExit("%v\n", err)
 	}
 
-	err = tplr.GenerateFromTemplate(out, t, vars)
+	err = t.Generate(out, vars)
 	if err != nil {
 		errorAndExit("Failed to generate output: %v\n", err)
 	}

@@ -45,8 +45,10 @@ func TestLoadAndGenerateFromTemplate(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
+			tp := New("TestLoadAndGenerateFromTemplate")
+
 			r := bytes.NewBufferString(tt.tpl)
-			tp, loadError := Load(r)
+			loadError := tp.Load(r)
 			if tt.wantLoadError {
 				require.Error(t, loadError)
 				return
@@ -54,7 +56,7 @@ func TestLoadAndGenerateFromTemplate(t *testing.T) {
 			require.NoError(t, loadError)
 
 			var got bytes.Buffer
-			generateError := GenerateFromTemplate(&got, tp, tt.vars)
+			generateError := tp.Generate(&got, tt.vars)
 			if tt.wantGenerateError {
 				require.Error(t, generateError)
 			} else {

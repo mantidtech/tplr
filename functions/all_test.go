@@ -5,30 +5,12 @@ import (
 	"text/template"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
-func helperPtrToInt(i int) *int {
-	r := new(int)
-	*r = i
-	return r
-}
-
-const testTemplateName = "test template"
-
-func helperNewTemplate(t *testing.T, tpl string) *template.Template {
-	var err error
-	tSet := template.New(testTemplateName)
-	tSet.Funcs(All(tSet))
-	tSet, err = tSet.Parse(tpl)
-	require.NoError(t, err)
-	return tSet
-}
-
 // TestAll provides unit test coverage for All()
-func TestAll(t *testing.T) {
+func TestFunctionCount(t *testing.T) {
 	fn := All(nil)
-	assert.Len(t, fn, 58, "weakly ensuring functions haven't been added/removed without updating tests")
+	assert.Len(t, fn, 59, "weakly ensuring functions haven't been added/removed without updating tests")
 }
 
 // TestCombineFunctionLists provides unit test coverage for CombineFunctionLists

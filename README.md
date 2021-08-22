@@ -28,7 +28,7 @@ The templating markup language used is defined by the go [text/template](https:/
 
 Using go
 ```
-go get -u github.com/mantidtech/tplr/cmd/tplr
+go install github.com/mantidtech/tplr/cmd/tplr@latest
 ```
 
 ---

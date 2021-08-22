@@ -1,10 +1,8 @@
 package functions
 
-import (
-	"text/template"
-)
+import "text/template"
 
-// All returns all of the templating functions
+// All returns all the templating functions
 func All(t *template.Template) template.FuncMap {
 	return CombineFunctionLists(
 		EncodingFunctions(),

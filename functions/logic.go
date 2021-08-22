@@ -32,7 +32,7 @@ func WhenEmpty(d, s interface{}) interface{} {
 	return s
 }
 
-// IsZero returns true if the value given corresponds to it's types zero value,
+// IsZero returns true if the value given corresponds to its types zero value,
 // points to something zero valued, or if it's a type with a length which is 0
 func IsZero(val interface{}) bool {
 	if val == nil {

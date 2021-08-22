@@ -28,6 +28,21 @@ func GetFileReader(filename string) (io.Reader, error) {
 	return f, nil
 }
 
+// ReadStringsAsFile returns the given set of strings as an io.Reader
+func ReadStringsAsFile(s ...string) (io.Reader, error) {
+	var b bytes.Buffer
+	var err error
+
+	b.WriteString(strings.Join(s, " "))
+	res := &b
+
+	if b.Len() == 0 {
+		err = fmt.Errorf("empty input")
+	}
+
+	return res, err
+}
+
 // GetFileWriter returns a Writer for the given filename, or '-' for stdout
 func GetFileWriter(filename string, force bool) (io.Writer, error) {
 	if filename == "-" || filename == "" {
@@ -75,17 +90,4 @@ func ReadDataFile(filename string) (map[string]interface{}, error) {
 	}
 
 	return vars, nil
-}
-
-// ReadStringsAsFile returns the given set of strings as an io.Reader
-func ReadStringsAsFile(s ...string) (res io.Reader, err error) {
-	var b bytes.Buffer
-	b.WriteString(strings.Join(s, " "))
-	res = &b
-
-	if b.Len() == 0 {
-		err = fmt.Errorf("empty input")
-	}
-
-	return res, err
 }
