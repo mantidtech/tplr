@@ -17,12 +17,12 @@ while [[ "$1" =~ ^- ]]; do
 done
 
 
-# Things to do before processing anything.  Override in ./check.env or .develop.env
+# Things to do before processing anything.  Override in ./check_extra.sh or .develop.env
 function before() {
   header tests running: ${tasks}
 }
 
-# Thing to do after processing everything.  Override in ./check.env or .develop.env
+# Thing to do after processing everything.  Override in ./check_extra.sh or .develop.env
 function after() {
   header done
 }
@@ -38,12 +38,12 @@ function warn() {
 }
 
 # Add in project specific stuff
-if [[ -f "check_extra.sh" ]]; then
+if [[ -f "./check_extra.sh" ]]; then
   source ./check_extra.sh
 fi
 
 # add in any developer specific environment
-if [[ -f "develop.env" ]]; then
+if [[ -f "./develop.env" ]]; then
   source ./develop.env
 fi
 
