@@ -14,7 +14,7 @@ func TestEncodingFunctions(t *testing.T) {
 
 // TestToJSON provides unit test coverage for ToJSON()
 func TestToJSON(t *testing.T) {
-	RunTemplateTest(t, []TestSet{
+	tests := []TestSet{
 		{
 			name:     "simple object",
 			template: `{{ toJSON .val }}`,
@@ -26,12 +26,16 @@ func TestToJSON(t *testing.T) {
 			},
 			want: `{"one":"foo","two":"bar"}`,
 		},
-	})
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
+	}
 }
 
 // TestFormatJSON provides unit test coverage for FormatJSON()
 func TestFormatJSON(t *testing.T) {
-	RunTemplateTest(t, []TestSet{
+	tests := []TestSet{
 		{
 			name:     "simple object",
 			template: `{{ formatJSON .indent .j }}`,
@@ -50,12 +54,16 @@ func TestFormatJSON(t *testing.T) {
 			},
 			wantErr: true,
 		},
-	})
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
+	}
 }
 
 // TestToYAML provides unit test coverage for ToYAML()
 func TestToYAML(t *testing.T) {
-	RunTemplateTest(t, []TestSet{
+	tests := []TestSet{
 		{
 			name:     "simple object",
 			template: `{{ toYAML .val }}`,
@@ -67,12 +75,16 @@ func TestToYAML(t *testing.T) {
 			},
 			want: "one: foo\ntwo: bar\n",
 		},
-	})
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
+	}
 }
 
 // TestToBase64 provides unit test coverage for ToBase64()
 func TestToBase64(t *testing.T) {
-	RunTemplateTest(t, []TestSet{
+	tests := []TestSet{
 		{
 			name:     "empty",
 			template: `{{ toBase64 .s }}`,
@@ -89,12 +101,16 @@ func TestToBase64(t *testing.T) {
 			},
 			want: "QSBiYXNpYyBzdHJpbmc=",
 		},
-	})
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
+	}
 }
 
 // TestFromBase64 provides unit test coverage for FromBase64()
 func TestFromBase64(t *testing.T) {
-	RunTemplateTest(t, []TestSet{
+	tests := []TestSet{
 		{
 			name:     "empty",
 			template: `{{ fromBase64 .s }}`,
@@ -119,5 +135,9 @@ func TestFromBase64(t *testing.T) {
 			},
 			wantErr: true,
 		},
-	})
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
+	}
 }

@@ -14,12 +14,16 @@ func TestMiscellaneousFunctions(t *testing.T) {
 
 // TestTerminalWidth provides unit test coverage for TerminalWidth()
 func TestTerminalWidth(t *testing.T) {
-	RunTemplateTest(t, []TestSet{
+	tests := []TestSet{
 		{
 			name:     "basic",
 			template: "{{ terminalWidth }}",
 			want:     "0", // probably - depends on how/where the test is run
 			wantErr:  false,
 		},
-	})
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
+	}
 }

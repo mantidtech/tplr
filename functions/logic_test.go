@@ -14,7 +14,7 @@ func TestLogicFunctions(t *testing.T) {
 
 // TestWhen provides unit test coverage for When()
 func TestWhen(t *testing.T) {
-	RunTemplateTest(t, []TestSet{
+	tests := []TestSet{
 		{
 			name:     "empty",
 			template: `{{ when .D .S }}`,
@@ -60,12 +60,16 @@ func TestWhen(t *testing.T) {
 			},
 			want: "",
 		},
-	})
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
+	}
 }
 
 // TestWhenEmpty provides unit test coverage for WhenEmpty()
 func TestWhenEmpty(t *testing.T) {
-	RunTemplateTest(t, []TestSet{
+	tests := []TestSet{
 		{
 			name:     "empty",
 			template: `{{ whenEmpty .D .S }}`,
@@ -111,12 +115,16 @@ func TestWhenEmpty(t *testing.T) {
 			},
 			want: "x",
 		},
-	})
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
+	}
 }
 
 // TestIsZero provides unit test coverage for IsZero()
 func TestIsZero(t *testing.T) {
-	RunTemplateTest(t, []TestSet{
+	tests := []TestSet{
 		{
 			name:     "nil",
 			template: `{{ isZero .Val }}`,
@@ -245,12 +253,16 @@ func TestIsZero(t *testing.T) {
 			},
 			want: "two",
 		},
-	})
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
+	}
 }
 
 // TestAnd provides unit test coverage for And()
 func TestAnd(t *testing.T) {
-	RunTemplateTest(t, []TestSet{
+	tests := []TestSet{
 		{
 			name:     "no args",
 			template: `{{ and }}`,
@@ -310,12 +322,16 @@ func TestAnd(t *testing.T) {
 			},
 			want: "",
 		},
-	})
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
+	}
 }
 
 // TestOr provides unit test coverage for Or()
 func TestOr(t *testing.T) {
-	RunTemplateTest(t, []TestSet{
+	tests := []TestSet{
 		{
 			name:     "no args",
 			template: `{{ or }}`,
@@ -385,5 +401,9 @@ func TestOr(t *testing.T) {
 			},
 			want: "2",
 		},
-	})
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
+	}
 }

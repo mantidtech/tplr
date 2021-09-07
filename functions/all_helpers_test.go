@@ -36,21 +36,18 @@ func helperPtrToInt(i int) *int {
 	return r
 }
 
-func RunTemplateTest(t *testing.T, tests []TestSet) {
-	for _, st := range tests {
-		tt := st
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			var got bytes.Buffer
+func TemplateTest(test TestSet) func(t *testing.T) {
+	return func(t *testing.T) {
+		t.Helper()
+		var got bytes.Buffer
 
-			tpl := helperNewTemplate(t, tt.template)
-			err := tpl.ExecuteTemplate(&got, testTemplateName, tt.args)
-			if tt.wantErr {
-				assert.Error(t, err)
-				return
-			}
-			require.NoError(t, err)
-			assert.Equal(t, tt.want, got.String())
-		})
+		tpl := helperNewTemplate(t, test.template)
+		err := tpl.ExecuteTemplate(&got, testTemplateName, test.args)
+		if test.wantErr {
+			assert.Error(t, err)
+			return
+		}
+		require.NoError(t, err)
+		assert.Equal(t, test.want, got.String())
 	}
 }

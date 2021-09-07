@@ -16,729 +16,428 @@ func TestListFunctions(t *testing.T) {
 
 // TestList provides unit test coverage for List()
 func TestList(t *testing.T) {
-	t.Parallel()
-	type Args struct {
-		s []interface{}
-	}
-
-	tests := []struct {
-		name          string
-		args          Args
-		wantInterface interface{}
-		wantError     bool
-	}{
+	tests := []TestSet{
 		{
-			name: "nil",
-			args: Args{
-				s: nil,
-			},
-			wantInterface: []interface{}(nil),
-			wantError:     false,
+			name:     "empty",
+			template: `{{ list }}`,
+			args:     TestArgs{},
+			want:     "[]",
 		},
 		{
-			name: "empty",
-			args: Args{
-				s: []interface{}{},
+			name:     "single int",
+			template: `{{ list .A }}`,
+			args: TestArgs{
+				"A": 5,
 			},
-			wantInterface: []interface{}{},
-			wantError:     false,
+			want: "[5]",
 		},
 		{
-			name: "one",
-			args: Args{
-				s: []interface{}{"one"},
+			name:     "int + string",
+			template: `{{ list .A .B }}`,
+			args: TestArgs{
+				"A": 5,
+				"B": "rawr",
 			},
-			wantInterface: []interface{}{"one"},
-			wantError:     false,
+			want: "[5 rawr]",
 		},
 	}
 
-	for _, st := range tests {
-		tt := st
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			gotInterface, gotError := List(tt.args.s...)
-			if tt.wantError {
-				require.Error(t, gotError)
-			} else {
-				require.NoError(t, gotError)
-				assert.Equal(t, tt.wantInterface, gotInterface)
-			}
-		})
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
 	}
 }
 
 // TestFirst provides unit test coverage for First()
 func TestFirst(t *testing.T) {
-	type Args struct {
-		list interface{}
-	}
-
-	tests := []struct {
-		name          string
-		args          Args
-		wantInterface interface{}
-		wantError     bool
-	}{
+	tests := []TestSet{
 		{
-			name: "nil",
-			args: Args{
-				list: nil,
-			},
-			wantError: true,
+			name:     "not a list",
+			template: `{{ $x := "not a list" }}{{ first $x }}`,
+			wantErr:  true,
 		},
 		{
-			name: "not a list",
-			args: Args{
-				list: "actually a string",
-			},
-			wantError: true,
+			name:     "from zero",
+			template: `{{ $x := list }}{{ first $x }}`,
+			want:     "<no value>",
 		},
 		{
-			name: "from zero",
-			args: Args{
-				list: []int{},
+			name:     "from two",
+			template: `{{ $x := list .A .B }}{{ first $x }}`,
+			args: TestArgs{
+				"A": "A",
+				"B": "B",
 			},
-			wantInterface: nil,
-			wantError:     false,
-		},
-		{
-			name: "from two",
-			args: Args{
-				list: []string{"one", "two"},
-			},
-			wantInterface: "one",
-			wantError:     false,
+			want: "A",
 		},
 	}
 
-	for _, st := range tests {
-		tt := st
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			gotInterface, gotError := First(tt.args.list)
-			if tt.wantError {
-				require.Error(t, gotError)
-			} else {
-				require.NoError(t, gotError)
-			}
-			assert.Equal(t, tt.wantInterface, gotInterface)
-		})
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
 	}
 }
 
 // TestRest provides unit test coverage for Rest()
 func TestRest(t *testing.T) {
-	type Args struct {
-		list interface{}
-	}
-
-	tests := []struct {
-		name          string
-		args          Args
-		wantInterface interface{}
-		wantError     bool
-	}{
+	tests := []TestSet{
 		{
-			name: "nil",
-			args: Args{
-				list: nil,
-			},
-			wantError: true,
+			name:     "not a list",
+			template: `{{ $x := "not a list" }}{{ rest $x }}`,
+			wantErr:  true,
 		},
 		{
-			name: "not a list",
-			args: Args{
-				list: "actually a string",
-			},
-			wantError: true,
+			name:     "from zero",
+			template: `{{ $x := list }}{{ rest $x }}`,
+			want:     "<no value>",
 		},
 		{
-			name: "from zero",
-			args: Args{
-				list: []int{},
+			name:     "from two",
+			template: `{{ $x := list .A .B }}{{ rest $x }}`,
+			args: TestArgs{
+				"A": "A",
+				"B": "B",
 			},
-			wantInterface: nil,
-			wantError:     false,
+			want: "[B]",
 		},
 		{
-			name: "from two",
-			args: Args{
-				list: []string{"one", "two"},
+			name:     "with nils",
+			template: `{{ $x := list .A .B .C .D }}{{ rest $x }}`,
+			args: TestArgs{
+				"A": "one",
+				"B": "two",
+				"C": nil,
+				"D": "four",
 			},
-			wantInterface: []interface{}{"two"},
-			wantError:     false,
-		},
-		{
-			name: "with nils",
-			args: Args{
-				list: []interface{}{"one", "two", nil, "four"},
-			},
-			wantInterface: []interface{}{"two", nil, "four"},
-			wantError:     false,
+			want: "[two <nil> four]",
 		},
 	}
 
-	for _, st := range tests {
-		tt := st
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			gotInterface, gotError := Rest(tt.args.list)
-			if tt.wantError {
-				require.Error(t, gotError)
-			} else {
-				require.NoError(t, gotError)
-			}
-			assert.Equal(t, tt.wantInterface, gotInterface)
-		})
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
 	}
 }
 
 // TestRest provides unit test coverage for Rest()
 func TestPop(t *testing.T) {
-	type Args struct {
-		list interface{}
-	}
-
-	tests := []struct {
-		name          string
-		args          Args
-		wantInterface interface{}
-		wantError     bool
-	}{
+	tests := []TestSet{
 		{
-			name: "nil",
-			args: Args{
-				list: nil,
-			},
-			wantError: true,
+			name:     "not a list",
+			template: `{{ $x := "not a list" }}{{ pop $x }}`,
+			wantErr:  true,
 		},
 		{
-			name: "not a list",
-			args: Args{
-				list: "actually a string",
-			},
-			wantError: true,
+			name:     "from zero",
+			template: `{{ $x := list }}{{ pop $x }}`,
+			want:     "<no value>",
 		},
 		{
-			name: "from zero",
-			args: Args{
-				list: []int{},
+			name:     "from two",
+			template: `{{ $x := list .A .B }}{{ pop $x }}`,
+			args: TestArgs{
+				"A": "A",
+				"B": "B",
 			},
-			wantInterface: nil,
-			wantError:     false,
-		},
-		{
-			name: "from two",
-			args: Args{
-				list: []string{"one", "two"},
-			},
-			wantInterface: []interface{}{"one"},
-			wantError:     false,
+			want: "[A]",
 		},
 	}
 
-	for _, st := range tests {
-		tt := st
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			gotInterface, gotError := Pop(tt.args.list)
-			if tt.wantError {
-				require.Error(t, gotError)
-			} else {
-				require.NoError(t, gotError)
-			}
-			assert.Equal(t, tt.wantInterface, gotInterface)
-		})
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
 	}
 }
 
 // TestLast provides unit test coverage for Last()
 func TestLast(t *testing.T) {
-	type Args struct {
-		list interface{}
-	}
-
-	tests := []struct {
-		name          string
-		args          Args
-		wantInterface interface{}
-		wantError     bool
-	}{
+	tests := []TestSet{
 		{
-			name: "nil",
-			args: Args{
-				list: nil,
-			},
-			wantError: true,
+			name:     "not a list",
+			template: `{{ $x := "not a list" }}{{ last $x }}`,
+			wantErr:  true,
 		},
 		{
-			name: "not a list",
-			args: Args{
-				list: "actually a string",
-			},
-			wantError: true,
+			name:     "from zero",
+			template: `{{ $x := list }}{{ last $x }}`,
+			want:     "<no value>",
 		},
 		{
-			name: "from zero",
-			args: Args{
-				list: []int{},
+			name:     "from two",
+			template: `{{ $x := list .A .B }}{{ last $x }}`,
+			args: TestArgs{
+				"A": "A",
+				"B": "B",
 			},
-			wantInterface: nil,
-			wantError:     false,
-		},
-		{
-			name: "from two",
-			args: Args{
-				list: []string{"one", "two"},
-			},
-			wantInterface: "two",
-			wantError:     false,
+			want: "B",
 		},
 	}
 
-	for _, st := range tests {
-		tt := st
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			gotInterface, gotError := Last(tt.args.list)
-			if tt.wantError {
-				require.Error(t, gotError)
-			} else {
-				require.NoError(t, gotError)
-			}
-			assert.Equal(t, tt.wantInterface, gotInterface)
-		})
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
 	}
 }
 
 // TestContains provides unit test coverage for Contains()
 func TestContains(t *testing.T) {
-	t.Parallel()
-	type Args struct {
-		item interface{}
-		list interface{}
-	}
-
-	tests := []struct {
-		name      string
-		args      Args
-		wantBool  bool
-		wantError bool
-	}{
+	tests := []TestSet{
 		{
-			name: "nil",
-			args: Args{
-				list: nil,
+			name:     "test against empty",
+			template: `{{ contains .Haystack .Needle }}`,
+			args: TestArgs{
+				"Needle":   "A",
+				"Haystack": []string{},
 			},
-			wantError: true,
+			want: "false",
 		},
 		{
-			name: "test against empty",
-			args: Args{
-				list: []int{},
-				item: "2",
-			},
-			wantBool:  false,
-			wantError: false,
+			name:     "not a list",
+			template: `{{ $x := "not a list" }}{{ contains $x }}`,
+			wantErr:  true,
 		},
 		{
-			name: "not a list",
-			args: Args{
-				list: "actually a string",
+			name:     "in list",
+			template: `{{ contains .Haystack .Needle }}`,
+			args: TestArgs{
+				"Needle":   "A",
+				"Haystack": []string{"A", "B"},
 			},
-			wantError: true,
+			want: "true",
 		},
 		{
-			name: "exists",
-			args: Args{
-				list: []string{"one", "two"},
-				item: "two",
+			name:     "not in list",
+			template: `{{ contains .Haystack .Needle }}`,
+			args: TestArgs{
+				"Needle":   "C",
+				"Haystack": []string{"A", "B"},
 			},
-			wantBool:  true,
-			wantError: false,
+			want: "false",
 		},
 		{
-			name: "doesn't exist",
-			args: Args{
-				list: []string{"one", "two"},
-				item: "three",
+			name:     "different types",
+			template: `{{ contains .Haystack .Needle }}`,
+			args: TestArgs{
+				"Needle":   1,
+				"Haystack": []interface{}{"1", 2},
 			},
-			wantBool:  false,
-			wantError: false,
-		},
-		{
-			name: "item of a different type",
-			args: Args{
-				list: []string{"one", "two"},
-				item: 3,
-			},
-			wantBool:  false,
-			wantError: false,
+			want: "false",
 		},
 	}
 
-	for _, st := range tests {
-		tt := st
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			gotBool, gotError := Contains(tt.args.list, tt.args.item)
-			if tt.wantError {
-				require.Error(t, gotError)
-			} else {
-				require.NoError(t, gotError)
-			}
-			assert.Equal(t, tt.wantBool, gotBool)
-		})
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
 	}
 }
 
 // TestFilter provides unit test coverage for Filter()
 func TestFilter(t *testing.T) {
-	t.Parallel()
-	type Args struct {
-		item interface{}
-		list interface{}
-	}
-
-	tests := []struct {
-		name          string
-		args          Args
-		wantInterface interface{}
-		wantError     bool
-	}{
+	tests := []TestSet{
 		{
-			name: "filter from nil",
-			args: Args{
-				list: nil,
-				item: nil,
+			name:     "filter from empty",
+			template: `{{ filter .List .Filter }}`,
+			args: TestArgs{
+				"List":   []string{},
+				"Filter": "A",
 			},
-			wantError: true,
+			want: "[]",
 		},
 		{
-			name: "filter from empty",
-			args: Args{
-				list: []int{},
-				item: 2,
+			name:     "not a list",
+			template: `{{ filter .NotList .Filter }}`,
+			args: TestArgs{
+				"List":   "not a list",
+				"Filter": "A",
 			},
-			wantInterface: []int{},
-			wantError:     false,
+			wantErr: true,
 		},
 		{
-			name: "not a list",
-			args: Args{
-				list: "actually a string",
+			name:     "in list",
+			template: `{{ filter .List .Filter }}`,
+			args: TestArgs{
+				"List":   []string{"A", "B"},
+				"Filter": "A",
 			},
-			wantError: true,
+			want: "[B]",
 		},
 		{
-			name: "exists",
-			args: Args{
-				list: []string{"one", "two"},
-				item: "two",
+			name:     "not in list",
+			template: `{{ filter .List .Filter }}`,
+			args: TestArgs{
+				"List":   []string{"A", "B"},
+				"Filter": "C",
 			},
-			wantInterface: []interface{}{"one"},
-			wantError:     false,
+			want: "[A B]",
 		},
 		{
-			name: "doesn't exist",
-			args: Args{
-				list: []string{"one", "two"},
-				item: "three",
+			name:     "different type",
+			template: `{{ filter .List .Filter }}`,
+			args: TestArgs{
+				"List":   []int{1, 2},
+				"Filter": "1",
 			},
-			wantInterface: []interface{}{"one", "two"},
-			wantError:     false,
+			want: "[1 2]",
 		},
 		{
-			name: "item of a different type",
-			args: Args{
-				list: []string{"one", "two"},
-				item: 3,
+			name:     "remove multiple",
+			template: `{{ filter .List .Filter }}`,
+			args: TestArgs{
+				"List":   []int{1, 2, 1, 2},
+				"Filter": 1,
 			},
-			wantInterface: []interface{}{"one", "two"},
-			wantError:     false,
-		},
-		{
-			name: "remove multiple",
-			args: Args{
-				list: []string{"one", "two", "two", "three"},
-				item: "two",
-			},
-			wantInterface: []interface{}{"one", "three"},
-			wantError:     false,
+			want: "[2 2]",
 		},
 	}
 
-	for _, st := range tests {
-		tt := st
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			gotInterface, gotError := Filter(tt.args.list, tt.args.item)
-			if tt.wantError {
-				require.Error(t, gotError)
-			} else {
-				require.NoError(t, gotError)
-				assert.Equal(t, tt.wantInterface, gotInterface)
-			}
-		})
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
 	}
 }
 
 // TestPush provides unit test coverage for Push()
 func TestPush(t *testing.T) {
-	t.Parallel()
-	type Args struct {
-		item interface{}
-		list interface{}
-	}
-
-	tests := []struct {
-		name          string
-		args          Args
-		wantInterface interface{}
-		wantError     bool
-	}{
+	tests := []TestSet{
 		{
-			name: "nil",
-			args: Args{
-				item: 7,
-				list: nil,
+			name:     "not a list",
+			template: `{{ push .NotList .Item }}`,
+			args: TestArgs{
+				"NotList": "not a list",
+				"Item":    "A",
 			},
-			wantError: true,
+			wantErr: true,
 		},
 		{
-			name: "push to empty",
-			args: Args{
-				list: []int{},
-				item: 2,
+			name:     "push to empty",
+			template: `{{ push .List .Item }}`,
+			args: TestArgs{
+				"List": []interface{}{},
+				"Item": "A",
 			},
-			wantInterface: []interface{}{2},
+			want: "[A]",
 		},
 		{
-			name: "not a list",
-			args: Args{
-				list: "actually a string",
+			name:     "push to existing",
+			template: `{{ push .List .Item }}`,
+			args: TestArgs{
+				"List": []interface{}{"A", "B"},
+				"Item": "C",
 			},
-			wantError: true,
+			want: "[A B C]",
 		},
 		{
-			name: "new",
-			args: Args{
-				list: []string{"one", "two"},
-				item: "three",
+			name:     "mixed types",
+			template: `{{ push .List .Item }}`,
+			args: TestArgs{
+				"List": []interface{}{"A", 3},
+				"Item": "1.2",
 			},
-			wantInterface: []interface{}{"one", "two", "three"},
-			wantError:     false,
-		},
-		{
-			name: "item of a different type",
-			args: Args{
-				list: []string{"one", "two"},
-				item: 3,
-			},
-			wantInterface: []interface{}{"one", "two", 3},
-		},
-		{
-			name: "push nil to non-nillable",
-			args: Args{
-				list: []int{3, 4},
-				item: nil,
-			},
-			wantInterface: []interface{}{3, 4, nil},
-		},
-		{
-			name: "push nil to nillable",
-			args: Args{
-				list: []*int{helperPtrToInt(2)},
-				item: nil,
-			},
-			wantInterface: []interface{}{helperPtrToInt(2), nil},
+			want: "[A 3 1.2]",
 		},
 	}
 
-	for _, st := range tests {
-		tt := st
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			gotInterface, gotError := Push(tt.args.list, tt.args.item)
-			if tt.wantError {
-				require.Error(t, gotError, "with result %v", gotInterface)
-			} else {
-				require.NoError(t, gotError)
-				assert.Equal(t, tt.wantInterface, gotInterface)
-			}
-		})
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
 	}
 }
 
 // TestUnshift provides unit test coverage for Unshift()
 func TestUnshift(t *testing.T) {
-	t.Parallel()
-	type Args struct {
-		item interface{}
-		list interface{}
-	}
-
-	tests := []struct {
-		name          string
-		args          Args
-		wantInterface interface{}
-		wantError     bool
-	}{
+	tests := []TestSet{
 		{
-			name: "unshift to nil",
-			args: Args{
-				list: nil,
-				item: nil,
+			name:     "not a list",
+			template: `{{ unshift .NotList .Item }}`,
+			args: TestArgs{
+				"NotList": "not a list",
+				"Item":    "A",
 			},
-			wantError: true,
+			wantErr: true,
 		},
 		{
-			name: "unshift to empty",
-			args: Args{
-				list: []int{},
-				item: 2,
+			name:     "unshift to empty",
+			template: `{{ unshift .List .Item }}`,
+			args: TestArgs{
+				"List": []interface{}{},
+				"Item": "A",
 			},
-			wantInterface: []interface{}{2},
+			want: "[A]",
 		},
 		{
-			name: "not a list",
-			args: Args{
-				list: "actually a string",
+			name:     "unshift to existing",
+			template: `{{ unshift .List .Item }}`,
+			args: TestArgs{
+				"List": []interface{}{"A", "B"},
+				"Item": "C",
 			},
-			wantError: true,
+			want: "[C A B]",
 		},
 		{
-			name: "new",
-			args: Args{
-				list: []string{"one", "two"},
-				item: "three",
+			name:     "mixed types",
+			template: `{{ unshift .List .Item }}`,
+			args: TestArgs{
+				"List": []interface{}{"A", 3},
+				"Item": "1.2",
 			},
-			wantInterface: []interface{}{"three", "one", "two"},
-			wantError:     false,
-		},
-		{
-			name: "item of a different type",
-			args: Args{
-				list: []string{"one", "two"},
-				item: 3,
-			},
-			wantInterface: []interface{}{3, "one", "two"},
-		},
-		{
-			name: "unshift nil to non-nillable",
-			args: Args{
-				list: []int{1, 2},
-				item: nil,
-			},
-			wantInterface: []interface{}{nil, 1, 2},
-		},
-		{
-			name: "unshift nil to nillable",
-			args: Args{
-				list: []*int{helperPtrToInt(2)},
-				item: nil,
-			},
-			wantInterface: []interface{}{nil, helperPtrToInt(2)},
+			want: "[1.2 A 3]",
 		},
 	}
 
-	for _, st := range tests {
-		tt := st
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			gotInterface, gotError := Unshift(tt.args.list, tt.args.item)
-			if tt.wantError {
-				require.Error(t, gotError, "with result %v", gotInterface)
-			} else {
-				require.NoError(t, gotError)
-				assert.Equal(t, tt.wantInterface, gotInterface)
-			}
-		})
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
 	}
 }
 
 // TestSlice provides unit test coverage for TestSlice()
 func TestSlice(t *testing.T) {
-	t.Parallel()
-	type Args struct {
-		i    int
-		j    int
-		list interface{}
-	}
-
-	tests := []struct {
-		name          string
-		args          Args
-		wantInterface interface{}
-		wantError     bool
-	}{
+	tests := []TestSet{
 		{
-			name: "slice on nil",
-			args: Args{
-				i:    0,
-				j:    0,
-				list: nil,
+			name:     "not a list",
+			template: `{{ slice .I .J .NotList }}`,
+			args: TestArgs{
+				"NotList": "not a list",
+				"I":       0,
+				"J":       0,
 			},
-			wantError: true,
+			wantErr: true,
 		},
 		{
-			name: "slice on empty",
-			args: Args{
-				i:    0,
-				j:    0,
-				list: []int{},
+			name:     "slice on empty",
+			template: `{{ slice .I .J .List }}`,
+			args: TestArgs{
+				"List": []int{},
+				"I":    0,
+				"J":    0,
 			},
-			wantInterface: []interface{}{},
+			want: "[]",
 		},
 		{
-			name: "not a list",
-			args: Args{
-				list: "actually a string",
+			name:     "middle slice",
+			template: `{{ slice .I .J .List }}`,
+			args: TestArgs{
+				"List": []string{"A", "B", "C", "D"},
+				"I":    1,
+				"J":    3,
 			},
-			wantError: true,
+			want: "[B C]",
 		},
 		{
-			name: "middle slice",
-			args: Args{
-				i:    1,
-				j:    3,
-				list: []string{"one", "two", "three", "four"},
+			name:     "out of bounds - leading",
+			template: `{{ slice .I .J .List }}`,
+			args: TestArgs{
+				"List": []interface{}{"A", "B", "C", "D"},
+				"I":    -1,
+				"J":    2,
 			},
-			wantInterface: []interface{}{"two", "three"},
+			wantErr: true,
 		},
 		{
-			name: "out of of bounds - leading",
-			args: Args{
-				i:    -1,
-				j:    2,
-				list: []string{"one", "two", "three", "four"},
+			name:     "out of bounds - trailing",
+			template: `{{ slice .I .J .List }}`,
+			args: TestArgs{
+				"List": []interface{}{"A", "B", "C", "D"},
+				"I":    3,
+				"J":    5,
 			},
-			wantError: true,
-		},
-		{
-			name: "out of of bounds - trailing",
-			args: Args{
-				i:    3,
-				j:    5,
-				list: []string{"one", "two", "three", "four"},
-			},
-			wantError: true,
+			wantErr: true,
 		},
 	}
 
-	for _, st := range tests {
-		tt := st
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			gotInterface, gotError := Slice(tt.args.i, tt.args.j, tt.args.list)
-			if tt.wantError {
-				require.Error(t, gotError, "with result %v", gotInterface)
-			} else {
-				require.NoError(t, gotError)
-				assert.Equal(t, tt.wantInterface, gotInterface)
-			}
-		})
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
 	}
 }
 

@@ -2,10 +2,7 @@
 
 PROJECT_NAME="$(basename "${PWD}")"
 
-modules=$(go list ./...)
-
 tasks=(dep fmt revive vet err static sec cyclo test cover)
-
 
 while [[ "$1" =~ ^- ]]; do
   case $1 in
@@ -16,17 +13,6 @@ while [[ "$1" =~ ^- ]]; do
   shift
 done
 
-
-# Things to do before processing anything.  Override in ./check_extra.sh or .develop.env
-function before() {
-  header tests running: ${tasks}
-}
-
-# Thing to do after processing everything.  Override in ./check_extra.sh or .develop.env
-function after() {
-  header done
-}
-
 function header() {
   name="${1}"
   shift
@@ -34,8 +20,29 @@ function header() {
 }
 
 function warn() {
-  printf "  \e[1;33m*** WARNING\e[0;33m%s\e[0m\n" "${*}"
+  printf "  \e[1;33m*** WARNING\e[0;33m %s\e[0m\n" "${*}"
 }
+
+function note() {
+  printf "\e[2;36m>> %s\e[0m\n" "${*}"
+}
+
+# Things to do before processing anything.  Override in ./check_extra.sh or ./develop.env
+function before() {
+  header "tests running: ${tasks}"
+}
+
+# Thing to do after processing everything.  Override in ./check_extra.sh or ./develop.env
+function after() {
+  header "done"
+}
+
+if [[ ! -f "go.mod" ]]; then
+  note "Current directory is not the root of a go project"
+  exit
+fi
+
+modules=$(go list ./...)
 
 # Add in project specific stuff
 if [[ -f "./check_extra.sh" ]]; then
@@ -109,5 +116,9 @@ for task in "${tasks[@]}"; do
       go tool cover -func coverage.out
       ;;
   esac
+  if [[ "$?" != 0 ]]; then
+    warn "${task} failed"
+    break
+  fi
 done
 after

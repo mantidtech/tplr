@@ -25,7 +25,7 @@ func TestStringFunctions(t *testing.T) {
 }
 
 func TestUppercaseFirst(t *testing.T) {
-	RunTemplateTest(t, []TestSet{
+	tests := []TestSet{
 		{
 			name:     "empty",
 			template: `{{ ucFirst .S }}`,
@@ -66,11 +66,15 @@ func TestUppercaseFirst(t *testing.T) {
 			},
 			want: "Spam test",
 		},
-	})
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
+	}
 }
 
 func TestNewline(t *testing.T) {
-	RunTemplateTest(t, []TestSet{
+	tests := []TestSet{
 		{
 			name:     "no params",
 			template: `{{ nl }}`,
@@ -85,12 +89,16 @@ func TestNewline(t *testing.T) {
 			},
 			want: "\n\n\n",
 		},
-	})
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
+	}
 }
 
 // TestRep provides unit test coverage for Rep()
 func TestRep(t *testing.T) {
-	RunTemplateTest(t, []TestSet{
+	tests := []TestSet{
 		{
 			name:     "none",
 			template: `{{ rep .N .S }}`,
@@ -156,12 +164,16 @@ func TestRep(t *testing.T) {
 			},
 			want: "",
 		},
-	})
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
+	}
 }
 
 // TestIndent provides unit test coverage for Indent()
 func TestIndent(t *testing.T) {
-	RunTemplateTest(t, []TestSet{
+	tests := []TestSet{
 		{
 			name:     "none",
 			template: `{{ indent .T .Content }}`,
@@ -207,12 +219,16 @@ func TestIndent(t *testing.T) {
 			},
 			want: " foo\n bar",
 		},
-	})
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
+	}
 }
 
 // TestIndent provides unit test coverage for Indent()
 func TestUnindent(t *testing.T) {
-	RunTemplateTest(t, []TestSet{
+	tests := []TestSet{
 		{
 			name:     "none",
 			template: `{{ unindent .T .Content }}`,
@@ -258,12 +274,16 @@ func TestUnindent(t *testing.T) {
 			},
 			want: " foo\n bar",
 		},
-	})
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
+	}
 }
 
 // TestSuffix provides unit test coverage for Suffix()
 func TestSuffix(t *testing.T) {
-	RunTemplateTest(t, []TestSet{
+	tests := []TestSet{
 		{
 			name:     "none",
 			template: `{{ suffix .Suffix .T .Content }}`,
@@ -314,11 +334,15 @@ func TestSuffix(t *testing.T) {
 			},
 			want: "fooX\nbarX",
 		},
-	})
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
+	}
 }
 
 func TestSpace(t *testing.T) {
-	RunTemplateTest(t, []TestSet{
+	tests := []TestSet{
 		{
 			name:     "none",
 			template: `{{ sp .N }}`,
@@ -351,11 +375,15 @@ func TestSpace(t *testing.T) {
 			},
 			want: "",
 		},
-	})
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
+	}
 }
 
 func TestTab(t *testing.T) {
-	RunTemplateTest(t, []TestSet{
+	tests := []TestSet{
 		{
 			name:     "none",
 			template: `{{ tab .N }}`,
@@ -388,11 +416,15 @@ func TestTab(t *testing.T) {
 			},
 			want: "",
 		},
-	})
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
+	}
 }
 
 func TestPadRight(t *testing.T) {
-	RunTemplateTest(t, []TestSet{
+	tests := []TestSet{
 		{
 			name:     "basic",
 			template: `{{ padRight .N .S }}`,
@@ -402,11 +434,15 @@ func TestPadRight(t *testing.T) {
 			},
 			want: "basic     ",
 		},
-	})
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
+	}
 }
 
 func TestPadLeft(t *testing.T) {
-	RunTemplateTest(t, []TestSet{
+	tests := []TestSet{
 		{
 			name:     "basic",
 			template: `{{ padLeft .N .S }}`,
@@ -416,22 +452,30 @@ func TestPadLeft(t *testing.T) {
 			},
 			want: "     basic",
 		},
-	})
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
+	}
 }
 
 func TestNow(t *testing.T) {
-	RunTemplateTest(t, []TestSet{
+	tests := []TestSet{
 		{
 			name:     "basic",
 			template: `{{ now }}`,
 			args:     TestArgs{},
 			want:     "1997-08-29T02:14:00-04:00",
 		},
-	})
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
+	}
 }
 
 func TestBracket(t *testing.T) {
-	RunTemplateTest(t, []TestSet{
+	tests := []TestSet{
 		{
 			name:     "empty",
 			template: `{{ bracket .S }}`,
@@ -456,11 +500,15 @@ func TestBracket(t *testing.T) {
 			},
 			want: "(foo bar)",
 		},
-	})
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
+	}
 }
 
 func TestBracketWith(t *testing.T) {
-	RunTemplateTest(t, []TestSet{
+	tests := []TestSet{
 		{
 			name:     "none",
 			template: `{{ bracketWith .B .S }}`,
@@ -506,11 +554,15 @@ func TestBracketWith(t *testing.T) {
 			},
 			wantErr: true,
 		},
-	})
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
+	}
 }
 
 func TestTypeName(t *testing.T) {
-	RunTemplateTest(t, []TestSet{
+	tests := []TestSet{
 		{
 			name:     "nil",
 			template: `{{ typeName .Val }}`,
@@ -551,11 +603,15 @@ func TestTypeName(t *testing.T) {
 			},
 			want: "[]int",
 		},
-	})
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
+	}
 }
 
 func TestTypeKind(t *testing.T) {
-	RunTemplateTest(t, []TestSet{
+	tests := []TestSet{
 		{
 			name:     "nil",
 			template: `{{ typeKind .Val }}`,
@@ -596,11 +652,15 @@ func TestTypeKind(t *testing.T) {
 			},
 			want: "slice",
 		},
-	})
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
+	}
 }
 
 func TestSplitOn(t *testing.T) {
-	RunTemplateTest(t, []TestSet{
+	tests := []TestSet{
 		{
 			name:     "one",
 			template: `{{ splitOn .Glue .S | toJSON }}`,
@@ -619,15 +679,23 @@ func TestSplitOn(t *testing.T) {
 			},
 			want: `["one","two"]`,
 		},
-	})
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
+	}
 }
 
 func TestPrefix(t *testing.T) {
-	RunTemplateTest(t, []TestSet{})
+	tests := []TestSet{}
+
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
+	}
 }
 
 func TestToColumn(t *testing.T) {
-	RunTemplateTest(t, []TestSet{
+	tests := []TestSet{
 		{
 			name:     "empty",
 			template: "{{ toColumns .W .S }}",
@@ -700,11 +768,15 @@ func TestToColumn(t *testing.T) {
 			},
 			want: "foo\nbar\n",
 		},
-	})
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
+	}
 }
 
 func TestTitleCaseWithAbbr(t *testing.T) {
-	RunTemplateTest(t, []TestSet{
+	tests := []TestSet{
 		{
 			name:     "no abbreviations",
 			template: `{{ titleCaseWithAbbr .Abbrev .Word }}`,
@@ -742,11 +814,15 @@ func TestTitleCaseWithAbbr(t *testing.T) {
 			},
 			wantErr: true,
 		},
-	})
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
+	}
 }
 
 func TestQuoteSingle(t *testing.T) {
-	RunTemplateTest(t, []TestSet{
+	tests := []TestSet{
 		{
 			name:     "empty",
 			template: "{{- q .S -}}",
@@ -765,11 +841,15 @@ func TestQuoteSingle(t *testing.T) {
 			want:    "'rawr'",
 			wantErr: false,
 		},
-	})
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
+	}
 }
 
 func TestQuoteDouble(t *testing.T) {
-	RunTemplateTest(t, []TestSet{
+	tests := []TestSet{
 		{
 			name:     "empty",
 			template: "{{- qq .S -}}",
@@ -788,11 +868,15 @@ func TestQuoteDouble(t *testing.T) {
 			want:    "\"rawr\"",
 			wantErr: false,
 		},
-	})
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
+	}
 }
 
 func TestQuoteBack(t *testing.T) {
-	RunTemplateTest(t, []TestSet{
+	tests := []TestSet{
 		{
 			name:     "empty",
 			template: "{{- bq .S -}}",
@@ -811,5 +895,9 @@ func TestQuoteBack(t *testing.T) {
 			want:    "`rawr`",
 			wantErr: false,
 		},
-	})
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, TemplateTest(tt))
+	}
 }
