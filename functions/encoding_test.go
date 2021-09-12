@@ -17,9 +17,9 @@ func TestToJSON(t *testing.T) {
 	tests := []TestSet{
 		{
 			name:     "simple object",
-			template: `{{ toJSON .val }}`,
+			template: `{{ toJSON .object }}`,
 			args: TestArgs{
-				"val": map[string]string{
+				"object": map[string]string{
 					"one": "foo",
 					"two": "bar",
 				},
@@ -38,19 +38,19 @@ func TestFormatJSON(t *testing.T) {
 	tests := []TestSet{
 		{
 			name:     "simple object",
-			template: `{{ formatJSON .indent .j }}`,
+			template: `{{ formatJSON .indent .json }}`,
 			args: TestArgs{
 				"indent": "\t",
-				"j":      `{"one":"foo","two":"bar"}`,
+				"json":   `{"one":"foo","two":"bar"}`,
 			},
 			want: "{\n\t\"one\": \"foo\",\n\t\"two\": \"bar\"\n}",
 		},
 		{
 			name:     "bad json",
-			template: `{{ formatJSON .indent .j }}`,
+			template: `{{ formatJSON .indent .json }}`,
 			args: TestArgs{
 				"indent": "\t",
-				"j":      `{"one":"foo","two":"forgot end brace..."`,
+				"json":   `{"one":"foo","two":"forgot end brace..."`,
 			},
 			wantErr: true,
 		},
@@ -66,9 +66,9 @@ func TestToYAML(t *testing.T) {
 	tests := []TestSet{
 		{
 			name:     "simple object",
-			template: `{{ toYAML .val }}`,
+			template: `{{ toYAML .object }}`,
 			args: TestArgs{
-				"val": map[string]string{
+				"object": map[string]string{
 					"one": "foo",
 					"two": "bar",
 				},
@@ -87,17 +87,17 @@ func TestToBase64(t *testing.T) {
 	tests := []TestSet{
 		{
 			name:     "empty",
-			template: `{{ toBase64 .s }}`,
+			template: `{{ toBase64 .string }}`,
 			args: TestArgs{
-				"s": "",
+				"string": "",
 			},
 			want: "",
 		},
 		{
 			name:     "simple",
-			template: `{{ toBase64 .s }}`,
+			template: `{{ toBase64 .string }}`,
 			args: TestArgs{
-				"s": "A basic string",
+				"string": "A basic string",
 			},
 			want: "QSBiYXNpYyBzdHJpbmc=",
 		},
@@ -113,25 +113,25 @@ func TestFromBase64(t *testing.T) {
 	tests := []TestSet{
 		{
 			name:     "empty",
-			template: `{{ fromBase64 .s }}`,
+			template: `{{ fromBase64 .string }}`,
 			args: TestArgs{
-				"s": "",
+				"string": "",
 			},
 			want: "",
 		},
 		{
 			name:     "simple",
-			template: `{{ fromBase64 .s }}`,
+			template: `{{ fromBase64 .string }}`,
 			args: TestArgs{
-				"s": "QSBiYXNpYyBzdHJpbmc=",
+				"string": "QSBiYXNpYyBzdHJpbmc=",
 			},
 			want: "A basic string",
 		},
 		{
 			name:     "bad string",
-			template: `{{ fromBase64 .s }}`,
+			template: `{{ fromBase64 .string }}`,
 			args: TestArgs{
-				"s": "QSBiYXNpYyBzdHapbmc",
+				"string": "QSBiYXNpYyBzdHapbmc",
 			},
 			wantErr: true,
 		},

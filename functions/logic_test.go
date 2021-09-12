@@ -17,46 +17,46 @@ func TestWhen(t *testing.T) {
 	tests := []TestSet{
 		{
 			name:     "empty",
-			template: `{{ when .D .S }}`,
+			template: `{{ when .return .notZero }}`,
 			args: TestArgs{
-				"D": "x",
-				"S": "",
+				"return":  "x",
+				"notZero": "",
 			},
 			want: "",
 		},
 		{
 			name:     "not empty",
-			template: `{{ when .D .S }}`,
+			template: `{{ when .return .notZero }}`,
 			args: TestArgs{
-				"D": "x",
-				"S": "y",
+				"return":  "x",
+				"notZero": "y",
 			},
 			want: "x",
 		},
 		{
 			name:     "default also empty",
-			template: `{{ when .D .S }}`,
+			template: `{{ when .return .notZero }}`,
 			args: TestArgs{
-				"D": "",
-				"S": "",
+				"return":  "",
+				"notZero": "",
 			},
 			want: "",
 		},
 		{
 			name:     "int, not empty",
-			template: `{{ when .D .S }}`,
+			template: `{{ when .return .notZero }}`,
 			args: TestArgs{
-				"D": "x",
-				"S": 9,
+				"return":  "x",
+				"notZero": 9,
 			},
 			want: "x",
 		},
 		{
 			name:     "int, empty",
-			template: `{{ when .D .S }}`,
+			template: `{{ when .return .notZero }}`,
 			args: TestArgs{
-				"D": "x",
-				"S": 0,
+				"return":  "x",
+				"notZero": 0,
 			},
 			want: "",
 		},
@@ -72,46 +72,46 @@ func TestWhenEmpty(t *testing.T) {
 	tests := []TestSet{
 		{
 			name:     "empty",
-			template: `{{ whenEmpty .D .S }}`,
+			template: `{{ whenEmpty .else .if }}`,
 			args: TestArgs{
-				"D": "x",
-				"S": "",
+				"else": "x",
+				"if":   "",
 			},
 			want: "x",
 		},
 		{
 			name:     "not empty",
-			template: `{{ whenEmpty .D .S }}`,
+			template: `{{ whenEmpty .else .if }}`,
 			args: TestArgs{
-				"D": "x",
-				"S": "y",
+				"else": "x",
+				"if":   "y",
 			},
 			want: "y",
 		},
 		{
 			name:     "default also empty",
-			template: `{{ whenEmpty .D .S }}`,
+			template: `{{ whenEmpty .else .if }}`,
 			args: TestArgs{
-				"D": "",
-				"S": "",
+				"else": "",
+				"if":   "",
 			},
 			want: "",
 		},
 		{
 			name:     "int, not empty",
-			template: `{{ whenEmpty .D .S }}`,
+			template: `{{ whenEmpty .else .if }}`,
 			args: TestArgs{
-				"D": "x",
-				"S": 9,
+				"else": "x",
+				"if":   9,
 			},
 			want: "9",
 		},
 		{
 			name:     "int, empty",
-			template: `{{ whenEmpty .D .S }}`,
+			template: `{{ whenEmpty .else .if }}`,
 			args: TestArgs{
-				"D": "x",
-				"S": 0,
+				"else": "x",
+				"if":   0,
 			},
 			want: "x",
 		},
@@ -127,129 +127,129 @@ func TestIsZero(t *testing.T) {
 	tests := []TestSet{
 		{
 			name:     "nil",
-			template: `{{ isZero .Val }}`,
+			template: `{{ isZero .value }}`,
 			args: TestArgs{
-				"Val": nil,
+				"value": nil,
 			},
 			want: "true",
 		},
 		{
 			name:     "bool true",
-			template: `{{ isZero .Val }}`,
+			template: `{{ isZero .value }}`,
 			args: TestArgs{
-				"Val": true,
+				"value": true,
 			},
 			want: "false",
 		},
 		{
 			name:     "bool false",
-			template: `{{ isZero .Val }}`,
+			template: `{{ isZero .value }}`,
 			args: TestArgs{
-				"Val": false,
+				"value": false,
 			},
 			want: "true",
 		},
 		{
 			name:     "zero int",
-			template: `{{ isZero .Val }}`,
+			template: `{{ isZero .value }}`,
 			args: TestArgs{
-				"Val": 0,
+				"value": 0,
 			},
 			want: "true",
 		},
 		{
 			name:     "non-zero int",
-			template: `{{ isZero .Val }}`,
+			template: `{{ isZero .value }}`,
 			args: TestArgs{
-				"Val": 10,
+				"value": 10,
 			},
 			want: "false",
 		},
 		{
 			name:     "pointer zero int",
-			template: `{{ isZero .Val }}`,
+			template: `{{ isZero .value }}`,
 			args: TestArgs{
-				"Val": helperPtrToInt(0),
+				"value": helperPtrToInt(0),
 			},
 			want: "false",
 		},
 		{
 			name:     "pointer non-zero int",
-			template: `{{ isZero .Val }}`,
+			template: `{{ isZero .value }}`,
 			args: TestArgs{
-				"Val": helperPtrToInt(-82),
+				"value": helperPtrToInt(-82),
 			},
 			want: "false",
 		},
 		{
 			name:     "non-zero int",
-			template: `{{ isZero .Val }}`,
+			template: `{{ isZero .value }}`,
 			args: TestArgs{
-				"Val": 10,
+				"value": 10,
 			},
 			want: "false",
 		},
 		{
 			name:     "non-zero int",
-			template: `{{ isZero .Val }}`,
+			template: `{{ isZero .value }}`,
 			args: TestArgs{
-				"Val": 10,
+				"value": 10,
 			},
 			want: "false",
 		},
 		{
 			name:     "empty string",
-			template: `{{ isZero .Val }}`,
+			template: `{{ isZero .value }}`,
 			args: TestArgs{
-				"Val": "",
+				"value": "",
 			},
 			want: "true",
 		},
 		{
 			name:     "non-empty string",
-			template: `{{ isZero .Val }}`,
+			template: `{{ isZero .value }}`,
 			args: TestArgs{
-				"Val": "foo",
+				"value": "foo",
 			},
 			want: "false",
 		},
 		{
 			name:     "empty array",
-			template: `{{ isZero .Val }}`,
+			template: `{{ isZero .value }}`,
 			args: TestArgs{
-				"Val": []int{},
+				"value": []int{},
 			},
 			want: "true",
 		},
 		{
 			name:     "nil array",
-			template: `{{ isZero .Val }}`,
+			template: `{{ isZero .value }}`,
 			args: TestArgs{
-				"Val": []float64(nil),
+				"value": []float64(nil),
 			},
 			want: "true",
 		},
 		{
 			name:     "non-empty array",
-			template: `{{ isZero .Val }}`,
+			template: `{{ isZero .value }}`,
 			args: TestArgs{
-				"Val": []string{"bar"},
+				"value": []string{"bar"},
 			},
 			want: "false",
 		},
 		{
 			name:     "less simple & true",
-			template: `{{- if isZero .Val -}}one{{- else -}}two{{- end -}}`,
+			template: `{{- if isZero .value -}}one{{- else -}}two{{- end -}}`,
 			args: TestArgs{
-				"Val": 0,
+				"value": 0,
 			},
 			want: "one",
 		},
 		{
 			name:     "less simple & false",
-			template: `{{- if isZero .Val -}}one{{- else -}}two{{- end -}}`,
+			template: `{{- if isZero .value -}}one{{- else -}}two{{- end -}}`,
 			args: TestArgs{
-				"Val": 2,
+				"value": 2,
 			},
 			want: "two",
 		},

@@ -44,6 +44,89 @@ fi
 
 modules=$(go list ./...)
 
+if [[ "${#@}" -gt 0 ]]; then
+  tasks=("$@")
+fi
+
+
+### define stages
+
+function process_stage_defined_stages() {
+  header $task "List of all defined stages"
+  declare -F | cut -d' ' -f3 | grep process_stage | cut -d'_' -f3-
+}
+
+function process_stage_dep() {
+  header $task "Ensuring dependencies are clean"
+  go mod tidy
+  go mod download
+  if grep -qcE ^replace go.mod; then
+    warn "go.mod contains 'replace' directives"
+  fi
+}
+
+function process_stage_fmt() {
+  header $task "Standardising formatting"
+  files=()
+  while IFS='' read -r filename; do
+    files+=("${filename}")
+  done < <(find . -name '*.go' -not -name '*.pb.go' -not -path '*/vendor/*')
+  for f in "${files[@]}"; do
+    sed -i "" -e '/import (/,/)/{/\/\//,/^$/N;/^$/d;}' "${f}"
+    goimports -w -local code.mantid.org "${f}"
+  done
+  go fmt $modules
+}
+
+function process_stage_revive() {
+  header $task "Checking linting rules"
+  revive -formatter friendly -exclude vendor/... -exclude mocks/... $modules
+}
+
+function process_stage_vet() {
+  header $task "Examining code for suspicious constructs"
+  go vet $modules
+}
+
+function process_stage_err() {
+  header $task "Checking for uncaught error returns"
+  errcheck -ignoretests $modules
+}
+
+function process_stage_static() {
+  header $task "Static checking of code for common errors"
+  # https://staticcheck.io/docs/checks
+  staticcheck $modules
+}
+
+function process_stage_sec() {
+  header $task "Looking for common programming mistakes that can lead to security problems."
+  gosec -exclude=G304 -quiet ./...
+}
+
+function process_stage_cyclo() {
+  header $task "Looking for potential refactoring required for functions with high complexity"
+  gocyclo -over 10 -avg .
+}
+
+function process_stage_test() {
+  header $task "Running all unit tests"
+  go test $modules -cover -coverprofile=coverage.out ${TESTARGS}
+}
+
+function process_stage_cover() {
+  header $task "Generating coverage report"
+  go tool cover -html coverage.out -o coverage.html
+  go tool cover -func coverage.out
+}
+
+
+###
+
+function stage_exists() {
+  LC_ALL=C [ "$(type -t "process_stage_${1}")" = "function" ]
+}
+
 # Add in project specific stuff
 if [[ -f "./check_extra.sh" ]]; then
   source ./check_extra.sh
@@ -54,71 +137,15 @@ if [[ -f "./develop.env" ]]; then
   source ./develop.env
 fi
 
-if [[ "${#@}" -gt 0 ]]; then
-  tasks=("$@")
-fi
-
+# run all of the specified stages
 before
 for task in "${tasks[@]}"; do
-  case $task in
-    dep)
-      header $task "Ensuring dependencies are clean"
-      go mod tidy
-      go mod download
-      if grep -qcE ^replace go.mod; then
-        warn "go.mod contains 'replace' directives"
-      fi
-      ;;
-    fmt)
-      header $task "Standardising formatting"
-      files=()
-      while IFS='' read -r filename; do
-        files+=("${filename}")
-      done < <(find . -name '*.go' -not -name '*.pb.go' -not -path '*/vendor/*')
-      for f in "${files[@]}"; do
-        sed -i "" -e '/import (/,/)/{/\/\//,/^$/N;/^$/d;}' "${f}"
-        goimports -w -local code.mantid.org "${f}"
-      done
-      go fmt $modules
-      ;;
-    revive)
-      header $task "Checking linting rules"
-      revive -formatter friendly -exclude vendor/... -exclude mocks/... $modules
-      ;;
-    vet)
-      header $task "Examining code for suspicious constructs"
-      go vet $modules
-      ;;
-    err)
-      header $task "Checking for uncaught error returns"
-      errcheck -ignoretests $modules
-      ;;
-    static)
-      header $task "Static checking of code for common errors"
-      # https://staticcheck.io/docs/checks
-      staticcheck $modules
-      ;;
-    sec)
-      header $task "Looking for common programming mistakes that can lead to security problems."
-      gosec -exclude=G304 -quiet ./...
-      ;;
-    cyclo)
-      header $task "Looking for potential refactoring required for functions with high complexity"
-      gocyclo -over 10 -avg .
-      ;;
-    test)
-      header $task "Running all unit tests"
-      go test $modules -cover -coverprofile=coverage.out ${TESTARGS}
-      ;;
-    cover)
-      header $task "Generating coverage report"
-      go tool cover -html coverage.out -o coverage.html
-      go tool cover -func coverage.out
-      ;;
-  esac
+  stage_exists "${task}" && "process_stage_${task}"
   if [[ "$?" != 0 ]]; then
-    warn "${task} failed"
+    warn "task '${task}' failed"
     break
   fi
 done
 after
+
+exit 0
