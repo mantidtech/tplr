@@ -1,12 +1,12 @@
-package functions
+package logic
 
 import (
 	"reflect"
 	"text/template"
 )
 
-// LogicFunctions perform logical operations
-func LogicFunctions() template.FuncMap {
+// Functions perform logical operations
+func Functions() template.FuncMap {
 	return template.FuncMap{
 		"and":       And,
 		"isZero":    IsZero,

@@ -1,4 +1,4 @@
-package functions
+package list
 
 import (
 	"os"
@@ -12,9 +12,21 @@ var a = map[string]interface{}{
 
 func helperApplyAndRenderTemplate(tpl string, data map[string]interface{}) {
 	t := template.New("example")
-	t.Funcs(All(t))
+	t.Funcs(Functions())
 	t, _ = t.Parse(tpl)
 	_ = t.ExecuteTemplate(os.Stdout, "example", data)
+}
+
+var list = `
+{{ print "{{list \"a\" \"b\" \"c\"}}" }} = {{list "a" "b" "c"}}
+{{ print "{{list \"a\" 5 false}}" }} = {{list "a" 5 false}}
+`
+
+func ExampleList() {
+	helperApplyAndRenderTemplate(list, a)
+	// Output:
+	// {{list "a" "b" "c"}} = [a b c]
+	// {{list "a" 5 false}} = [a 5 false]
 }
 
 var first = `
@@ -114,21 +126,6 @@ func ExampleFilter() {
 	//
 	// {{.b}}            = [f o o b a r]
 	// {{filter .b "o"}} = [f b a r]
-}
-
-var list = `
-{{ print "{{list \"a\" \"b\" \"c\"}}" }} = {{list "a" "b" "c"}}
-{{ print "{{list \"a\" 5 false}}" }} = {{list "a" 5 false}}
-{{ print "{{range list 1 2 3}}{{bracket .}}{{end}}" }} = {{range list 1 2 3}}{{bracket .}}{{end}}
-`
-
-func ExampleList() {
-	helperApplyAndRenderTemplate(list, a)
-	// Output:
-	// {{list "a" "b" "c"}} = [a b c]
-	// {{list "a" 5 false}} = [a 5 false]
-	// {{range list 1 2 3}}{{bracket .}}{{end}} = (1)(2)(3)
-
 }
 
 var pop = `

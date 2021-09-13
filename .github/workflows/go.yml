@@ -1,4 +1,4 @@
-name: Go
+Name: Go
 
 on:
   push:
@@ -9,28 +9,28 @@ on:
 jobs:
 
   build:
-    name: Build
+    Name: Build
     runs-on: ubuntu-latest
     steps:
 
-    - name: Set up Go 1.x
+    - Name: Set up Go 1.x
       uses: actions/setup-go@v2
       with:
         go-version: ^1.14
       id: go
 
-    - name: Check out code into the Go module directory
+    - Name: Check out code into the Go module directory
       uses: actions/checkout@v2
 
-    - name: Get dependencies
+    - Name: Get dependencies
       run: |
         go mod download
         go mod verify
 
-    - name: Build
+    - Name: Build
       run: ./build.sh
 
-    - name: Test
+    - Name: Test
       run: |
         chmod 000 ./testdata/secret
         go test ./... -cover -coverprofile=coverage.out

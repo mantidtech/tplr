@@ -336,7 +336,8 @@ and use:
     import github.com/mantidtech/tplr/functions
     
 
-A convenience function, `functions.All(t *template.Template)`, is provided to return all the functions as a `template.FuncMap`
+A convenience function, `functions.All(t *template.Template)`, 
+is provided to return all the functions as a `template.FuncMap`
 
 docs are at https://pkg.go.dev/github.com/mantidtech/tplr/functions
 

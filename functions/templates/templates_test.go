@@ -1,4 +1,4 @@
-package functions
+package templates
 
 import (
 	"bytes"
@@ -11,7 +11,7 @@ import (
 
 // TestTemplateFunctions provides unit test coverage for TemplateFunctions
 func TestTemplateFunctions(t *testing.T) {
-	fn := TemplateFunctions(nil)
+	fn := Functions(nil)
 	assert.Len(t, fn, 1, "weakly ensuring functions haven't been added/removed without updating tests")
 }
 
@@ -19,16 +19,16 @@ func TestTemplateFunctions(t *testing.T) {
 func TestGenerateIncludeFn(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
-		name           string
-		template       string
-		vars           map[string]interface{}
-		want           string
-		wantParseErr   bool
-		wantExecuteErr bool
+		Name           string
+		Template       string
+		Vars           map[string]interface{}
+		Want           string
+		WantParseErr   bool
+		WantExecuteErr bool
 	}{
 		{
-			name: "simple",
-			template: `
+			Name: "simple",
+			Template: `
 				{{- define "testMain" -}}
 					[ {{- include "testInclude" . -}} ]
 				{{- end -}}
@@ -37,11 +37,11 @@ func TestGenerateIncludeFn(t *testing.T) {
 					included
 				{{- end -}}
 			`,
-			want: "[included]",
+			Want: "[included]",
 		},
 		{
-			name: "infinite recursion",
-			template: `
+			Name: "infinite recursion",
+			Template: `
 				{{- define "testMain" -}}
 					{{- include "testInclude" . -}}
 				{{- end -}}
@@ -50,36 +50,36 @@ func TestGenerateIncludeFn(t *testing.T) {
 					{{- include "testInclude" . -}}
 				{{- end -}}
 			`,
-			wantExecuteErr: true,
+			WantExecuteErr: true,
 		},
 	}
 
 	for _, st := range tests {
 		tt := st
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run(tt.Name, func(t *testing.T) {
 			t.Parallel()
 			var err error
 
 			tpl := template.New("")
 			includeFn := GenerateIncludeFn(tpl)
 			tpl.Funcs(template.FuncMap{"include": includeFn})
-			tpl, err = tpl.Parse(tt.template)
+			tpl, err = tpl.Parse(tt.Template)
 
-			if tt.wantParseErr {
+			if tt.WantParseErr {
 				require.Error(t, err)
 				return
 			}
 			require.NoError(t, err)
 
 			var f bytes.Buffer
-			err = tpl.ExecuteTemplate(&f, "testMain", tt.vars)
-			if tt.wantExecuteErr {
+			err = tpl.ExecuteTemplate(&f, "testMain", tt.Vars)
+			if tt.WantExecuteErr {
 				require.Error(t, err)
 				return
 			}
 			require.NoError(t, err)
 
-			assert.Equal(t, tt.want, f.String())
+			assert.Equal(t, tt.Want, f.String())
 		})
 	}
 }

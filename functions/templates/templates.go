@@ -1,4 +1,4 @@
-package functions
+package templates
 
 import (
 	"fmt"
@@ -9,8 +9,8 @@ import (
 // The recursion depth that we allow self-referring nested templates to go to
 const includedTemplateRecursionLimit = 100
 
-// TemplateFunctions operate on templates themselves
-func TemplateFunctions(t *template.Template) template.FuncMap {
+// Functions that operate on templates themselves
+func Functions(t *template.Template) template.FuncMap {
 	return template.FuncMap{
 		"include": GenerateIncludeFn(t),
 	}

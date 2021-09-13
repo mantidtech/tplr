@@ -1,4 +1,4 @@
-package functions
+package strings
 
 import (
 	"errors"
@@ -11,11 +11,12 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/mantidtech/tplr/functions/helper"
 	"github.com/mantidtech/wordcase"
 )
 
-// StringFunctions primary operate on strings
-func StringFunctions() template.FuncMap {
+// Functions that primarily operate on strings
+func Functions() template.FuncMap {
 	return template.FuncMap{
 		"bq":                 QuoteBack,
 		"bracket":            Bracket,
@@ -68,7 +69,7 @@ func titleCaseWithAbbrHelper(abbrev []string) wordcase.Combiner {
 
 // TitleCaseWithAbbr upper-cases the first letter of each word, or the whole word if it matches a given abbreviation
 func TitleCaseWithAbbr(abbrev interface{}, word string) (string, error) {
-	a, l, err := listInfo(abbrev)
+	a, l, err := helper.ListInfo(abbrev)
 	if err != nil {
 		return "", err
 	}
@@ -121,66 +122,66 @@ func PadLeft(n int, s interface{}) string {
 }
 
 // Bracket adds brackets around the given string
-func Bracket(s interface{}) string {
-	return fmt.Sprintf("(%v)", s)
+func Bracket(item interface{}) string {
+	return fmt.Sprintf("(%v)", item)
 }
 
 // QuoteSingle adds single quote around the given string
-func QuoteSingle(s interface{}) string {
-	return fmt.Sprintf("'%v'", s)
+func QuoteSingle(item interface{}) string {
+	return fmt.Sprintf("'%v'", item)
 }
 
 // QuoteDouble adds double quote around the given string
-func QuoteDouble(s interface{}) string {
-	return fmt.Sprintf("\"%v\"", s)
+func QuoteDouble(item interface{}) string {
+	return fmt.Sprintf("\"%v\"", item)
 }
 
 // QuoteBack adds back-quotes around the given string
-func QuoteBack(s interface{}) string {
-	return fmt.Sprintf("`%v`", s)
+func QuoteBack(item interface{}) string {
+	return fmt.Sprintf("`%v`", item)
 }
 
 // BracketWith adds brackets of a given type around the given string
-func BracketWith(b string, s interface{}) (string, error) {
-	if len(b)%2 != 0 {
+func BracketWith(bracketPair string, item interface{}) (string, error) {
+	if len(bracketPair)%2 != 0 {
 		return "", fmt.Errorf("expected a set of brackets with matching left and right sizes")
 	}
-	h := len(b) / 2
-	l, r := b[:h], b[h:]
-	return fmt.Sprintf("%s%v%s", l, s, r), nil
+	h := len(bracketPair) / 2
+	l, r := bracketPair[:h], bracketPair[h:]
+	return fmt.Sprintf("%s%v%s", l, item, r), nil
 }
 
 // Newline prints a newline (handy for trying to format templates)
-func Newline(c ...int) string {
-	if len(c) == 0 {
+func Newline(count ...int) string {
+	if len(count) == 0 {
 		return "\n"
 	}
-	return strings.Repeat("\n", c[0])
+	return strings.Repeat("\n", count[0])
 }
 
 // Rep repeats the given string(s) the given number of times
-func Rep(n int, s ...string) string {
-	if n < 0 {
+func Rep(count int, item ...string) string {
+	if count < 0 {
 		return ""
 	}
-	r := strings.Join(s, " ")
-	return strings.Repeat(r, n)
+	r := strings.Join(item, " ")
+	return strings.Repeat(r, count)
 }
 
 // Indent prints the given string with the given number of spaces prepended before each line
-func Indent(t int, content string) string {
-	return Prefix(" ", t, content)
+func Indent(count int, content string) string {
+	return Prefix(" ", count, content)
 }
 
 // Unindent removes up to 't' spaces from the start of all lines within content
-func Unindent(t int, content string) (string, error) {
-	if t == 0 {
+func Unindent(count int, content string) (string, error) {
+	if count == 0 {
 		return content, nil
-	} else if t < 0 {
+	} else if count < 0 {
 		return "", errors.New("cannot unindent by an negative amount")
 	}
 	parts := strings.Split(content, "\n")
-	re := fmt.Sprintf("^\\s{1,%d}", t)
+	re := fmt.Sprintf("^\\s{1,%d}", count)
 
 	matcher := regexp.MustCompile(re)
 	for i, p := range parts {
@@ -191,13 +192,13 @@ func Unindent(t int, content string) (string, error) {
 }
 
 // Prefix prints the given string with the given number of 'prefix' prepended before each line
-func Prefix(prefix string, t int, content string) string {
-	if t < 0 {
+func Prefix(prefix string, count int, content string) string {
+	if count < 0 {
 		return ""
 	}
 
 	parts := strings.Split(content, "\n")
-	tab := strings.Repeat(prefix, t)
+	tab := strings.Repeat(prefix, count)
 
 	newParts := make([]string, len(parts))
 
@@ -211,13 +212,13 @@ func Prefix(prefix string, t int, content string) string {
 }
 
 // Suffix prints the given string with the given number of 'suffix' appended to each line
-func Suffix(suffix string, t int, content string) string {
-	if t < 0 {
+func Suffix(suffix string, count int, content string) string {
+	if count < 0 {
 		return ""
 	}
 
 	parts := strings.Split(content, "\n")
-	tab := strings.Repeat(suffix, t)
+	tab := strings.Repeat(suffix, count)
 
 	newParts := make([]string, len(parts))
 
@@ -233,16 +234,16 @@ func Suffix(suffix string, t int, content string) string {
 // ToColumn formats the given text to not take more than 'w' characters per line,
 // splitting on the space before the word that would take the line over.
 // If no space can be found, the line isn't split (ie words bigger than the line size are printed unsplit)
-func ToColumn(w int, s string) string {
+func ToColumn(width int, content string) string {
 	var b strings.Builder
 	tail := ""
 
-	parts := strings.Split(s, "\n")
+	parts := strings.Split(content, "\n")
 	for _, p := range parts {
 		str := tail + p
 		tail = ""
 
-		lines := columnify(w, str)
+		lines := columnify(width, str)
 		if len(lines) > 1 {
 			tail = lines[len(lines)-1]
 		}
@@ -305,22 +306,22 @@ func Now() string {
 }
 
 // SplitOn creates an array from the given string by separating it by the glue string
-func SplitOn(glue string, s string) []string {
-	return strings.Split(s, glue)
+func SplitOn(glue string, content string) []string {
+	return strings.Split(content, glue)
 }
 
 // TypeName returns the type of the given value as a string
-func TypeName(val interface{}) string {
-	if val == nil {
+func TypeName(value interface{}) string {
+	if value == nil {
 		return "nil"
 	}
-	return reflect.TypeOf(val).String()
+	return reflect.TypeOf(value).String()
 }
 
 // TypeKind returns the 'kind'' of the given value as a string
-func TypeKind(val interface{}) string {
-	if val == nil {
+func TypeKind(value interface{}) string {
+	if value == nil {
 		return "nil"
 	}
-	return reflect.ValueOf(val).Kind().String()
+	return reflect.ValueOf(value).Kind().String()
 }

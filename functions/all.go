@@ -1,16 +1,25 @@
 package functions
 
-import "text/template"
+import (
+	"text/template"
+
+	"github.com/mantidtech/tplr/functions/console"
+	"github.com/mantidtech/tplr/functions/encoding"
+	"github.com/mantidtech/tplr/functions/list"
+	"github.com/mantidtech/tplr/functions/logic"
+	"github.com/mantidtech/tplr/functions/strings"
+	"github.com/mantidtech/tplr/functions/templates"
+)
 
 // All returns all the templating functions
 func All(t *template.Template) template.FuncMap {
 	return CombineFunctionLists(
-		EncodingFunctions(),
-		ListFunctions(),
-		LogicFunctions(),
-		MiscellaneousFunctions(),
-		StringFunctions(),
-		TemplateFunctions(t),
+		console.Functions(),
+		encoding.Functions(),
+		list.Functions(),
+		logic.Functions(),
+		strings.Functions(),
+		templates.Functions(t),
 	)
 }
 

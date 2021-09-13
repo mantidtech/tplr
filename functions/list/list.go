@@ -1,14 +1,16 @@
-package functions
+package list
 
 import (
 	"fmt"
 	"reflect"
 	"strings"
 	"text/template"
+
+	"github.com/mantidtech/tplr/functions/helper"
 )
 
-// ListFunctions operate on collections of items
-func ListFunctions() template.FuncMap {
+// Functions operate on collections of items
+func Functions() template.FuncMap {
 	return template.FuncMap{
 		"contains": Contains,
 		"filter":   Filter,
@@ -26,52 +28,14 @@ func ListFunctions() template.FuncMap {
 	}
 }
 
-// listInfo returns basic info that we need for most list processing,
-// ie it's reflect.Value (converted to the generic []interface{} type), length,
-// or error message if it's not a list
-func listInfo(list interface{}) (reflect.Value, int, error) {
-	var v reflect.Value
-	if list == nil {
-		return v, 0, fmt.Errorf("list is nil")
-	}
-
-	t := reflect.TypeOf(list).Kind()
-	if t != reflect.Slice && t != reflect.Array {
-		return v, 0, fmt.Errorf("type %s is not a list", t)
-	}
-
-	listType := reflect.TypeOf(([]interface{})(nil))
-
-	v = reflect.ValueOf(list)
-	if reflect.TypeOf(list) == listType {
-		return v, v.Len(), nil
-	}
-
-	n := reflect.MakeSlice(listType, v.Len(), v.Cap())
-	for i := 0; i < v.Len(); i++ {
-		n.Index(i).Set(v.Index(i))
-	}
-
-	return n, n.Len(), nil
-}
-
-// itemForList returns the item as a reflect.Value that can be inserted into the list.
-// This is because nil requires special casing
-func itemForList(item interface{}) reflect.Value {
-	if item == nil {
-		return reflect.Zero(reflect.TypeOf((*interface{})(nil)).Elem()) // heh heh, ugh
-	}
-	return reflect.ValueOf(item)
-}
-
 // List returns a new list comprised of the given elements
-func List(s ...interface{}) (interface{}, error) {
-	return s, nil
+func List(items ...interface{}) (interface{}, error) {
+	return items, nil
 }
 
 // First returns the head of a list
 func First(list interface{}) (interface{}, error) {
-	a, l, err := listInfo(list)
+	a, l, err := helper.ListInfo(list)
 	if err != nil || l == 0 {
 		return nil, err
 	}
@@ -81,7 +45,7 @@ func First(list interface{}) (interface{}, error) {
 
 // Rest / Shift returns the tail of a list
 func Rest(list interface{}) (interface{}, error) {
-	a, l, err := listInfo(list)
+	a, l, err := helper.ListInfo(list)
 	if err != nil || l < 2 {
 		return nil, err
 	}
@@ -91,7 +55,7 @@ func Rest(list interface{}) (interface{}, error) {
 
 // Last returns the last item of a list
 func Last(list interface{}) (interface{}, error) {
-	a, l, err := listInfo(list)
+	a, l, err := helper.ListInfo(list)
 	if err != nil || l == 0 {
 		return nil, err
 	}
@@ -101,7 +65,7 @@ func Last(list interface{}) (interface{}, error) {
 
 // Pop removes the first element of the list, returning the list
 func Pop(list interface{}) (interface{}, error) {
-	a, l, err := listInfo(list)
+	a, l, err := helper.ListInfo(list)
 	if err != nil || l < 2 {
 		return nil, err
 	}
@@ -112,7 +76,7 @@ func Pop(list interface{}) (interface{}, error) {
 // Slice returns a slice of a list
 // where i is the lower index (inclusive) and j is the upper index (exclusive) to extract
 func Slice(i, j int, list interface{}) (interface{}, error) {
-	a, l, err := listInfo(list)
+	a, l, err := helper.ListInfo(list)
 	if err != nil {
 		return list, err
 	} else if i < 0 {
@@ -126,7 +90,7 @@ func Slice(i, j int, list interface{}) (interface{}, error) {
 
 // Contains returns true if the item is present in the list
 func Contains(list interface{}, item interface{}) (bool, error) {
-	a, l, err := listInfo(list)
+	a, l, err := helper.ListInfo(list)
 	if err != nil {
 		return false, err
 	}
@@ -142,7 +106,7 @@ func Contains(list interface{}, item interface{}) (bool, error) {
 
 // Filter returns list with all instances of item removed
 func Filter(list interface{}, item interface{}) (interface{}, error) {
-	a, l, err := listInfo(list)
+	a, l, err := helper.ListInfo(list)
 	if err != nil || l == 0 {
 		return list, err
 	}
@@ -160,23 +124,23 @@ func Filter(list interface{}, item interface{}) (interface{}, error) {
 
 // Push returns the list with item appended
 func Push(list interface{}, item interface{}) (interface{}, error) {
-	a, _, err := listInfo(list)
+	a, _, err := helper.ListInfo(list)
 	if err != nil {
 		return nil, err
 	}
-	i := itemForList(item)
+	i := helper.ItemForList(item)
 	a = reflect.Append(a, i)
 	return a.Interface(), nil
 }
 
 // Unshift returns the list with item prepended
 func Unshift(list interface{}, item interface{}) (interface{}, error) {
-	a, l, err := listInfo(list)
+	a, l, err := helper.ListInfo(list)
 	if err != nil {
 		return nil, err
 	}
 
-	i := itemForList(item)
+	i := helper.ItemForList(item)
 	s := reflect.MakeSlice(a.Type(), 1, l+1)
 	s.Index(0).Set(i)
 
@@ -192,39 +156,7 @@ func Join(list interface{}) (string, error) {
 
 // JoinWith joins the given strings together using the given string as glue
 func JoinWith(glue string, list interface{}) (string, error) {
-	s, err := asStringList(list)
+	s, err := helper.AsStringList(list)
 
 	return strings.Join(s, glue), err
 }
-
-func asStringList(list interface{}) ([]string, error) {
-	a, l, err := listInfo(list)
-	if err != nil {
-		return nil, err
-	}
-
-	s := make([]string, l)
-	for c := 0; c < l; c++ {
-		v := a.Index(c).Interface()
-		s[c] = fmt.Sprintf("%v", v)
-	}
-	return s, nil
-}
-
-//func flatten(things ...interface{}) interface{} {
-//	if things == nil {
-//		return nil
-//	}
-//
-//	list := reflect.MakeSlice(reflect.TypeOf(([]interface{})(nil)), 0, 25)
-//	for _, i := range things {
-//		t := reflect.TypeOf(i).Kind()
-//		if t == reflect.Slice || t == reflect.Array {
-//			list = reflect.AppendSlice(list, reflect.ValueOf(i))
-//		} else {
-//			list = reflect.Append(list, reflect.ValueOf(i))
-//		}
-//	}
-//
-//	return list
-//}

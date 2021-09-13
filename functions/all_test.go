@@ -23,40 +23,40 @@ func TestCombineFunctionLists(t *testing.T) {
 	two := func() {}
 
 	tests := []struct {
-		name string
-		args Args
-		want template.FuncMap
+		Name string
+		Args Args
+		Want template.FuncMap
 	}{
 		{
-			name: "nil",
-			args: Args{
+			Name: "nil",
+			Args: Args{
 				fnList: nil,
 			},
-			want: template.FuncMap{},
+			Want: template.FuncMap{},
 		},
 		{
-			name: "empty",
-			args: Args{
+			Name: "empty",
+			Args: Args{
 				fnList: []template.FuncMap{},
 			},
-			want: template.FuncMap{},
+			Want: template.FuncMap{},
 		},
 		{
-			name: "one",
-			args: Args{
+			Name: "one",
+			Args: Args{
 				fnList: []template.FuncMap{
 					{
 						"one": one,
 					},
 				},
 			},
-			want: template.FuncMap{
+			Want: template.FuncMap{
 				"one": one,
 			},
 		},
 		{
-			name: "one-one",
-			args: Args{
+			Name: "one-one",
+			Args: Args{
 				fnList: []template.FuncMap{
 					{
 						"one": one,
@@ -66,7 +66,7 @@ func TestCombineFunctionLists(t *testing.T) {
 					},
 				},
 			},
-			want: template.FuncMap{
+			Want: template.FuncMap{
 				"one": one,
 				"two": two,
 			},
@@ -75,14 +75,14 @@ func TestCombineFunctionLists(t *testing.T) {
 
 	for _, st := range tests {
 		tt := st
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run(tt.Name, func(t *testing.T) {
 			t.Parallel()
-			got := CombineFunctionLists(tt.args.fnList...)
+			got := CombineFunctionLists(tt.Args.fnList...)
 			for k := range got {
-				_, exists := tt.want[k]
+				_, exists := tt.Want[k]
 				assert.Truef(t, exists, "expected to find key %s", k)
 			}
-			for k := range tt.want {
+			for k := range tt.Want {
 				_, exists := got[k]
 				assert.Truef(t, exists, "unexpected key %s", k)
 			}

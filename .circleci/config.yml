@@ -22,7 +22,7 @@ jobs:
       - checkout
 
       - run:
-          name: "Prepare"
+          Name: "Prepare"
           command: |
             mkdir -p /tmp/artifacts
             go mod download
@@ -35,7 +35,7 @@ jobs:
             go get github.com/mattn/goveralls
 
       - run:
-          name: "Check"
+          Name: "Check"
           command: |
             go fmt ./...
             golint -set_exit_status ./...
@@ -46,7 +46,7 @@ jobs:
             # gocyclo -over 10 -avg .
 
       - run:
-          name: "Test"
+          Name: "Test"
           command: |
             chmod 000 testdata/secret
             go test ./... -cover -coverprofile=coverage.out
@@ -55,7 +55,7 @@ jobs:
             goveralls -coverprofile=coverage.out -service=circle-ci -repotoken "${COVERALLS_TOKEN}"
 
       - run:
-          name: "Build"
+          Name: "Build"
           command: |
             ./build.sh
             mv tplr /tmp/artifacts/

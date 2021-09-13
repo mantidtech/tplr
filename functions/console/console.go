@@ -1,4 +1,4 @@
-package functions
+package console
 
 import (
 	"os"
@@ -7,8 +7,8 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-// MiscellaneousFunctions are functions that don't have a more specific home
-func MiscellaneousFunctions() template.FuncMap {
+// Functions are functions that don't have a more specific home
+func Functions() template.FuncMap {
 	return template.FuncMap{
 		"terminalWidth": TerminalWidth,
 	}
