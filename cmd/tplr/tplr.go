@@ -2,7 +2,7 @@
 //
 // install with: go install github.com/mantidtech/tplr/cmd/tplr@latest
 //
-// see github.com/mantidtech/tplr for documentation
+// see https://github.com/mantidtech/tplr for documentation
 package main
 
 import (

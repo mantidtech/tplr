@@ -1,4 +1,4 @@
-![Go](https://github.com/mantidtech/tplr/workflows/Go/badge.svg)
+j![Go](https://github.com/mantidtech/tplr/workflows/Go/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/mantidtech/tplr/badge.svg?branch=master)](https://coveralls.io/github/mantidtech/tplr?branch=master)
 ![License](https://img.shields.io/github/license/mantidtech/tplr)
 
@@ -7,18 +7,22 @@
 A tool to create files rendered from go templates and json
 
 ```
-Usage: tplr [-o <output file>] [-d <data file>] [-t <template file>] [inline template]
+Usage: tplr [-f] [-o <output file>] [-d <data file>] [-t <template file>] [inline template]
 Usage: tplr [-h|-v]
 
 Where:
   -o <output file>   is a file to write to (default: stdout)
   -d <data file>     is a json file containing the templated variables (default: stdin)
-  -f <template file> is a file using the go templating notation.
+  -t <template file> is a file using the go templating notation.
      If this is not specified, the template is taken from the remaining program args
+
+Options:
+  -f If the destination file already exits, overwrite it.  (default is to do nothing)
 
 Information:
   -h Prints this messge
   -v Prints the program version number and exits
+
 ```
 
 The templating markup language used is defined by the go [text/template](https://pkg.go.dev/text/template) package
@@ -101,45 +105,27 @@ This means there's no special translation of html elements, and therefore output
 ---
 ## Template Functions
 
-In addition to the [standard template functions](https://pkg.go.dev/text/template?tab=doc#hdr-Functions), `tplr` introduces:
+In addition to the [standard template functions](https://pkg.go.dev/text/template?tab=doc#hdr-Functions), 
+`tplr` introduces several collections of functions
 
-### Composition Actions
+* `console` - 
+* `encoding` - 
+* `list` - Operations to operate on lists (arrays) of values
+* `logic` - Logical operations 
+* `strings` - 
+* `templates` - 
 
-#### `{{ include "name" pipeline }}`
-
- Works like `template`, but allows usage within pipelines
- eg
-``` 
-{{- include "foo" . | indent 6 -}}
-```
-
-### Logical Operators
-
-#### `{{ isZero pipeline }}`
-
-Returns `true` if the pipeline is empty (ie the `zero` value of its type) OR 
-if it's a pointer and the dereferenced value is zero, OR 
-if the type of the pipeline has a `length` (eg array, slice, map, string), and the length is zero
-
-#### `{{ whenEmpty pipeline1 pipeline0 }}`
-
-If `pipeline0` is empty (ie the `zero` value of its type), returns `pipeline1` otherwise `pipeline0`
-
-eg
-```
-{{ .SomeValue | whenEmpty "something else" }}
-```
 
 ---
-### Formatting
+### String Operations
 
-#### `{{ toColumns N S }}`
+#### `{{ toColumns NUMBER TEXT }}`
 
- ToColumns formats the given text to not take more than N characters per line,
- splitting on the space before the word that would take the line over
- 
- Note: Embedded newlines have no special treatment, so text containing them could look wonky.
-       Either strip them first, or break the input into multiple strings and process individually
+ToColumns formats the given `TEXT` to not take more than `NUMBER` characters per line,
+splitting on the space before the word that would take the line over
+
+Note: Embedded newlines have no special treatment, so text containing them could look wonky.
+Either strip them first, or break the input into multiple strings and process individually
 
 eg
 ```
@@ -152,13 +138,13 @@ d e f
 g
 ```
 
-#### `{{ bracketWith S pipeline }}`
+#### `{{ bracketWith BRACKETPAIR PIPELINE }}`
 
-Surrounds the pipeline with bracket pairs taken from `S`
+Surrounds the pipeline with bracket pairs taken from the string `BRACKETPAIR`
 
-`S` must be an even-length string.  The first half is used as the opening bracket, and the second as closing.
+`BRACKETPAIR` must be an even-length string.  The first half is used as the opening bracket and the second as closing.
 
-eg 
+eg
 ```
 {{ bracketWith "<>" "html" }}
 ```
@@ -167,26 +153,25 @@ produces
 <html>
 ```
 
-#### `{{ bracket pipeline }}`
+#### `{{ bracket PIPELINE }}`
 
-Surrounds the `pipeline` with `(` & `)`
+Surrounds the `PIPELINE` with `(` & `)`
 
-Equivalent to `{{ bracketWith "()" pipeline }}`.
+Equivalent to `{{ bracketWith "()" PIPELINE }}`.
 
+#### `{{ prefix PREFIX COUNT STRING }}`
 
-#### `{{ prefix X N S }}`
+Prefixes all lines in the string `STRING` with `COUNT` times the prefix string `PREFIX`
 
-Prefixes all lines in the string `S` with `N` times the prefix string `X`
+#### `{{ suffix SUFFIX COUNT STRING }}`
 
-#### `{{ suffix X N S }}`
+Appends all lines in the string `STRING` with `COUNT` times the suffix string `SUFFIX`
 
-Appends all lines in the string `S` with `N` times the suffix string `X`
+#### `{{ indent COUNT STRING }}`
 
-#### `{{ indent N S }}`
+Indents all lines in the string `STRING` with `COUNT` tabs.
 
-Indents all lines in the string `S` with `N` tabs.
-
-Equivalent to `{{ prefix "\t" N S }}`.
+Equivalent to `{{ prefix "\t" COUNT STRING }}`.
 
 eg
 ```
@@ -198,49 +183,39 @@ produces
             World
 ```
 
-#### `{{ joinWith S ARG_1..ARG_N }}`
+#### `{{ splitOn GLUE CONTENT }}`
 
-Concatenates the args into string joined by the string `S`
+Splits `CONTENT` into a list of strings on occurrences of the string `GLUE`
 
-#### `{{ join ARG_1..ARG_N }}`
+#### `{{ padLeft COUNT PIPELINE }}`
 
-Concatenates the args into a single string
+Returns `PIPELINE` with a width of at least `COUNT` characters, adding spaces at the front to pad out the string
 
-Equivalent to `{{ joinWith "" ARG }}`.
+#### `{{ padRight COUNT PIPELINE }}`
 
-#### `{{ splitOn S ARG }}`
-
-Splits the arg into a list of strings on occurrences of the string `S`
-
-#### `{{ padLeft N ARG }}`
-
-Returns the arg with a width of at least `N` characters, adding spaces at the front to pad out the string
-
-#### `{{ padRight N ARG }}`
-
-Returns the arg with a width of at least `N` characters, adding spaces at the end to pad out the string
+Returns `PIPELINE` with a width of at least `COUNT` characters, adding spaces at the end to pad out the string
 
 #### `{{ uppercaseFirst ARG }}`
 
 Returns the arg with the first character capitalised. There is no effect to other characters.
 
-#### `{{ toLower ARG }}`
+#### `{{ toLower STRING }}`
 
-Returns the arg with the all characters converted to lowercase.
+Returns `STRING` with the all characters converted to lowercase.
 
-#### `{{ toUpper ARG }}`
+#### `{{ toUpper STRING }}`
 
-Returns the arg with the all characters converted to uppercase.
+Returns `STRING` with the all characters converted to uppercase.
 
 #### `{{ rep N ARG }}`
 
 Returns the arg printed `N` number of times.
 
-#### `{{ space [N] }}`
+#### `{{ space [COUNT] }}` / `{{ sp [COUNT] }}`
 
 Returns a space character.  
-If `N` is supplied, returns the given number of spaces.
-Equivalent to `{{ rep N " " }}`.
+If `COUNT` is supplied, returns the given number of spaces.
+Equivalent to `{{ rep COUNT " " }}`.
 
 #### `{{ tab [N] }}`
 
@@ -254,25 +229,289 @@ Returns a newline character.
 If `N` is supplied, return the given number of newlines.
 Equivalent to `{{ rep N "\n" }}`.
 
-#### `{{ typeName ARG }}`
+#### `{{ typeName PIPELINE }}`
 
-Returns the name of the Go type for the underlying variable of the argument
+Returns the name of the Go type for the underlying variable of the argument `PIPELINE`
+
+#### `{{ camelCase STRING }}`
+
+Convert the given `STRING` to camelCase
+
+eg:
+```gotemplate
+{{- camelCase "foo bar" -}}
+```
+produces:
+```
+fooBar
+```
+
+#### `{{ dotCase STRING }}`
+
+Convert the given `STRING` to dotCase
+
+eg:
+```gotemplate
+{{- dotCase "foo bar" -}}
+```
+produces:
+```
+foo.bar
+```
+
+#### `{{ kebabCase STRING }}`
+
+Convert the given `STRING` to kebabCase
+
+eg:
+```gotemplate
+{{- kebabCase "foo bar" -}}
+```
+produces:
+```
+foo-bar
+```
+
+
+#### `{{ pascalCase STRING }}`
+
+Convert the given `STRING` to pascalCase
+
+eg:
+```gotemplate
+{{- pascalCase "foo bar" -}}
+```
+produces:
+```
+FooBar
+```
+
+#### `{{ screamingSnakeCase STRING }}`
+
+Convert the given `STRING` to screamingSnakeCase
+
+eg:
+```gotemplate
+{{- screamingSnakeCase "foo bar" -}}
+```
+produces:
+```
+FOO_BAR
+```
+
+#### `{{ snakeCase STRING }}`
+
+Convert the given `STRING` to snakeCase
+
+eg:
+```gotemplate
+{{- snakeCase "foo bar" -}}
+```
+produces:
+```
+foo_bar
+```
+
+#### `{{ titleCase STRING }}`
+
+Convert the given `STRING` to titleCase
+
+eg:
+```gotemplate
+{{- titleCase "foo html" -}}
+```
+produces:
+```
+Foo Html
+```
+
+#### `{{ titleCaseWithAbbr STRING }}`
+
+Convert the given `STRING` to titleCaseWithAbbr
+
+eg:
+```gotemplate
+{{- titleCase "foo html" -}}
+```
+produces:
+```
+Foo HTML
+```
+
+#### `{{ toWords STRING }}`
+
+Convert the given `STRING` to toWords
+
+eg:
+```gotemplate
+{{- toWords "foo_bar_baz" -}}
+```
+produces:
+```
+foo bar baz
+```
+
+#### `{{ q STRING }}`
+
+Quotes the given `STRING` with single quotes
+
+eg:
+```gotemplate
+{{- q "foo" -}}
+```
+produces:
+```
+'foo'
+```
+
+#### `{{ qq STRING }}`
+
+Quotes the given `STRING` with double quotes
+
+eg:
+```gotemplate
+{{- qq "foo" -}}
+```
+produces:
+```
+"foo"
+```
+
+#### `{{ qb STRING }}`
+
+Quotes the given `STRING` with back-quotes
+
+eg:
+```gotemplate
+{{- qb "foo" -}}
+```
+produces:
+```
+`foo`
+```
+
+#### `{{ trim STRING }}`
+
+Trims whitespace from the start and end of `STRING`
+
+eg:
+```gotemplate
+X{{- trim "   foo   " -}}X
+```
+produces:
+```
+XfooX
+```
+
+#### `{{ typeKind PIPELINE }}`
+
+
+
+#### `{{ unindent STRING }}`
+
+
+#### `{{ now }}`
+
+Returns the current time as a string in `RFC3339` format
+
+eg:
+```gotemplate
+{{- now -}}
+```
+produces:
+```
+2021-09-16T21:41:58Z10:00
+```
 
 ---
-### Encoding
+### List Functions
 
-#### `{{ toJSON ARG }}`
+These methods work when the value of the pipeline is an array or slice (and return an error otherwise)
 
-Converts the given arg to a JSON string
+#### `{{ list ITEM_1..ITEM_N }}`
 
-#### `{{ formatJSON S ARG }}`
+Creates a new list with the given set of items.
 
-Pretty-prints the pipeline.  Returns an error if the arg isn't valid JSON.
-Each element in the JSON object or array begins on a new line, indented by one or more copies of `S` according to the nesting depth of the object.
 
-#### `{{ toYAML ARG }}`
+#### `{{ first LIST }}` / `{{ shift LIST }}`
 
-Converts the given arg to a YAML string
+Returns the first item in the list.
+
+#### `{{ last LIST }}` /  `{{ pop LIST }}`
+
+Returns the last item of a list.
+
+#### `{{ rest LIST }}`
+
+Returns a list of everything except for the first item.
+
+#### `{{ push LIST ITEM }}`
+
+Adds an item to the end of a list, returning the new list.
+
+
+#### `{{ unshift LIST ITEM }}`
+
+Adds an item to the start of a list, returning the list.
+
+
+
+#### `{{ slice I J LIST }}`
+
+Returns a slice of the list, ie all items between indexes I (inclusive) and J (exclusive).
+
+#### `{{ contains LIST ITEM }}`
+
+Returns `true` if the item are present in the list.
+
+#### `{{ filter LIST ITEM }}`
+
+Returns a list with all instances of all item removed from it.
+
+#### `{{ joinWith GLUE ARG_1..ARG_N }}`
+
+Concatenates the args into string joined by the string `GLUE`.
+
+#### `{{ join ARG_1..ARG_N }}`
+
+Concatenates the args into a single string
+
+Equivalent to `{{ joinWith "" ARG }}`.
+
+
+---
+### Logical Functions
+
+#### `{{ isZero PIPELINE }}`
+
+Returns `true` if the pipeline is empty (ie the `zero` value of its type) OR
+if it's a pointer and the dereferenced value is zero, OR
+if the type of the pipeline has a `length` (eg array, slice, map, string), and the length is zero
+
+#### `{{ and ARG_1...ARG_n }}`
+
+Returns `ARG_n` if all the arguments evaluate to non-zero or `""` otherwise.
+
+#### `{{ or ARG_1...ARG_n }}`
+
+Returns the first argument that evaluates to non-zero (from left to right) or `""` if none do.
+
+#### `{{ whenEmpty VALUE COND }}`
+
+Returns `VALUE` if `COND` is a zero value, otherwise it returns `COND`.
+
+eg:
+```
+{{ .SomeValue | whenEmpty "something else" }}
+```
+
+#### `{{ when VALUE COND }}`
+
+Returns `VALUE` if `COND` is not zero, otherwise it returns an empty string
+
+
+---
+### Encoding and Decoding
 
 #### `{{ toBase64 ARG }}`
 
@@ -282,46 +521,37 @@ Converts the given arg to base64 encoding
 
 Decode the given base64 `ARG`
 
+#### `{{ toJSON ARG }}`
+
+Converts the given arg to a JSON string
+
+#### `{{ formatJSON INDENT ARG }}`
+
+Pretty-prints the pipeline.  Returns an error if the arg isn't valid JSON.
+Each element in the JSON object or array begins on a new line, 
+indented by one or more copies of `INDENT` according to the nesting depth of the object.
+
+#### `{{ toYAML PIPELINE }}`
+
+Converts the given `PIPELINE` to a YAML string
+
 ---
-### Lists
+### Operations with Templates
 
-These methods work when the value of the pipeline is an array or slice (and return an error otherwise)
+#### `{{ include "name" pipeline }}`
 
-#### `{{ list ITEM_1.ITEM_N }}`
+Works like `template`, but allows usage within pipelines.
+eg:
+``` 
+{{- include "foo" . | indent 6 -}}
+```
 
-Creates a new list with the given set of items
+---
+### Console (Terminal) Functions
 
-#### `{{ first LIST }}`
+* #### `{{ terminalWidth }}`
 
-Returns the first item in the list
-
-#### `{{ last LIST }}`
-
-Returns the last item of a list
-
-#### `{{ rest LIST }}` / `{{ pop LIST }}`
-
-Returns a list of everything except for the first item (aliased as pop)
-
-#### `{{ push LIST ITEM }}`
-
-Adds an item to the end of a list, returning the new list
-
-#### `{{ unshift LIST ITEM }}`
-
-Adds an item to the beginning of a list, returning the new list
-
-#### `{{ slice I J LIST }}`
-
-Returns a slice of the list, ie all items between indexes I (inclusive) and J (exclusive)
-
-#### `{{ contains LIST ITEM }}`
-
-Returns `true` if the item are present in the list
-
-#### `{{ filter LIST ITEM }}`
-
-Returns a list with all instances of all item removed from it
+Returns the width of the terminal if available or zero otherwise.
 
 
 ---

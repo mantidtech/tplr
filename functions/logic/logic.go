@@ -16,20 +16,20 @@ func Functions() template.FuncMap {
 	}
 }
 
-// When returns the second argument if the first is not "empty", otherwise it returns an empty string
-func When(d, s interface{}) interface{} {
-	if !IsZero(s) {
-		return d
+// When returns 'value' if 'cond' is not a zero value, otherwise it returns an empty string
+func When(value, cond interface{}) interface{} {
+	if !IsZero(cond) {
+		return value
 	}
 	return ""
 }
 
-// WhenEmpty returns the second argument if the first is "empty", otherwise it returns the first
-func WhenEmpty(d, s interface{}) interface{} {
-	if IsZero(s) {
-		return d
+// WhenEmpty returns 'value' if 'cond' is a zero value, otherwise it returns 'cond'
+func WhenEmpty(value, cond interface{}) interface{} {
+	if IsZero(cond) {
+		return value
 	}
-	return s
+	return cond
 }
 
 // IsZero returns true if the value given corresponds to its types zero value,

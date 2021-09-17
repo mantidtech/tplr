@@ -18,7 +18,6 @@ import (
 // Functions that primarily operate on strings
 func Functions() template.FuncMap {
 	return template.FuncMap{
-		"bq":                 QuoteBack,
 		"bracket":            Bracket,
 		"bracketWith":        BracketWith,
 		"camelCase":          wordcase.CamelCase,
@@ -34,6 +33,7 @@ func Functions() template.FuncMap {
 		"prefix":             Prefix,
 		"q":                  QuoteSingle,
 		"qq":                 QuoteDouble,
+		"qb":                 QuoteBack,
 		"rep":                Rep,
 		"screamingSnakeCase": wordcase.ScreamingSnakeCase,
 		"snakeCase":          wordcase.SnakeCase,

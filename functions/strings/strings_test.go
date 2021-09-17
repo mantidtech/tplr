@@ -884,7 +884,7 @@ func TestQuoteBack(t *testing.T) {
 	tests := []helper.TestSet{
 		{
 			Name:     "empty",
-			Template: "{{- bq .S -}}",
+			Template: "{{- qb .S -}}",
 			Args: helper.TestArgs{
 				"S": "",
 			},
@@ -893,7 +893,7 @@ func TestQuoteBack(t *testing.T) {
 		},
 		{
 			Name:     "basic",
-			Template: "{{- bq .S -}}",
+			Template: "{{- qb .S -}}",
 			Args: helper.TestArgs{
 				"S": "rawr",
 			},

@@ -12,19 +12,19 @@ import (
 // Functions operate on collections of items
 func Functions() template.FuncMap {
 	return template.FuncMap{
-		"contains": Contains,
-		"filter":   Filter,
-		"first":    First,
-		"join":     Join,
-		"joinWith": JoinWith,
-		"last":     Last,
 		"list":     List,
+		"first":    First,
+		"last":     Last,
+		"rest":     Rest,
 		"pop":      Pop,
 		"push":     Push,
-		"rest":     Rest,
 		"shift":    Rest,
-		"slice":    Slice,
 		"unshift":  Unshift,
+		"contains": Contains,
+		"filter":   Filter,
+		"join":     Join,
+		"joinWith": JoinWith,
+		"slice":    Slice,
 	}
 }
 
@@ -63,7 +63,7 @@ func Last(list interface{}) (interface{}, error) {
 	return a.Index(l - 1).Interface(), nil
 }
 
-// Pop removes the first element of the list, returning the list
+// Pop removes the last element of the list, returning the list
 func Pop(list interface{}) (interface{}, error) {
 	a, l, err := helper.ListInfo(list)
 	if err != nil || l < 2 {
