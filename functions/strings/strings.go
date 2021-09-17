@@ -173,7 +173,7 @@ func Indent(count int, content string) string {
 	return Prefix(" ", count, content)
 }
 
-// Unindent removes up to 't' spaces from the start of all lines within content
+// Unindent removes up to 'count' spaces from the start of all lines within 'content'
 func Unindent(count int, content string) (string, error) {
 	if count == 0 {
 		return content, nil
@@ -301,8 +301,12 @@ func columnify(w int, s string) []string {
 
 var nowActual = time.Now // use an alias, so we can redefine it in testing
 // Now returns the current time in the format "2006-01-02T15:04:05Z07:00"
-func Now() string {
-	return nowActual().Format(time.RFC3339)
+func Now(format ...string) string {
+	f := time.RFC3339
+	if len(format) > 0 {
+		f = format[0]
+	}
+	return nowActual().Format(f)
 }
 
 // SplitOn creates an array from the given string by separating it by the glue string

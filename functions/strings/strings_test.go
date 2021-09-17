@@ -464,10 +464,22 @@ func TestPadLeft(t *testing.T) {
 func TestNow(t *testing.T) {
 	tests := []helper.TestSet{
 		{
-			Name:     "basic",
+			Name:     "default",
 			Template: `{{ now }}`,
 			Args:     helper.TestArgs{},
 			Want:     "1997-08-29T02:14:00-04:00",
+		},
+		{
+			Name:     "date",
+			Template: `{{ now "Mon Jan _2" }}`,
+			Args:     helper.TestArgs{},
+			Want:     "Fri Aug 29",
+		},
+		{
+			Name:     "time",
+			Template: `{{ now "15:04:05 MST" }}`,
+			Args:     helper.TestArgs{},
+			Want:     "02:14:00 EDT",
 		},
 	}
 
@@ -629,6 +641,13 @@ func TestTypeKind(t *testing.T) {
 				"Val": 3,
 			},
 			Want: "int",
+		}, {
+			Name:     "string",
+			Template: `{{ typeKind .Val }}`,
+			Args: helper.TestArgs{
+				"Val": "A",
+			},
+			Want: "string",
 		},
 		{
 			Name:     "time.Duration",
