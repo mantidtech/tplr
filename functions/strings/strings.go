@@ -23,6 +23,7 @@ func Functions() template.FuncMap {
 		"camelCase":          wordcase.CamelCase,
 		"dotCase":            wordcase.DotCase,
 		"indent":             Indent,
+		"tabIndent":          TabIndent,
 		"unindent":           Unindent,
 		"kebabCase":          wordcase.KebabCase,
 		"nl":                 Newline,
@@ -171,6 +172,11 @@ func Rep(count int, item ...string) string {
 // Indent prints the given string with the given number of spaces prepended before each line
 func Indent(count int, content string) string {
 	return Prefix(" ", count, content)
+}
+
+// TabIndent prints the given string with the given number of spaces prepended before each line
+func TabIndent(count int, content string) string {
+	return Prefix("\t", count, content)
 }
 
 // Unindent removes up to 'count' spaces from the start of all lines within 'content'

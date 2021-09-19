@@ -1,4 +1,4 @@
-j![Go](https://github.com/mantidtech/tplr/workflows/Go/badge.svg)
+![Go](https://github.com/mantidtech/tplr/workflows/Go/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/mantidtech/tplr/badge.svg?branch=master)](https://coveralls.io/github/mantidtech/tplr?branch=master)
 ![License](https://img.shields.io/github/license/mantidtech/tplr)
 
@@ -179,18 +179,34 @@ Appends all lines in the string `STRING` with `COUNT` times the suffix string `S
 
 * #### `{{ indent COUNT STRING }}`
 
+Indents all lines in the string `STRING` with `COUNT` spaces.
+
+Equivalent to `{{ prefix " " COUNT STRING }}`.
+
+eg
+```
+{{- indent 2 "Hello\nWorld" -}}
+```
+produces
+```
+  Hello
+  World
+```
+
+* #### `{{ tabIndent COUNT STRING }}`
+
 Indents all lines in the string `STRING` with `COUNT` tabs.
 
 Equivalent to `{{ prefix "\t" COUNT STRING }}`.
 
 eg
 ```
-{{- indent 2 "Hello\n\tWorld" -}}
+{{- indent 2 "Hello\nWorld" -}}
 ```
 produces
 ```
         Hello
-            World
+        World
 ```
 
 * #### `{{ splitOn GLUE CONTENT }}`
@@ -334,13 +350,13 @@ produces:
 Foo Html
 ```
 
-* #### `{{ titleCaseWithAbbr STRING }}`
+* #### `{{ titleCaseWithAbbr ABBREV STRING }}`
 
-Convert the given `STRING` to titleCaseWithAbbr.
+Convert the given `STRING` to titleCase, additionally using the set of words in `ABBREV` to convert words in `STRING` to fully uppercase.
 
 eg:
 ```gotemplate
-{{- titleCase "foo html" -}}
+{{- titleCase (list "html") "foo html" -}}
 ```
 produces:
 ```

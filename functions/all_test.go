@@ -10,7 +10,7 @@ import (
 // TestAll provides unit test coverage for All()
 func TestFunctionCount(t *testing.T) {
 	fn := All(nil)
-	assert.Len(t, fn, 59, "weakly ensuring functions haven't been added/removed without updating tests")
+	assert.Len(t, fn, 60, "weakly ensuring functions haven't been added/removed without updating tests")
 }
 
 // TestCombineFunctionLists provides unit test coverage for CombineFunctionLists

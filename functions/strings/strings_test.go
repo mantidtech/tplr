@@ -23,7 +23,7 @@ func init() {
 // TestStringFunctions provides unit test coverage for StringFunctions
 func TestStringFunctions(t *testing.T) {
 	fn := Functions()
-	assert.Len(t, fn, 34, "weakly ensuring functions haven't been added/removed without updating tests")
+	assert.Len(t, fn, 35, "weakly ensuring functions haven't been added/removed without updating tests")
 }
 
 func TestUppercaseFirst(t *testing.T) {
@@ -220,6 +220,61 @@ func TestIndent(t *testing.T) {
 				"Content": "foo\nbar",
 			},
 			Want: " foo\n bar",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.Name, helper.TemplateTest(tt, Functions()))
+	}
+}
+
+// TestTabIndent provides unit test coverage for TabIndent()
+func TestTabIndent(t *testing.T) {
+	tests := []helper.TestSet{
+		{
+			Name:     "none",
+			Template: `{{ tabIndent .T .Content }}`,
+			Args: helper.TestArgs{
+				"T":       0,
+				"Content": "foo",
+			},
+			Want: "foo",
+		},
+		{
+			Name:     "one",
+			Template: `{{ tabIndent .T .Content }}`,
+			Args: helper.TestArgs{
+				"T":       1,
+				"Content": "foo",
+			},
+			Want: "\tfoo",
+		},
+		{
+			Name:     "two",
+			Template: `{{ tabIndent .T .Content }}`,
+			Args: helper.TestArgs{
+				"T":       2,
+				"Content": "foo",
+			},
+			Want: "\t\tfoo",
+		},
+		{
+			Name:     "negative one",
+			Template: `{{ tabIndent .T .Content }}`,
+			Args: helper.TestArgs{
+				"T":       -1,
+				"Content": "",
+			},
+			Want: "",
+		},
+		{
+			Name:     "multi line",
+			Template: `{{ tabIndent .T .Content }}`,
+			Args: helper.TestArgs{
+				"T":       1,
+				"Content": "foo\nbar",
+			},
+			Want: "\tfoo\n\tbar",
 		},
 	}
 
