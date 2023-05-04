@@ -6,9 +6,9 @@ import (
 )
 
 // ListInfo returns basic info that we need for most list processing,
-// ie it's reflect.Value (converted to the generic []interface{} type), length,
+// ie it's reflect.Value (converted to the generic []any type), length,
 // or error message if it's not a list
-func ListInfo(list interface{}) (reflect.Value, int, error) {
+func ListInfo(list any) (reflect.Value, int, error) {
 	var v reflect.Value
 	if list == nil {
 		return v, 0, fmt.Errorf("list is nil")
@@ -19,7 +19,7 @@ func ListInfo(list interface{}) (reflect.Value, int, error) {
 		return v, 0, fmt.Errorf("type %s is not a list", t)
 	}
 
-	listType := reflect.TypeOf(([]interface{})(nil))
+	listType := reflect.TypeOf(([]any)(nil))
 
 	v = reflect.ValueOf(list)
 	if reflect.TypeOf(list) == listType {
@@ -36,15 +36,15 @@ func ListInfo(list interface{}) (reflect.Value, int, error) {
 
 // ItemForList returns the item as a reflect.Value that can be inserted into the list.
 // This is because nil requires special casing
-func ItemForList(item interface{}) reflect.Value {
+func ItemForList(item any) reflect.Value {
 	if item == nil {
-		return reflect.Zero(reflect.TypeOf((*interface{})(nil)).Elem()) // heh heh, ugh
+		return reflect.Zero(reflect.TypeOf((*any)(nil)).Elem()) // heh heh, ugh
 	}
 	return reflect.ValueOf(item)
 }
 
 // AsStringList converts a list to a list of strings
-func AsStringList(list interface{}) ([]string, error) {
+func AsStringList(list any) ([]string, error) {
 	a, l, err := ListInfo(list)
 	if err != nil {
 		return nil, err
@@ -58,12 +58,12 @@ func AsStringList(list interface{}) ([]string, error) {
 	return s, nil
 }
 
-//func flatten(things ...interface{}) interface{} {
+//func flatten(things ...any) any {
 //	if things == nil {
 //		return nil
 //	}
 //
-//	list := reflect.MakeSlice(reflect.TypeOf(([]interface{})(nil)), 0, 25)
+//	list := reflect.MakeSlice(reflect.TypeOf(([]any)(nil)), 0, 25)
 //	for _, i := range things {
 //		t := reflect.TypeOf(i).Kind()
 //		if t == reflect.Slice || t == reflect.Array {

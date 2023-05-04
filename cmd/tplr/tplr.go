@@ -92,7 +92,7 @@ func showHelp() {
 	fmt.Printf("  -v Prints the program version number and exits\n")
 }
 
-func errorAndExit(msg string, args ...interface{}) {
+func errorAndExit(msg string, args ...any) {
 	_, _ = fmt.Fprintf(os.Stderr, msg, args...)
 	os.Exit(1)
 }

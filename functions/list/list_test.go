@@ -10,7 +10,7 @@ import (
 // TestListFunctions provides unit test coverage for ListFunctions
 func TestListFunctions(t *testing.T) {
 	fn := Functions()
-	assert.Len(t, fn, 13, "weakly ensuring functions haven't been added/removed without updating tests")
+	assert.Len(t, fn, 12, "weakly ensuring functions haven't been added/removed without updating tests")
 }
 
 // TestList provides unit test coverage for List()
@@ -177,6 +177,15 @@ func TestLast(t *testing.T) {
 func TestContains(t *testing.T) {
 	tests := []helper.TestSet{
 		{
+			Name:     "nil",
+			Template: `{{ contains .Haystack .Needle }}`,
+			Args: helper.TestArgs{
+				"Needle":   "C",
+				"Haystack": nil,
+			},
+			WantErr: true,
+		},
+		{
 			Name:     "test against empty",
 			Template: `{{ contains .Haystack .Needle }}`,
 			Args: helper.TestArgs{
@@ -213,7 +222,7 @@ func TestContains(t *testing.T) {
 			Template: `{{ contains .Haystack .Needle }}`,
 			Args: helper.TestArgs{
 				"Needle":   1,
-				"Haystack": []interface{}{"1", 2},
+				"Haystack": []any{"1", 2},
 			},
 			Want: "false",
 		},
@@ -304,7 +313,7 @@ func TestPush(t *testing.T) {
 			Name:     "push to empty",
 			Template: `{{ push .List .Item }}`,
 			Args: helper.TestArgs{
-				"List": []interface{}{},
+				"List": []any{},
 				"Item": "A",
 			},
 			Want: "[A]",
@@ -313,7 +322,7 @@ func TestPush(t *testing.T) {
 			Name:     "push to existing",
 			Template: `{{ push .List .Item }}`,
 			Args: helper.TestArgs{
-				"List": []interface{}{"A", "B"},
+				"List": []any{"A", "B"},
 				"Item": "C",
 			},
 			Want: "[A B C]",
@@ -322,7 +331,7 @@ func TestPush(t *testing.T) {
 			Name:     "mixed types",
 			Template: `{{ push .List .Item }}`,
 			Args: helper.TestArgs{
-				"List": []interface{}{"A", 3},
+				"List": []any{"A", 3},
 				"Item": "1.2",
 			},
 			Want: "[A 3 1.2]",
@@ -350,7 +359,7 @@ func TestUnshift(t *testing.T) {
 			Name:     "unshift to empty",
 			Template: `{{ unshift .List .Item }}`,
 			Args: helper.TestArgs{
-				"List": []interface{}{},
+				"List": []any{},
 				"Item": "A",
 			},
 			Want: "[A]",
@@ -359,7 +368,7 @@ func TestUnshift(t *testing.T) {
 			Name:     "unshift to existing",
 			Template: `{{ unshift .List .Item }}`,
 			Args: helper.TestArgs{
-				"List": []interface{}{"A", "B"},
+				"List": []any{"A", "B"},
 				"Item": "C",
 			},
 			Want: "[C A B]",
@@ -368,70 +377,10 @@ func TestUnshift(t *testing.T) {
 			Name:     "mixed types",
 			Template: `{{ unshift .List .Item }}`,
 			Args: helper.TestArgs{
-				"List": []interface{}{"A", 3},
+				"List": []any{"A", 3},
 				"Item": "1.2",
 			},
 			Want: "[1.2 A 3]",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.Name, helper.TemplateTest(tt, Functions()))
-	}
-}
-
-// TestSlice provides unit test coverage for TestSlice()
-func TestSlice(t *testing.T) {
-	tests := []helper.TestSet{
-		{
-			Name:     "not a list",
-			Template: `{{ slice .I .J .NotList }}`,
-			Args: helper.TestArgs{
-				"NotList": "not a list",
-				"I":       0,
-				"J":       0,
-			},
-			WantErr: true,
-		},
-		{
-			Name:     "slice on empty",
-			Template: `{{ slice .I .J .List }}`,
-			Args: helper.TestArgs{
-				"List": []int{},
-				"I":    0,
-				"J":    0,
-			},
-			Want: "[]",
-		},
-		{
-			Name:     "middle slice",
-			Template: `{{ slice .I .J .List }}`,
-			Args: helper.TestArgs{
-				"List": []string{"A", "B", "C", "D"},
-				"I":    1,
-				"J":    3,
-			},
-			Want: "[B C]",
-		},
-		{
-			Name:     "out of bounds - leading",
-			Template: `{{ slice .I .J .List }}`,
-			Args: helper.TestArgs{
-				"List": []interface{}{"A", "B", "C", "D"},
-				"I":    -1,
-				"J":    2,
-			},
-			WantErr: true,
-		},
-		{
-			Name:     "out of bounds - trailing",
-			Template: `{{ slice .I .J .List }}`,
-			Args: helper.TestArgs{
-				"List": []interface{}{"A", "B", "C", "D"},
-				"I":    3,
-				"J":    5,
-			},
-			WantErr: true,
 		},
 	}
 
@@ -455,7 +404,7 @@ func TestJoin(t *testing.T) {
 			Name:     "empty",
 			Template: `{{ join .A }}`,
 			Args: helper.TestArgs{
-				"A": []interface{}{},
+				"A": []any{},
 			},
 			Want: "",
 		},
@@ -463,7 +412,7 @@ func TestJoin(t *testing.T) {
 			Name:     "one",
 			Template: `{{ join .A }}`,
 			Args: helper.TestArgs{
-				"A": []interface{}{"one"},
+				"A": []any{"one"},
 			},
 			Want: "one",
 		},
@@ -471,7 +420,7 @@ func TestJoin(t *testing.T) {
 			Name:     "two",
 			Template: `{{ join .A }}`,
 			Args: helper.TestArgs{
-				"A": []interface{}{"one", "two"},
+				"A": []any{"one", "two"},
 			},
 			Want: "onetwo",
 		},
@@ -479,7 +428,7 @@ func TestJoin(t *testing.T) {
 			Name:     "2",
 			Template: `{{ join .A }}`,
 			Args: helper.TestArgs{
-				"A": []interface{}{1, 2},
+				"A": []any{1, 2},
 			},
 			Want: "12",
 		},
@@ -515,7 +464,7 @@ func TestJoinWith(t *testing.T) {
 			Template: `{{ joinWith .Glue .A }}`,
 			Args: helper.TestArgs{
 				"Glue": "",
-				"A":    []interface{}{},
+				"A":    []any{},
 			},
 			Want: "",
 		},
@@ -524,7 +473,7 @@ func TestJoinWith(t *testing.T) {
 			Template: `{{ joinWith .Glue .A }}`,
 			Args: helper.TestArgs{
 				"Glue": "*",
-				"A":    []interface{}{"one"},
+				"A":    []any{"one"},
 			},
 			Want: "one",
 		},
@@ -533,7 +482,7 @@ func TestJoinWith(t *testing.T) {
 			Template: `{{ joinWith .Glue .A }}`,
 			Args: helper.TestArgs{
 				"Glue": "^",
-				"A":    []interface{}{"one", "two"},
+				"A":    []any{"one", "two"},
 			},
 			Want: "one^two",
 		},
@@ -542,7 +491,7 @@ func TestJoinWith(t *testing.T) {
 			Template: `{{ joinWith .Glue .A }}`,
 			Args: helper.TestArgs{
 				"Glue": " - ",
-				"A":    []interface{}{"one", "two", "three"},
+				"A":    []any{"one", "two", "three"},
 			},
 			Want: "one - two - three",
 		},

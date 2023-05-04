@@ -26,7 +26,7 @@ func ExampleAll() {
 </li>
 {{- end -}}`
 
-	data := map[string]interface{}{
+	data := map[string]any{
 		"title": "My List Of Doom",
 		"items": []string{
 			"Acquire lair",

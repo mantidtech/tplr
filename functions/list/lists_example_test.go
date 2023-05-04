@@ -5,12 +5,12 @@ import (
 	"text/template"
 )
 
-var a = map[string]interface{}{
+var a = map[string]any{
 	"a": []string{"a", "b", "c", "d", "e"},
 	"b": []string{"f", "o", "o", "b", "a", "r"},
 }
 
-func helperApplyAndRenderTemplate(tpl string, data map[string]interface{}) {
+func helperApplyAndRenderTemplate(tpl string, data map[string]any) {
 	t := template.New("example")
 	t.Funcs(Functions())
 	t, _ = t.Parse(tpl)
@@ -138,16 +138,4 @@ func ExamplePop() {
 	// Output:
 	// {{.a}}     = [a b c d e]
 	// {{pop .a}} = [a b c d]
-}
-
-var slice = `
-{{ print "{{.a}}" }}           = {{.a}}
-{{ print "{{slice 1 3 .a}}" }} = {{slice 1 3 .a}}
-`
-
-func ExampleSlice() {
-	helperApplyAndRenderTemplate(slice, a)
-	// Output:
-	// {{.a}}           = [a b c d e]
-	// {{slice 1 3 .a}} = [b c]
 }

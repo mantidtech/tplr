@@ -17,7 +17,7 @@ func Functions() template.FuncMap {
 }
 
 // When returns 'value' if 'cond' is not a zero value, otherwise it returns an empty string
-func When(value, cond interface{}) interface{} {
+func When(value, cond any) any {
 	if !IsZero(cond) {
 		return value
 	}
@@ -25,7 +25,7 @@ func When(value, cond interface{}) interface{} {
 }
 
 // WhenEmpty returns 'value' if 'cond' is a zero value, otherwise it returns 'cond'
-func WhenEmpty(value, cond interface{}) interface{} {
+func WhenEmpty(value, cond any) any {
 	if IsZero(cond) {
 		return value
 	}
@@ -34,7 +34,7 @@ func WhenEmpty(value, cond interface{}) interface{} {
 
 // IsZero returns true if the value given corresponds to its types zero value,
 // points to something zero valued, or if it's a type with a length which is 0
-func IsZero(val interface{}) bool {
+func IsZero(val any) bool {
 	if val == nil {
 		return true
 	}
@@ -50,7 +50,7 @@ func IsZero(val interface{}) bool {
 }
 
 // And returns the value of the last expression if all expressions evaluate to non-zero, or empty string otherwise
-func And(expr ...interface{}) interface{} {
+func And(expr ...any) any {
 	if len(expr) == 0 {
 		return ""
 	}
@@ -63,7 +63,7 @@ func And(expr ...interface{}) interface{} {
 }
 
 // Or returns the first expression that evaluates to non-zero, or empty string if none do
-func Or(expr ...interface{}) interface{} {
+func Or(expr ...any) any {
 	for _, e := range expr {
 		if !IsZero(e) {
 			return e

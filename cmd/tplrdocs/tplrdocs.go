@@ -5,7 +5,7 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"io/ioutil"
+	"os"
 	"strings"
 )
 
@@ -14,7 +14,7 @@ const root = "functions"
 
 func main() {
 
-	dir, err := ioutil.ReadDir(root)
+	dir, err := os.ReadDir(root)
 	if err != nil {
 		panic(err)
 	}

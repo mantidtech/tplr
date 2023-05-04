@@ -7,7 +7,7 @@ import (
 )
 
 // ToJSON returns the given value as a json string
-func ToJSON(val interface{}) (string, error) {
+func ToJSON(val any) (string, error) {
 	b, err := json.Marshal(val)
 	return string(b), err
 }

@@ -13,7 +13,7 @@ func TestLoadAndGenerateFromTemplate(t *testing.T) {
 	tests := []struct {
 		name              string
 		tpl               string
-		vars              map[string]interface{}
+		vars              map[string]any
 		want              string
 		wantLoadError     bool
 		wantGenerateError bool
@@ -21,7 +21,7 @@ func TestLoadAndGenerateFromTemplate(t *testing.T) {
 		{
 			name: "hello world",
 			tpl:  "Hello {{.to}}!",
-			vars: map[string]interface{}{
+			vars: map[string]any{
 				"to": "World",
 			},
 			want:              "Hello World!",
@@ -31,7 +31,7 @@ func TestLoadAndGenerateFromTemplate(t *testing.T) {
 		{
 			name: "bad template",
 			tpl:  "Hello {{.to",
-			vars: map[string]interface{}{
+			vars: map[string]any{
 				"to": "World",
 			},
 			want:              "",

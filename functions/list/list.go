@@ -1,7 +1,6 @@
 package list
 
 import (
-	"fmt"
 	"reflect"
 	"strings"
 	"text/template"
@@ -24,17 +23,16 @@ func Functions() template.FuncMap {
 		"filter":   Filter,
 		"join":     Join,
 		"joinWith": JoinWith,
-		"slice":    Slice,
 	}
 }
 
 // List returns a new list comprised of the given elements
-func List(items ...interface{}) (interface{}, error) {
+func List(items ...any) (any, error) {
 	return items, nil
 }
 
 // First returns the head of a list
-func First(list interface{}) (interface{}, error) {
+func First(list any) (any, error) {
 	a, l, err := helper.ListInfo(list)
 	if err != nil || l == 0 {
 		return nil, err
@@ -44,7 +42,7 @@ func First(list interface{}) (interface{}, error) {
 }
 
 // Rest / Shift returns the tail of a list
-func Rest(list interface{}) (interface{}, error) {
+func Rest(list any) (any, error) {
 	a, l, err := helper.ListInfo(list)
 	if err != nil || l < 2 {
 		return nil, err
@@ -54,7 +52,7 @@ func Rest(list interface{}) (interface{}, error) {
 }
 
 // Last returns the last item of a list
-func Last(list interface{}) (interface{}, error) {
+func Last(list any) (any, error) {
 	a, l, err := helper.ListInfo(list)
 	if err != nil || l == 0 {
 		return nil, err
@@ -64,7 +62,7 @@ func Last(list interface{}) (interface{}, error) {
 }
 
 // Pop removes the last element of the list, returning the list
-func Pop(list interface{}) (interface{}, error) {
+func Pop(list any) (any, error) {
 	a, l, err := helper.ListInfo(list)
 	if err != nil || l < 2 {
 		return nil, err
@@ -73,23 +71,8 @@ func Pop(list interface{}) (interface{}, error) {
 	return a.Slice(0, l-1).Interface(), nil
 }
 
-// Slice returns a slice of a list
-// where i is the lower index (inclusive) and j is the upper index (exclusive) to extract
-func Slice(i, j int, list interface{}) (interface{}, error) {
-	a, l, err := helper.ListInfo(list)
-	if err != nil {
-		return list, err
-	} else if i < 0 {
-		return nil, fmt.Errorf("index '%d' out of bounds (min 0)", i)
-	} else if j > l {
-		return nil, fmt.Errorf("index '%d' out of bounds (max %d)", j, l)
-	}
-
-	return a.Slice(i, j).Interface(), nil
-}
-
 // Contains returns true if the item is present in the list
-func Contains(list interface{}, item interface{}) (bool, error) {
+func Contains(list any, item any) (bool, error) {
 	a, l, err := helper.ListInfo(list)
 	if err != nil {
 		return false, err
@@ -105,7 +88,7 @@ func Contains(list interface{}, item interface{}) (bool, error) {
 }
 
 // Filter returns list with all instances of item removed
-func Filter(list interface{}, item interface{}) (interface{}, error) {
+func Filter(list any, item any) (any, error) {
 	a, l, err := helper.ListInfo(list)
 	if err != nil || l == 0 {
 		return list, err
@@ -123,7 +106,7 @@ func Filter(list interface{}, item interface{}) (interface{}, error) {
 }
 
 // Push returns the list with item appended
-func Push(list interface{}, item interface{}) (interface{}, error) {
+func Push(list any, item any) (any, error) {
 	a, _, err := helper.ListInfo(list)
 	if err != nil {
 		return nil, err
@@ -134,7 +117,7 @@ func Push(list interface{}, item interface{}) (interface{}, error) {
 }
 
 // Unshift returns the list with item prepended
-func Unshift(list interface{}, item interface{}) (interface{}, error) {
+func Unshift(list any, item any) (any, error) {
 	a, l, err := helper.ListInfo(list)
 	if err != nil {
 		return nil, err
@@ -150,12 +133,12 @@ func Unshift(list interface{}, item interface{}) (interface{}, error) {
 }
 
 // Join joins the given strings together
-func Join(list interface{}) (string, error) {
+func Join(list any) (string, error) {
 	return JoinWith("", list)
 }
 
 // JoinWith joins the given strings together using the given string as glue
-func JoinWith(glue string, list interface{}) (string, error) {
+func JoinWith(glue string, list any) (string, error) {
 	s, err := helper.AsStringList(list)
 
 	return strings.Join(s, glue), err

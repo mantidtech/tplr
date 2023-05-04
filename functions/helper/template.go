@@ -14,6 +14,8 @@ const TestTemplateName = "test template"
 
 // NewTemplate creates a new template
 func NewTemplate(t *testing.T, tpl string, fns template.FuncMap) *template.Template {
+	t.Helper()
+
 	var err error
 	tSet := template.New(TestTemplateName)
 	tSet.Funcs(fns)

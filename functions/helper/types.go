@@ -10,4 +10,4 @@ type TestSet struct {
 }
 
 // TestArgs are the arguments used when testing a template
-type TestArgs map[string]interface{}
+type TestArgs map[string]any
