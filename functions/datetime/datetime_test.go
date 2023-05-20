@@ -12,11 +12,7 @@ import (
 func init() {
 	// set to return a constant for testing
 	helper.Now = func() time.Time {
-		loc, err := time.LoadLocation("US/Eastern")
-		if err != nil {
-			panic(err)
-		}
-		return time.Date(2020, 8, 29, 2, 14, 0, 133_700_000, loc)
+		return time.Date(2020, 8, 29, 2, 14, 0, 133_700_000, time.UTC)
 	}
 }
 
@@ -33,15 +29,15 @@ func TestNow(t *testing.T) {
 			Name:     "now - default format",
 			Template: `{{ now }}`,
 			Args:     helper.TestArgs{},
-			Want:     "2020-08-29T02:14:00-04:00",
+			Want:     "2020-08-29T02:14:00Z",
 		},
 		{
 			Name:     "now - supplied format",
 			Template: `{{ now .F }}`,
 			Args: helper.TestArgs{
-				"F": "02 Jan 06 15:04 MST",
+				"F": "02 Jan 06 15:04 UTC",
 			},
-			Want: "29 Aug 20 02:14 EDT",
+			Want: "29 Aug 20 02:14 UTC",
 		},
 	}
 
@@ -52,25 +48,22 @@ func TestNow(t *testing.T) {
 
 // TestTimeFormat provides unit test coverage for TimeFormat.
 func TestTimeFormat(t *testing.T) {
-	aest, err := time.LoadLocation("Australia/Brisbane")
-	require.NoError(t, err)
-
 	tests := []helper.TestSet{
 		{
 			Name:     "RFC3339",
 			Template: `{{ timeFormat "2006-01-02T15:04:05Z07:00" .S }}`,
 			Args: helper.TestArgs{
-				"S": time.Date(2023, 05, 18, 21, 00, 51, 0, aest),
+				"S": time.Date(2023, 05, 18, 21, 00, 51, 0, time.UTC),
 			},
-			Want: "2023-05-18T21:00:51+10:00",
+			Want: "2023-05-18T21:00:51Z",
 		},
 		{
 			Name:     "RFC822",
-			Template: `{{ timeFormat "02 Jan 06 15:04 MST" .S }}`,
+			Template: `{{ timeFormat "02 Jan 06 15:04 UTC" .S }}`,
 			Args: helper.TestArgs{
-				"S": time.Date(2023, 05, 18, 21, 00, 51, 0, aest),
+				"S": time.Date(2023, 05, 18, 21, 00, 51, 0, time.UTC),
 			},
-			Want: "18 May 23 21:00 AEST",
+			Want: "18 May 23 21:00 UTC",
 		},
 	}
 

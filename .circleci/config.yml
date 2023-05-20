@@ -5,8 +5,7 @@ version: 2.1
 jobs:
   build:
     docker:
-      # specify the version
-      - image: cimg/golang:1.20
+      - image: cimg/go:1.20
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -25,14 +24,6 @@ jobs:
           Name: "Prepare"
           command: |
             mkdir -p /tmp/artifacts
-            go mod download
-            go get golang.org/x/lint/golint
-            go get github.com/kisielk/errcheck
-            go get honnef.co/go/tools/cmd/staticcheck
-            go get github.com/securego/gosec/cmd/gosec/...
-            go get github.com/fzipp/gocyclo
-            go get golang.org/x/tools/cmd/cover
-            go get github.com/mattn/goveralls
 
       - run:
           Name: "Check"
