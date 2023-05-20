@@ -131,11 +131,11 @@ func TestUnixToTime(t *testing.T) {
 	tests := []helper.TestSet{
 		{
 			Name:     "int",
-			Template: `{{ unixToTime .I }}`,
+			Template: `{{ unixToTime .I | timeToUnix }}`,
 			Args: helper.TestArgs{
 				"I": 1684407651,
 			},
-			Want: "2023-05-18 21:00:51 +1000 AEST",
+			Want: "1684407651",
 		},
 		{
 			Name:     "string",
@@ -143,7 +143,6 @@ func TestUnixToTime(t *testing.T) {
 			Args: helper.TestArgs{
 				"S": "1684407651",
 			},
-			Want:    "x",
 			WantErr: true,
 		},
 	}
