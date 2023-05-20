@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/mantidtech/wordcase v1.0.1
 	github.com/stretchr/testify v1.8.2
+	golang.org/x/exp v0.0.0-20230519143937-03e91628a987
 	golang.org/x/sys v0.7.0
 	gopkg.in/yaml.v2 v2.4.0
 )

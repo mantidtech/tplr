@@ -9,21 +9,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func init() {
-	// set to return a constant for testing
-	nowActual = func() time.Time {
-		loc, err := time.LoadLocation("US/Eastern")
-		if err != nil {
-			panic(err)
-		}
-		return time.Date(1997, 8, 29, 2, 14, 0, 133_700_000, loc)
-	}
-}
-
-// TestStringFunctions provides unit test coverage for StringFunctions
-func TestStringFunctions(t *testing.T) {
+// TestFunctions provides unit test coverage for StringFunctions
+func TestFunctions(t *testing.T) {
 	fn := Functions()
-	assert.Len(t, fn, 35, "weakly ensuring functions haven't been added/removed without updating tests")
+	assert.Len(t, fn, 38, "weakly ensuring functions haven't been added/removed without updating tests")
 }
 
 func TestUppercaseFirst(t *testing.T) {
@@ -516,33 +505,6 @@ func TestPadLeft(t *testing.T) {
 	}
 }
 
-func TestNow(t *testing.T) {
-	tests := []helper.TestSet{
-		{
-			Name:     "default",
-			Template: `{{ now }}`,
-			Args:     helper.TestArgs{},
-			Want:     "1997-08-29T02:14:00-04:00",
-		},
-		{
-			Name:     "date",
-			Template: `{{ now "Mon Jan _2" }}`,
-			Args:     helper.TestArgs{},
-			Want:     "Fri Aug 29",
-		},
-		{
-			Name:     "time",
-			Template: `{{ now "15:04:05 MST" }}`,
-			Args:     helper.TestArgs{},
-			Want:     "02:14:00 EDT",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.Name, helper.TemplateTest(tt, Functions()))
-	}
-}
-
 func TestBracket(t *testing.T) {
 	tests := []helper.TestSet{
 		{
@@ -978,5 +940,105 @@ func TestQuoteBack(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.Name, helper.TemplateTest(tt, Functions()))
+	}
+}
+
+// TestHasPrefix provides unit test coverage for HasPrefix.
+func TestHasPrefix(t *testing.T) {
+	type Args struct {
+		prefix  string
+		subject string
+	}
+
+	tests := []struct {
+		name     string
+		args     Args
+		wantBool bool
+	}{
+		// table test data goes here
+	}
+
+	for _, ts := range tests {
+		tc := ts
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			gotBool := HasPrefix(tc.args.prefix, tc.args.subject)
+			assert.Equal(t, tc.wantBool, gotBool)
+		})
+	}
+}
+
+// TestHasSuffix provides unit test coverage for HasSuffix.
+func TestHasSuffix(t *testing.T) {
+	type Args struct {
+		suffix  string
+		subject string
+	}
+
+	tests := []struct {
+		name     string
+		args     Args
+		wantBool bool
+	}{
+		// table test data goes here
+	}
+
+	for _, ts := range tests {
+		tc := ts
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			gotBool := HasSuffix(tc.args.suffix, tc.args.subject)
+			assert.Equal(t, tc.wantBool, gotBool)
+		})
+	}
+}
+
+// TestTrimPrefix provides unit test coverage for TrimPrefix.
+func TestTrimPrefix(t *testing.T) {
+	type Args struct {
+		prefix  string
+		subject string
+	}
+
+	tests := []struct {
+		name       string
+		args       Args
+		wantString string
+	}{
+		// table test data goes here
+	}
+
+	for _, ts := range tests {
+		tc := ts
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			gotString := TrimPrefix(tc.args.prefix, tc.args.subject)
+			assert.Equal(t, tc.wantString, gotString)
+		})
+	}
+}
+
+// TestTrimSuffix provides unit test coverage for TrimSuffix.
+func TestTrimSuffix(t *testing.T) {
+	type Args struct {
+		suffix  string
+		subject string
+	}
+
+	tests := []struct {
+		name       string
+		args       Args
+		wantString string
+	}{
+		// table test data goes here
+	}
+
+	for _, ts := range tests {
+		tc := ts
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			gotString := TrimSuffix(tc.args.suffix, tc.args.subject)
+			assert.Equal(t, tc.wantString, gotString)
+		})
 	}
 }

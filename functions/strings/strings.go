@@ -7,7 +7,6 @@ import (
 	"regexp"
 	"strings"
 	"text/template"
-	"time"
 	"unicode"
 	"unicode/utf8"
 
@@ -27,7 +26,6 @@ func Functions() template.FuncMap {
 		"unindent":           Unindent,
 		"kebabCase":          wordcase.KebabCase,
 		"nl":                 Newline,
-		"now":                Now,
 		"padLeft":            PadLeft,
 		"padRight":           PadRight,
 		"pascalCase":         wordcase.PascalCase,
@@ -53,6 +51,10 @@ func Functions() template.FuncMap {
 		"typeKind":           TypeKind,
 		"typeName":           TypeName,
 		"ucFirst":            UppercaseFirst,
+		"hasPrefix":          HasPrefix,
+		"hasSuffix":          HasSuffix,
+		"trimPrefix":         TrimPrefix,
+		"trimSuffix":         TrimSuffix,
 	}
 }
 
@@ -305,16 +307,6 @@ func columnify(w int, s string) []string {
 	return lines
 }
 
-var nowActual = time.Now // use an alias, so we can redefine it in testing
-// Now returns the current time in the format "2006-01-02T15:04:05Z07:00"
-func Now(format ...string) string {
-	f := time.RFC3339
-	if len(format) > 0 {
-		f = format[0]
-	}
-	return nowActual().Format(f)
-}
-
 // SplitOn creates an array from the given string by separating it by the glue string
 func SplitOn(glue string, content string) []string {
 	return strings.Split(content, glue)
@@ -334,4 +326,24 @@ func TypeKind(value any) string {
 		return "nil"
 	}
 	return reflect.ValueOf(value).Kind().String()
+}
+
+// HasPrefix returns true if the supplied string has the given prefix
+func HasPrefix(prefix string, subject string) bool {
+	return strings.HasPrefix(subject, prefix)
+}
+
+// HasSuffix returns true if the supplied string has the given suffix
+func HasSuffix(suffix string, subject string) bool {
+	return strings.HasSuffix(subject, suffix)
+}
+
+// TrimPrefix removes the given prefix from the supplied string, or does nothing if the string doesn't have the prefix
+func TrimPrefix(prefix string, subject string) string {
+	return strings.TrimPrefix(subject, prefix)
+}
+
+// TrimSuffix removes the given suffix from the supplied string, or does nothing if the string doesn't have the suffix
+func TrimSuffix(suffix string, subject string) string {
+	return strings.TrimSuffix(subject, suffix)
 }

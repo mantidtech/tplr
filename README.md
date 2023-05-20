@@ -112,10 +112,11 @@ In addition to the [standard template functions](https://pkg.go.dev/text/templat
 * `strings` - Operations on strings (and pipelines convertable to strings)
 * `list` - Operations to operate on lists (arrays) of values
 * `logic` - Logical operations
+* `math` - mathematical operators
+* `time` - time and date methods
 * `encoding` and `decoding` - For marshalling and unmarshalling data structures
 * `templates` - Meta-functions for template  processing 
 * `console` - Operations specific to processing templates to a terminal
-
 
 ---
 ### String Operations
@@ -634,6 +635,7 @@ docs are at https://pkg.go.dev/github.com/mantidtech/tplr/functions
 
 * Greatly expand functions, including for
     * Time
+    * Numbers
     * Anything else people might find useful
 
 * Less basic error messages/presentation

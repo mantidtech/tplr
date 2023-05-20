@@ -28,7 +28,7 @@ func NewTemplate(t *testing.T, tpl string, fns template.FuncMap) *template.Templ
 // fns is a set of functions needed by the template to be rendered
 func TemplateTest(test TestSet, fns template.FuncMap) func(t *testing.T) {
 	return func(t *testing.T) {
-		// t.Helper()
+		t.Helper()
 		var got bytes.Buffer
 
 		tpl := NewTemplate(t, test.Template, fns)
