@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"strings"
 )
@@ -71,15 +70,15 @@ func FileExists(filename string) bool {
 }
 
 // ReadDataFile reads the given file into a map of interfaces
-func ReadDataFile(filename string) (map[string]interface{}, error) {
-	vars := make(map[string]interface{})
+func ReadDataFile(filename string) (map[string]any, error) {
+	vars := make(map[string]any)
 
 	dr, err := GetFileReader(filename)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open data file: %w", err)
 	}
 
-	d, err := ioutil.ReadAll(dr)
+	d, err := io.ReadAll(dr)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read data file %s: %w", filename, err)
 	}

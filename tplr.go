@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"text/template"
 
 	"github.com/mantidtech/tplr/functions"
@@ -28,7 +27,7 @@ func (t *Tplr) Load(r io.Reader) error {
 	tSet := template.New(t.name)
 	tSet.Funcs(functions.All(tSet))
 
-	b, err := ioutil.ReadAll(r)
+	b, err := io.ReadAll(r)
 	if err != nil {
 		return fmt.Errorf("failed to read template: %w", err)
 	}
@@ -43,7 +42,7 @@ func (t *Tplr) Load(r io.Reader) error {
 }
 
 // Generate text from the template and data supplied and writes it to the given Writer
-func (t *Tplr) Generate(w io.Writer, vars map[string]interface{}) error {
+func (t *Tplr) Generate(w io.Writer, vars map[string]any) error {
 	var err error
 	var f bytes.Buffer
 	err = t.Template.ExecuteTemplate(&f, t.name, vars)

@@ -5,7 +5,7 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"io/ioutil"
+	"os"
 	"strings"
 )
 
@@ -13,8 +13,7 @@ import (
 const root = "functions"
 
 func main() {
-
-	dir, err := ioutil.ReadDir(root)
+	dir, err := os.ReadDir(root)
 	if err != nil {
 		panic(err)
 	}
@@ -24,25 +23,25 @@ func main() {
 			continue
 		}
 
-		//if !IsFunctionDir(fmt.Sprintf("%s/%s", root, d.Name())) {
+		// if !IsFunctionDir(fmt.Sprintf("%s/%s", root, d.Name())) {
 		//	continue
-		//}
+		// }
 
 		fnDir := fmt.Sprintf("%s/%s", root, d.Name())
 
 		fmt.Printf("= %s\n", d.Name())
-		err := readFunctions(fnDir)
-		if err != nil {
-			panic(err)
+		errRead := readFunctions(fnDir)
+		if errRead != nil {
+			panic(errRead)
 		}
 
 	}
 
-	//d := processDirMap(dir)
-	//for dirName, dirSet := range d {
+	// d := processDirMap(dir)
+	// for dirName, dirSet := range d {
 	//	path := filepath.Join(template.Base, dirSet.Path.Directory())
 	//
-	//}
+	// }
 }
 
 /*
@@ -67,8 +66,8 @@ func readFunctions(dirName string) error {
 	for _, astPkg := range f {
 		for _, astFile := range astPkg.Files {
 			ast.Inspect(astFile, collector())
-			//fmt.Printf("-> %s %s\n", pName, astFile.Name.Name)
-			//spew.Dump(astFile)
+			// fmt.Printf("-> %s %s\n", pName, astFile.Name.Name)
+			// spew.Dump(astFile)
 		}
 	}
 

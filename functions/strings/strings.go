@@ -7,7 +7,6 @@ import (
 	"regexp"
 	"strings"
 	"text/template"
-	"time"
 	"unicode"
 	"unicode/utf8"
 
@@ -27,7 +26,6 @@ func Functions() template.FuncMap {
 		"unindent":           Unindent,
 		"kebabCase":          wordcase.KebabCase,
 		"nl":                 Newline,
-		"now":                Now,
 		"padLeft":            PadLeft,
 		"padRight":           PadRight,
 		"pascalCase":         wordcase.PascalCase,
@@ -53,6 +51,10 @@ func Functions() template.FuncMap {
 		"typeKind":           TypeKind,
 		"typeName":           TypeName,
 		"ucFirst":            UppercaseFirst,
+		"hasPrefix":          HasPrefix,
+		"hasSuffix":          HasSuffix,
+		"trimPrefix":         TrimPrefix,
+		"trimSuffix":         TrimSuffix,
 	}
 }
 
@@ -69,7 +71,7 @@ func titleCaseWithAbbrHelper(abbrev []string) wordcase.Combiner {
 }
 
 // TitleCaseWithAbbr upper-cases the first letter of each word, or the whole word if it matches a given abbreviation
-func TitleCaseWithAbbr(abbrev interface{}, word string) (string, error) {
+func TitleCaseWithAbbr(abbrev any, word string) (string, error) {
 	a, l, err := helper.ListInfo(abbrev)
 	if err != nil {
 		return "", err
@@ -85,7 +87,7 @@ func TitleCaseWithAbbr(abbrev interface{}, word string) (string, error) {
 }
 
 // UppercaseFirst converts the first character in a string to uppercase
-func UppercaseFirst(s interface{}) string {
+func UppercaseFirst(s any) string {
 	str := fmt.Sprintf("%v", s)
 	if str == "" {
 		return ""
@@ -111,39 +113,39 @@ func Tab(n int) string {
 }
 
 // PadRight prints the given string in the given number of columns, right aligned
-func PadRight(n int, s interface{}) string {
+func PadRight(n int, s any) string {
 	f := fmt.Sprintf("%%-%dv", n)
 	return fmt.Sprintf(f, s)
 }
 
 // PadLeft prints the given string in the given number of columns, left aligned
-func PadLeft(n int, s interface{}) string {
+func PadLeft(n int, s any) string {
 	f := fmt.Sprintf("%%%dv", n)
 	return fmt.Sprintf(f, s)
 }
 
 // Bracket adds brackets around the given string
-func Bracket(item interface{}) string {
+func Bracket(item any) string {
 	return fmt.Sprintf("(%v)", item)
 }
 
 // QuoteSingle adds single quote around the given string
-func QuoteSingle(item interface{}) string {
+func QuoteSingle(item any) string {
 	return fmt.Sprintf("'%v'", item)
 }
 
 // QuoteDouble adds double quote around the given string
-func QuoteDouble(item interface{}) string {
+func QuoteDouble(item any) string {
 	return fmt.Sprintf("\"%v\"", item)
 }
 
 // QuoteBack adds back-quotes around the given string
-func QuoteBack(item interface{}) string {
+func QuoteBack(item any) string {
 	return fmt.Sprintf("`%v`", item)
 }
 
 // BracketWith adds brackets of a given type around the given string
-func BracketWith(bracketPair string, item interface{}) (string, error) {
+func BracketWith(bracketPair string, item any) (string, error) {
 	if len(bracketPair)%2 != 0 {
 		return "", fmt.Errorf("expected a set of brackets with matching left and right sizes")
 	}
@@ -239,7 +241,7 @@ func Suffix(suffix string, count int, content string) string {
 
 // ToColumn formats the given text to not take more than 'w' characters per line,
 // splitting on the space before the word that would take the line over.
-// If no space can be found, the line isn't split (ie words bigger than the line size are printed unsplit)
+// If no space can be found, the line isn't split (ie words bigger than the line size are printed un-split)
 func ToColumn(width int, content string) string {
 	var b strings.Builder
 	tail := ""
@@ -305,33 +307,43 @@ func columnify(w int, s string) []string {
 	return lines
 }
 
-var nowActual = time.Now // use an alias, so we can redefine it in testing
-// Now returns the current time in the format "2006-01-02T15:04:05Z07:00"
-func Now(format ...string) string {
-	f := time.RFC3339
-	if len(format) > 0 {
-		f = format[0]
-	}
-	return nowActual().Format(f)
-}
-
 // SplitOn creates an array from the given string by separating it by the glue string
 func SplitOn(glue string, content string) []string {
 	return strings.Split(content, glue)
 }
 
 // TypeName returns the type of the given value as a string
-func TypeName(value interface{}) string {
+func TypeName(value any) string {
 	if value == nil {
 		return "nil"
 	}
 	return reflect.TypeOf(value).String()
 }
 
-// TypeKind returns the 'kind'' of the given value as a string
-func TypeKind(value interface{}) string {
+// TypeKind returns the "kind" of the given value as a string
+func TypeKind(value any) string {
 	if value == nil {
 		return "nil"
 	}
 	return reflect.ValueOf(value).Kind().String()
+}
+
+// HasPrefix returns true if the supplied string has the given prefix
+func HasPrefix(prefix string, subject string) bool {
+	return strings.HasPrefix(subject, prefix)
+}
+
+// HasSuffix returns true if the supplied string has the given suffix
+func HasSuffix(suffix string, subject string) bool {
+	return strings.HasSuffix(subject, suffix)
+}
+
+// TrimPrefix removes the given prefix from the supplied string, or does nothing if the string doesn't have the prefix
+func TrimPrefix(prefix string, subject string) string {
+	return strings.TrimPrefix(subject, prefix)
+}
+
+// TrimSuffix removes the given suffix from the supplied string, or does nothing if the string doesn't have the suffix
+func TrimSuffix(suffix string, subject string) string {
+	return strings.TrimSuffix(subject, suffix)
 }

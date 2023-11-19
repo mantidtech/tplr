@@ -2,7 +2,6 @@ package tplr
 
 import (
 	"io"
-	"io/ioutil"
 	"os"
 	"testing"
 
@@ -76,7 +75,7 @@ func TestGetFileReader(t *testing.T) {
 			}
 
 			if tt.wantContent != nil {
-				d, err := ioutil.ReadAll(gotIoReader)
+				d, err := io.ReadAll(gotIoReader)
 				require.NoError(t, err)
 				assert.Equal(t, tt.wantContent, d)
 			}
@@ -215,7 +214,7 @@ func TestReadDataFile(t *testing.T) {
 	tests := []struct {
 		name                   string
 		args                   Args
-		wantMapStringInterface map[string]interface{}
+		wantMapStringInterface map[string]any
 		wantError              bool
 	}{
 		{
@@ -223,7 +222,7 @@ func TestReadDataFile(t *testing.T) {
 			args: Args{
 				filename: "testdata/simple.json",
 			},
-			wantMapStringInterface: map[string]interface{}{
+			wantMapStringInterface: map[string]any{
 				"one": "foo",
 				"two": "bar",
 			},
@@ -268,7 +267,7 @@ func TestReadStringsAsFile(t *testing.T) {
 	}
 
 	testIO := func(reader io.Reader) (string, error) {
-		b, err := ioutil.ReadAll(reader)
+		b, err := io.ReadAll(reader)
 		if err != nil {
 			return "", err
 		}

@@ -112,10 +112,11 @@ In addition to the [standard template functions](https://pkg.go.dev/text/templat
 * `strings` - Operations on strings (and pipelines convertable to strings)
 * `list` - Operations to operate on lists (arrays) of values
 * `logic` - Logical operations
+* `math` - mathematical operators
+* `time` - time and date methods
 * `encoding` and `decoding` - For marshalling and unmarshalling data structures
 * `templates` - Meta-functions for template  processing 
 * `console` - Operations specific to processing templates to a terminal
-
 
 ---
 ### String Operations
@@ -497,10 +498,6 @@ Adds an item to the end of a list, returning the new list.
 
 Adds an item to the start of a list, returning the list.
 
-* #### `{{ slice I J LIST }}`
-
-Returns a slice of the `LIST`, ie all items between indexes `I` (inclusive) and `J` (exclusive).
-
 * #### `{{ contains LIST ITEM }}`
 
 Returns `true` if the item are present in the list.
@@ -527,7 +524,7 @@ Equivalent to `{{ joinWith "" ARG }}`.
 
 Returns `true` if the pipeline is empty (ie the `zero` value of its type) OR
 if it's a pointer and the dereferenced value is zero, OR
-if the type of the pipeline has a `length` (eg array, slice, map, string), and the length is zero
+if the type of the pipeline has a `length` (e.g. array, slice, map, string), and the length is zero
 
 * #### `{{ and ARG_1...ARG_n }}`
 
@@ -638,6 +635,7 @@ docs are at https://pkg.go.dev/github.com/mantidtech/tplr/functions
 
 * Greatly expand functions, including for
     * Time
+    * Numbers
     * Anything else people might find useful
 
 * Less basic error messages/presentation

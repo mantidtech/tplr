@@ -4,9 +4,11 @@ import (
 	"text/template"
 
 	"github.com/mantidtech/tplr/functions/console"
+	"github.com/mantidtech/tplr/functions/datetime"
 	"github.com/mantidtech/tplr/functions/encoding"
 	"github.com/mantidtech/tplr/functions/list"
 	"github.com/mantidtech/tplr/functions/logic"
+	"github.com/mantidtech/tplr/functions/math"
 	"github.com/mantidtech/tplr/functions/strings"
 	"github.com/mantidtech/tplr/functions/templates"
 )
@@ -14,11 +16,13 @@ import (
 // All returns all the templating functions
 func All(t *template.Template) template.FuncMap {
 	return CombineFunctionLists(
-		console.Functions(),
-		encoding.Functions(),
+		strings.Functions(),
 		list.Functions(),
 		logic.Functions(),
-		strings.Functions(),
+		math.Functions(),
+		datetime.Functions(),
+		encoding.Functions(),
+		console.Functions(),
 		templates.Functions(t),
 	)
 }
