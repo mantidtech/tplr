@@ -1,3 +1,4 @@
+// Package list provides methods for manipulating lists in templates
 package list
 
 import (

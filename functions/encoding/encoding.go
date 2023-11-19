@@ -1,3 +1,4 @@
+// Package encoding provides template methods related to various data encodings
 package encoding
 
 import (

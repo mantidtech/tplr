@@ -1,3 +1,4 @@
+// Package logic provides conditional operations for templates
 package logic
 
 import (

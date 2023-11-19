@@ -1,3 +1,4 @@
+// Package strings provides methods for manipulating strings in templates
 package strings
 
 import (
@@ -288,15 +289,15 @@ func columnify(w int, s string) []string {
 			break
 		}
 
-		// look backwards for a space
+		//revive:disable-next-line:empty-block
 		for ; i > at && s[i] != ' '; i-- {
-			// just keep stepping
+			// looking backwards for a space
 		}
 
 		if i == at { // didn't find one
-			// look forwards for a space
+			//revive:disable-next-line:empty-block
 			for i = at + w; i < len(s) && s[i] != ' '; i++ {
-				// just keep stepping
+				// looking forwards for a space
 			}
 		}
 

@@ -6,7 +6,6 @@ import (
 
 	"github.com/mantidtech/tplr/functions/helper"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func init() {
@@ -51,17 +50,19 @@ func TestTimeFormat(t *testing.T) {
 	tests := []helper.TestSet{
 		{
 			Name:     "RFC3339",
-			Template: `{{ timeFormat "2006-01-02T15:04:05Z07:00" .S }}`,
+			Template: `{{ timeFormat .F .T }}`,
 			Args: helper.TestArgs{
-				"S": time.Date(2023, 05, 18, 21, 00, 51, 0, time.UTC),
+				"F": "2006-01-02T15:04:05Z07:00",
+				"T": time.Date(2023, 05, 18, 21, 00, 51, 0, time.UTC),
 			},
 			Want: "2023-05-18T21:00:51Z",
 		},
 		{
 			Name:     "RFC822",
-			Template: `{{ timeFormat "02 Jan 06 15:04 UTC" .S }}`,
+			Template: `{{ timeFormat .F .T }}`,
 			Args: helper.TestArgs{
-				"S": time.Date(2023, 05, 18, 21, 00, 51, 0, time.UTC),
+				"F": "02 Jan 06 15:04 UTC",
+				"T": time.Date(2023, 05, 18, 21, 00, 51, 0, time.UTC),
 			},
 			Want: "18 May 23 21:00 UTC",
 		},
@@ -74,32 +75,29 @@ func TestTimeFormat(t *testing.T) {
 
 // TestTimeParse provides unit test coverage for TimeParse.
 func TestTimeParse(t *testing.T) {
-	type Args struct {
-		format string
-		ts     string
+	tests := []helper.TestSet{
+		{
+			Name:     "RFC3339",
+			Template: `{{ timeParse .F .T }}`,
+			Args: helper.TestArgs{
+				"F": "2006-01-02T15:04:05",
+				"T": "2023-05-18T21:00:51",
+			},
+			Want: "2023-05-18 21:00:51 +0000 UTC",
+		},
+		{
+			Name:     "RFC822",
+			Template: `{{ timeParse .F .T }}`,
+			Args: helper.TestArgs{
+				"F": "2006-01-02T15:04:05Z",
+				"T": "2023-05-18T21:00:51Z",
+			},
+			Want: "2023-05-18 21:00:51 +0000 UTC",
+		},
 	}
 
-	tests := []struct {
-		name         string
-		args         Args
-		wantTimeTime time.Time
-		wantError    bool
-	}{
-		// table test data goes here
-	}
-
-	for _, tx := range tests {
-		tc := tx
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-			gotTimeTime, gotError := TimeParse(tc.args.format, tc.args.ts)
-			if tc.wantError {
-				require.Error(t, gotError)
-				return
-			}
-			require.NoError(t, gotError)
-			assert.Equal(t, tc.wantTimeTime, gotTimeTime)
-		})
+	for _, tt := range tests {
+		t.Run(tt.Name, helper.TemplateTest(tt, Functions()))
 	}
 }
 

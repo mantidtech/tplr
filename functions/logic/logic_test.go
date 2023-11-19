@@ -170,7 +170,7 @@ func TestIsZero(t *testing.T) {
 			Name:     "pointer zero int",
 			Template: `{{ isZero .value }}`,
 			Args: helper.TestArgs{
-				"value": helper.PtrToInt(0),
+				"value": helper.PtrTo(0),
 			},
 			Want: "false",
 		},
@@ -178,7 +178,7 @@ func TestIsZero(t *testing.T) {
 			Name:     "pointer non-zero int",
 			Template: `{{ isZero .value }}`,
 			Args: helper.TestArgs{
-				"value": helper.PtrToInt(-82),
+				"value": helper.PtrTo(-82),
 			},
 			Want: "false",
 		},

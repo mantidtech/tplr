@@ -1,8 +1,8 @@
 package helper
 
-// PtrToInt returns a pointer to a copy of the given integer
-func PtrToInt(i int) *int {
-	r := new(int)
-	*r = i
+// PtrTo returns a pointer to a copy of the given parameter
+func PtrTo[T any](t T) *T {
+	r := new(T)
+	*r = t
 	return r
 }

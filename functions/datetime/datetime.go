@@ -1,3 +1,4 @@
+// Package datetime provides methods for manipulating dates and times in templates
 package datetime
 
 import (
@@ -7,6 +8,7 @@ import (
 	"github.com/mantidtech/tplr/functions/helper"
 )
 
+// Format is the default format to use for timestamps
 const Format = time.RFC3339
 
 // Functions operate on time and dates
@@ -29,18 +31,22 @@ func Now(format ...string) string {
 	return helper.Now().Format(f)
 }
 
+// TimeFormat formats the given timestamp with the given format
 func TimeFormat(format string, ts time.Time) string {
 	return ts.Format(format)
 }
 
+// TimeParse parses the given string using the given format
 func TimeParse(format string, ts string) (time.Time, error) {
 	return time.Parse(format, ts)
 }
 
+// TimeToUnix converts the given timestamp to the number of seconds since the unix epoch
 func TimeToUnix(ts time.Time) int64 {
 	return ts.Unix()
 }
 
+// UnixToTime converts the given number of seconds, as a unix epoch, to a timestamp
 func UnixToTime(s int) time.Time {
 	return time.Unix(int64(s), 0)
 }

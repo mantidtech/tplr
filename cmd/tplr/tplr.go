@@ -3,6 +3,25 @@
 // install with: go install github.com/mantidtech/tplr/cmd/tplr@latest
 //
 // see https://github.com/mantidtech/tplr for documentation
+//
+// Usage: tplr [-f] [-o <output file>] [-d <data file>] [-t <template file>] [inline template]
+// Usage: tplr [-h|-v]
+//
+// Where:
+//
+//	-o <output file>   is a file to write to (default: stdout)
+//	-d <data file>     is a json file containing the templated variables (default: stdin)
+//	-t <template file> is a file using the go templating notation.
+//	   If this is not specified, the template is taken from the remaining program args
+//
+// Options:
+//
+//	-f If the destination file already exits, overwrite it.  (default is to do nothing)
+//
+// Information:
+//
+//	-h Prints this message
+//	-v Prints the program version number and exits
 package main
 
 import (
@@ -18,7 +37,8 @@ import (
 const templateName = "tplr"
 
 func main() {
-	s := flag.NewFlagSet("tplr args", flag.ExitOnError)
+	s := flag.NewFlagSet("tplr", flag.ExitOnError)
+	s.Usage = showHelp
 
 	templateFile := s.String("t", "", "Read the template from the file with the given name")
 	dataFile := s.String("d", "-", "File to read data from")
@@ -75,21 +95,22 @@ func main() {
 func showHelp() {
 	_, app := path.Split(os.Args[0])
 	fmt.Printf("%s version %s\n\n", app, tplr.Version())
-	fmt.Printf("Usage: %s [-f] [-o <output file>] [-d <data file>] [-t <template file>] [inline template]\n", app)
-	fmt.Printf("Usage: %s [-h|-v]\n", app)
+	fmt.Printf("Usage:\n")
+	fmt.Printf("\t%s [-f] [-o <output file>] [-d <data file>] [-t <template file>] [inline template]\n", app)
+	fmt.Printf("\t%s [-h|-v]\n", app)
 	fmt.Print("\n")
-	fmt.Printf("Where:\n")
-	fmt.Printf("  -o <output file>   is a file to write to (default: stdout)\n")
-	fmt.Printf("  -d <data file>     is a json file containing the templated variables (default: stdin)\n")
-	fmt.Printf("  -t <template file> is a file using the go templating notation.\n")
-	fmt.Printf("     If this is not specified, the template is taken from the remaining program args\n")
-	fmt.Print("\n")
-	fmt.Printf("Options:\n")
-	fmt.Printf("  -f If the destination file already exits, overwrite it.  (default is to do nothing)\n")
-	fmt.Print("\n")
-	fmt.Printf("Information:\n")
-	fmt.Printf("  -h Prints this messge\n")
-	fmt.Printf("  -v Prints the program version number and exits\n")
+	fmt.Printf("\tWhere:\n")
+	fmt.Printf("\t\t-o <output file>   is a file to write to (default: stdout)\n")
+	fmt.Printf("\t\t-d <data file>     is a json file containing the templated variables (default: stdin)\n")
+	fmt.Printf("\t\t-t <template file> is a file using the go templating notation.\n")
+	fmt.Printf("\t\t   If this is not specified, the template is taken from the remaining program args\n")
+	fmt.Print("\t\n")
+	fmt.Printf("\tOptions:\n")
+	fmt.Printf("\t\t-f If the destination file already exits, overwrite it.  (default is to do nothing)\n")
+	fmt.Print("\t\n")
+	fmt.Printf("\tInformation:\n")
+	fmt.Printf("\t\t-h Prints this message\n")
+	fmt.Printf("\t\t-v Prints the program version number and exits\n")
 }
 
 func errorAndExit(msg string, args ...any) {

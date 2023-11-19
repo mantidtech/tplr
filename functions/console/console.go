@@ -1,3 +1,4 @@
+// Package console provides methods for unix terminal operations
 package console
 
 import (

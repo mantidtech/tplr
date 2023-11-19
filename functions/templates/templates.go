@@ -1,3 +1,4 @@
+// Package templates provides methods for operating on templates
 package templates
 
 import (

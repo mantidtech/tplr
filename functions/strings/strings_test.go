@@ -622,7 +622,7 @@ func TestTypeName(t *testing.T) {
 			Name:     "*int",
 			Template: `{{ typeName .Val }}`,
 			Args: helper.TestArgs{
-				"Val": helper.PtrToInt(10),
+				"Val": helper.PtrTo(10),
 			},
 			Want: "*int",
 		},
@@ -678,7 +678,7 @@ func TestTypeKind(t *testing.T) {
 			Name:     "*int",
 			Template: `{{ typeKind .Val }}`,
 			Args: helper.TestArgs{
-				"Val": helper.PtrToInt(10),
+				"Val": helper.PtrTo(10),
 			},
 			Want: "ptr",
 		},
@@ -945,100 +945,160 @@ func TestQuoteBack(t *testing.T) {
 
 // TestHasPrefix provides unit test coverage for HasPrefix.
 func TestHasPrefix(t *testing.T) {
-	type Args struct {
-		prefix  string
-		subject string
+	tests := []helper.TestSet{
+		{
+			Name:     "empty",
+			Template: "{{- hasPrefix .P .I -}}",
+			Args: helper.TestArgs{
+				"P": "",
+				"I": "",
+			},
+			Want:    "true",
+			WantErr: false,
+		},
+		{
+			Name:     "affirmative",
+			Template: "{{- hasPrefix .P .I -}}",
+			Args: helper.TestArgs{
+				"P": "xxx",
+				"I": "xxxXXX",
+			},
+			Want:    "true",
+			WantErr: false,
+		},
+		{
+			Name:     "negative",
+			Template: "{{- hasPrefix .P .I -}}",
+			Args: helper.TestArgs{
+				"P": "xxx",
+				"I": "yyyXXX",
+			},
+			Want:    "false",
+			WantErr: false,
+		},
 	}
 
-	tests := []struct {
-		name     string
-		args     Args
-		wantBool bool
-	}{
-		// table test data goes here
-	}
-
-	for _, ts := range tests {
-		tc := ts
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-			gotBool := HasPrefix(tc.args.prefix, tc.args.subject)
-			assert.Equal(t, tc.wantBool, gotBool)
-		})
+	for _, tt := range tests {
+		t.Run(tt.Name, helper.TemplateTest(tt, Functions()))
 	}
 }
 
 // TestHasSuffix provides unit test coverage for HasSuffix.
 func TestHasSuffix(t *testing.T) {
-	type Args struct {
-		suffix  string
-		subject string
+	tests := []helper.TestSet{
+		{
+			Name:     "empty",
+			Template: "{{- hasSuffix .P .I -}}",
+			Args: helper.TestArgs{
+				"P": "",
+				"I": "",
+			},
+			Want:    "true",
+			WantErr: false,
+		},
+		{
+			Name:     "affirmative",
+			Template: "{{- hasSuffix .S .I -}}",
+			Args: helper.TestArgs{
+				"S": "xxx",
+				"I": "XXXxxx",
+			},
+			Want:    "true",
+			WantErr: false,
+		},
+		{
+			Name:     "negative",
+			Template: "{{- hasSuffix .S .I -}}",
+			Args: helper.TestArgs{
+				"S": "xxx",
+				"I": "XXXyyy",
+			},
+			Want:    "false",
+			WantErr: false,
+		},
 	}
 
-	tests := []struct {
-		name     string
-		args     Args
-		wantBool bool
-	}{
-		// table test data goes here
-	}
-
-	for _, ts := range tests {
-		tc := ts
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-			gotBool := HasSuffix(tc.args.suffix, tc.args.subject)
-			assert.Equal(t, tc.wantBool, gotBool)
-		})
+	for _, tt := range tests {
+		t.Run(tt.Name, helper.TemplateTest(tt, Functions()))
 	}
 }
 
 // TestTrimPrefix provides unit test coverage for TrimPrefix.
 func TestTrimPrefix(t *testing.T) {
-	type Args struct {
-		prefix  string
-		subject string
+	tests := []helper.TestSet{
+		{
+			Name:     "empty",
+			Template: "{{- trimPrefix .P .I -}}",
+			Args: helper.TestArgs{
+				"P": "",
+				"I": "",
+			},
+			Want:    "",
+			WantErr: false,
+		},
+		{
+			Name:     "affirmative",
+			Template: "{{- trimPrefix .P .I -}}",
+			Args: helper.TestArgs{
+				"P": "xxx",
+				"I": "xxxXXX",
+			},
+			Want:    "XXX",
+			WantErr: false,
+		},
+		{
+			Name:     "negative",
+			Template: "{{- trimPrefix .P .I -}}",
+			Args: helper.TestArgs{
+				"P": "xxx",
+				"I": "yyyXXX",
+			},
+			Want:    "yyyXXX",
+			WantErr: false,
+		},
 	}
 
-	tests := []struct {
-		name       string
-		args       Args
-		wantString string
-	}{
-		// table test data goes here
-	}
-
-	for _, ts := range tests {
-		tc := ts
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-			gotString := TrimPrefix(tc.args.prefix, tc.args.subject)
-			assert.Equal(t, tc.wantString, gotString)
-		})
+	for _, tt := range tests {
+		t.Run(tt.Name, helper.TemplateTest(tt, Functions()))
 	}
 }
 
 // TestTrimSuffix provides unit test coverage for TrimSuffix.
 func TestTrimSuffix(t *testing.T) {
-	type Args struct {
-		suffix  string
-		subject string
+	tests := []helper.TestSet{
+		{
+			Name:     "empty",
+			Template: "{{- trimSuffix .S .I -}}",
+			Args: helper.TestArgs{
+				"S": "",
+				"I": "",
+			},
+			Want:    "",
+			WantErr: false,
+		},
+		{
+			Name:     "affirmative",
+			Template: "{{- trimSuffix .S .I -}}",
+			Args: helper.TestArgs{
+				"S": "xxx",
+				"I": "XXXxxx",
+			},
+			Want:    "XXX",
+			WantErr: false,
+		},
+		{
+			Name:     "negative",
+			Template: "{{- trimSuffix .S .I -}}",
+			Args: helper.TestArgs{
+				"S": "xxx",
+				"I": "XXXyyy",
+			},
+			Want:    "XXXyyy",
+			WantErr: false,
+		},
 	}
 
-	tests := []struct {
-		name       string
-		args       Args
-		wantString string
-	}{
-		// table test data goes here
-	}
-
-	for _, ts := range tests {
-		tc := ts
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-			gotString := TrimSuffix(tc.args.suffix, tc.args.subject)
-			assert.Equal(t, tc.wantString, gotString)
-		})
+	for _, tt := range tests {
+		t.Run(tt.Name, helper.TemplateTest(tt, Functions()))
 	}
 }

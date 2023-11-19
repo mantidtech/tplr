@@ -17,6 +17,14 @@ func TestFunctions(t *testing.T) {
 func TestAdd(t *testing.T) {
 	tests := []helper.TestSet{
 		{
+			Name:     "not a number",
+			Template: "{{- add .A -}}",
+			Args: helper.TestArgs{
+				"A": "x",
+			},
+			WantErr: true,
+		},
+		{
 			Name:     "zero",
 			Template: "{{- add -}}",
 			Args:     helper.TestArgs{},
@@ -84,6 +92,14 @@ func TestAdd(t *testing.T) {
 // TestSubtract provides unit test coverage for Subtract.
 func TestSubtract(t *testing.T) {
 	tests := []helper.TestSet{
+		{
+			Name:     "not a number",
+			Template: "{{- sub .A -}}",
+			Args: helper.TestArgs{
+				"A": "x",
+			},
+			WantErr: true,
+		},
 		{
 			Name:     "zero",
 			Template: "{{- sub -}}",
@@ -153,6 +169,14 @@ func TestSubtract(t *testing.T) {
 func TestMultiply(t *testing.T) {
 	tests := []helper.TestSet{
 		{
+			Name:     "not a number",
+			Template: "{{- mult .A -}}",
+			Args: helper.TestArgs{
+				"A": "x",
+			},
+			WantErr: true,
+		},
+		{
 			Name:     "zero",
 			Template: "{{- mult -}}",
 			Args:     helper.TestArgs{},
@@ -221,6 +245,14 @@ func TestMultiply(t *testing.T) {
 func TestDivide(t *testing.T) {
 	tests := []helper.TestSet{
 		{
+			Name:     "not a number",
+			Template: "{{- div .A -}}",
+			Args: helper.TestArgs{
+				"A": "x",
+			},
+			WantErr: true,
+		},
+		{
 			Name:     "zero",
 			Template: "{{- div -}}",
 			Args:     helper.TestArgs{},
@@ -288,6 +320,14 @@ func TestDivide(t *testing.T) {
 // TestAbs provides unit test coverage for Abs.
 func TestAbs(t *testing.T) {
 	tests := []helper.TestSet{
+		{
+			Name:     "not a number",
+			Template: "{{- abs .A -}}",
+			Args: helper.TestArgs{
+				"A": "x",
+			},
+			WantErr: true,
+		},
 		{
 			Name:     "one",
 			Template: "{{- abs .A -}}",

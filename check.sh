@@ -85,7 +85,7 @@ function process_stage_fmt() {
     files+=("${filename}")
   done < <(find . -name '*.go' -not -name '*.pb.go' -not -path '*/vendor/*')
   for f in "${files[@]}"; do
-    sed -i "" -e '/import (/,/)/{/\/\//,/^$/N;/^$/d;}' "${f}"
+    sed -i -e '/import (/,/)/{/\/\//,/^$/N;/^$/d;}' "${f}"
     goimports -w -local code.mantid.org "${f}"
   done
 }
