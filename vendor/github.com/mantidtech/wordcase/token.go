@@ -30,7 +30,8 @@ func (t Tokens) Format(fn Formatter, items TokenSelector) Tokens {
 }
 
 // FormatAll applies to the given function to all tokens.
-//  convenience function that does the same as t.Format(fn, ToAll(t)) (just faster and less verbosely)
+//
+//	convenience function that does the same as t.Format(fn, ToAll(t)) (just faster and less verbosely)
 func (t Tokens) FormatAll(fn Formatter) Tokens {
 	var r Tokens
 	for _, x := range t {

@@ -18,11 +18,13 @@ func NotLetterOrDigit(r rune) bool {
 }
 
 // SeparatorTest determines if the given index in the given string is a token separator.
-//   By having the whole parse text as reference, smarter tests can be performed using lookahead/lookbehind along with the IsRuneSeparator test.
+//
+//	By having the whole parse text as reference, smarter tests can be performed using lookahead/lookbehind along with the IsRuneSeparator test.
 type SeparatorTest func(word string, idx int, test IsRuneSeparator) bool
 
 // LookAroundCategorizer considers a rune to be a separator if it passes test(c),
-//  but also if both the preceding and succeeding runes are NOT separators
+//
+//	but also if both the preceding and succeeding runes are NOT separators
 func LookAroundCategorizer(word string, idx int, test IsRuneSeparator) bool {
 	w := []rune(word)
 

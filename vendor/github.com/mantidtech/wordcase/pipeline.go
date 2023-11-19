@@ -11,9 +11,10 @@ func NewPipeline() Pipeline {
 }
 
 // TokenizeUsing uses the given functions to create tokens.
-//  SeparatorTest holds the logic on deciding if we're going to split on a given rune
-//  IsRuneSeparator determines if we consider a give rune a separator
-//  set del to true to delete the separating rune, or false to make it part of the next token
+//
+//	SeparatorTest holds the logic on deciding if we're going to split on a given rune
+//	IsRuneSeparator determines if we consider a give rune a separator
+//	set del to true to delete the separating rune, or false to make it part of the next token
 func (f Pipeline) TokenizeUsing(test SeparatorTest, sep IsRuneSeparator, del bool) Pipeline {
 	return func(s string) Tokens {
 		t := f(s)

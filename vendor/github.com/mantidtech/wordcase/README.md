@@ -1,4 +1,4 @@
-# wordcase
+# Wordcase
 
 The wordcase package provides methods for converting words to different "casing" forms, eg:
 * SnakeCase
@@ -27,7 +27,8 @@ eg, to create a title casing method you could do something like:
 ```
 
 
-This package is pretty much overkill, but it does handle a bunch of edge cases pretty nicely (that's hard to do with straight regex substitution).
+This package is pretty much overkill, but it does handle a bunch of edge cases pretty nicely 
+(that's hard to do with straight regex substitution).
 
 \* exactly-ish 
 
@@ -35,7 +36,8 @@ This package is pretty much overkill, but it does handle a bunch of edge cases p
 ## Functions
 
 The package contains some example pipelines for common conversions.  
-If the methods don't behave exactly how you'd like, you can copy the pipelines from the standalone.go file and modify them to suit.
+If the methods don't behave exactly how you'd like, you can copy the pipelines 
+from the standalone.go file and modify them to suit.
 
 ### SnakeCase
 
@@ -75,7 +77,7 @@ eg
 
 ### Words
 
-Converts an otherly "cased" string into words separated by spaces (actual case of each word left untouched)
+Converts an "otherly-cased" string into words separated by spaces (actual case of each word left untouched)
 
 eg
 
@@ -85,8 +87,8 @@ eg
 
 Converts each word in a string to uppercase.
 
-Note: there's a `Title` function in [strings](https://pkg.go.dev/strings?tab=doc#Title) which may be what you want if you don't want non-alphanumeric characters stripped, 
-or your string is already broken into space-separated words
+Note: there's a `Title` function in [strings](https://pkg.go.dev/strings?tab=doc#Title) which may be what you want if you don't want 
+non-alphanumeric characters stripped, or your string is already broken into space-separated words
 
 eg
 

@@ -6,8 +6,8 @@ import (
 )
 
 // TokenSelector is a function given a set of tokens, returns an array of
-//  indices to the token matching a condition defined in the function
 //
+//	indices to the token matching a condition defined in the function
 type TokenSelector func(t Tokens) []int
 
 // ToFirst returns the index of the first token
